@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import { Providers } from "@/providers/providers";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +17,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {" "}
+        <Script id="axeptio-sdk" strategy="beforeInteractive">
+          {`
+            window.axeptioSettings = {
+              clientId: "68307104da135f22c9435963",
+              cookiesVersion: "github/ondongo/d-via-fr-CA-QC"
+            };
+            (function(d,s) {
+              var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
+              e.async = true; e.src = "//static.axept.io/sdk.js";
+              t.parentNode.insertBefore(e, t);
+            })(document, "script");
+          `}
+        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>
