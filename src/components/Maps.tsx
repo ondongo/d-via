@@ -61,7 +61,7 @@ const MapComponent: React.FC = () => {
   };
 
   return (
-    <div className="relative h-[705px] max-w-[879px]">
+    <div className="relative h-[705px] max-w-[879px] shadow-lg   border-2 border-dvianeutral-50 rounded-12px overflow-hidden">
       <MapContainer
         center={[latitude, longitude]}
         zoom={13}

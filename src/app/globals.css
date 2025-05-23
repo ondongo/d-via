@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
 
 :root {
   /* Couleurs de base */
@@ -10,7 +10,56 @@
   /* Polices de caractères */
   --font-title: "Sunborn Sans One", sans-serif;
   --font-body: Arial, sans-serif;
-  --font-roboto: 'Roboto', sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+
+  /* Tailles de police */
+  --text-display-large: 3.5625rem; /* 57px */
+  --text-display-medium: 2.8125rem; /* 45px */
+  --text-display-small: 2.25rem; /* 36px */
+  --text-headline-large: 2rem; /* 32px */
+  --text-headline-medium: 1.75rem; /* 28px */
+  --text-headline-small: 1.5rem; /* 24px */
+  --text-title-small: 0.875rem; /* 14px */
+  --text-label-large: 0.875rem; /* 14px */
+  --text-label-medium: 0.75rem; /* 12px */
+  --text-label-small: 0.6875rem; /* 11px */
+  --text-body-large: 1rem; /* 16px */
+  --text-body-medium: 0.875rem; /* 14px */
+  --text-body-small: 0.75rem; /* 12px */
+
+  /* Interlignes */
+  --leading-display-large: 4rem; /* 64px */
+  --leading-display-medium: 3.25rem; /* 52px */
+  --leading-display-small: 2.75rem; /* 44px */
+  --leading-headline-large: 2.5rem; /* 40px */
+  --leading-headline-medium: 2.25rem; /* 36px */
+  --leading-headline-small: 2rem; /* 32px */
+  --leading-title-small: 1.25rem; /* 20px */
+  --leading-label-large: 1.25rem; /* 20px */
+  --leading-label-medium: 1rem; /* 16px */
+  --leading-label-small: 1rem; /* 16px */
+  --leading-body-large: 1.5rem; /* 24px */
+  --leading-body-medium: 1.25rem; /* 20px */
+  --leading-body-small: 1rem; /* 16px */
+
+  /* Espacement des lettres */
+  --tracking-display-large: -0.25em;
+  --tracking-display-medium: 0;
+  --tracking-display-small: 0;
+  --tracking-headline-large: 0;
+  --tracking-headline-medium: 0;
+  --tracking-headline-small: 0;
+  --tracking-title-small: 0.1em;
+  --tracking-label-large: 0.1em;
+  --tracking-label-medium: 0.5em;
+  --tracking-label-small: 0.5em;
+  --tracking-body-large: 0.5em;
+  --tracking-body-medium: 0.25em;
+  --tracking-body-small: 0.4em;
+
+  /* Graisse de la police */
+  --font-weight-roboto-medium: 500;
+  --font-weight-roboto-regular: 400;
 
   /* Couleurs primaires */
   --color-dviaprimary-0: #f7f8ff;
@@ -176,6 +225,7 @@ body {
   font-family: var(--font-roboto);
 }
 
+/* Appliquer Roboto à tous les titres */
 h1,
 h2,
 h3,
@@ -184,6 +234,8 @@ h5,
 h6 {
   font-family: var(--font-roboto);
 }
+
+
 
 @keyframes marquee {
   0% {

@@ -6,8 +6,8 @@ export const LeftSection = () => {
 
   const city = currentLocation?.city || "Paris";
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center space-y-6 px-4">
-      <h1 className="text-4xl md:text-5xl font-roboto font-bold text-dvianeutral-10 leading-snug text-center">
+    <div className="w-full h-full flex flex-col justify-center items-center px-4">
+      <h1 className="text-4xl md:text-5xl text-display-large font-roboto font-bold leading-display-large  text-dvianeutral-10 text-center">
         Votre inscription pourrait
         <br />
         vous rapporter <span className="text-dviaprimary-40">35 Clients</span>
@@ -15,24 +15,24 @@ export const LeftSection = () => {
         avec <span className="text-dvianeutral-10">D-VIA</span>
       </h1>
 
-      <p className="text-dvianeutral-10 text-base md:text-lg">
+      <p className="text-dvianeutral-10 text-base md:text-lg mt-4">
         <a href="#" className="underline font-bold">
           10 km
         </a>
-        <span className="font-bold"> · </span> Autour de chez vous
+        <span className="font-light"> · </span> Autour de chez vous
       </p>
 
       <a
         href="#"
-        className="text-dvianeutralvariant-30 underline text-sm font-bold"
+        className="text-dvianeutralvariant-30 underline text-md leading-display-medium tracking-title-small mb-4"
       >
         Comprendre l&apos;estimation clients
       </a>
 
       {/* Slider */}
       <div className="relative mt-10 max-w-[349px] w-full">
-        <div className="absolute -top-10 left-[30%] transform -translate-x-1/2">
-          <div className="bg-dviaprimary-40 text-white px-3 py-1.5 rounded-full text-sm">
+        <div className="absolute -top-13 left-[30%] transform -translate-x-1/2">
+          <div className="bg-dviaprimary-40 text-white px-3.5 py-2.5 rounded-full text-sm font-bold">
             10 Km
           </div>
         </div>
