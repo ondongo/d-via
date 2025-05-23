@@ -114,7 +114,7 @@ const MapComponent: React.FC = () => {
         <button
           onClick={refreshLocation}
           className="bg-dvianeutral-92 text-dvianeutral-10 px-4 py-2 shadow-lg border rounded-12px border-transparent text-sm font-medium
-               hover:shadow-sm transition-shadow duration-300 cursor-pointer"
+               hover:shadow-sm transition-shadow duration-300 cursor-pointer tracking-label-large"
         >
           Découvrir zone autour de chez vous
         </button>

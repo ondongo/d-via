@@ -43,19 +43,19 @@
   --leading-body-small: 1rem; /* 16px */
 
   /* Espacement des lettres */
-  --tracking-display-large: -0.25em;
+  --tracking-display-large: -0.25px;
   --tracking-display-medium: 0;
   --tracking-display-small: 0;
   --tracking-headline-large: 0;
   --tracking-headline-medium: 0;
   --tracking-headline-small: 0;
-  --tracking-title-small: 0.1em;
-  --tracking-label-large: 0.1em;
-  --tracking-label-medium: 0.5em;
-  --tracking-label-small: 0.5em;
-  --tracking-body-large: 0.5em;
-  --tracking-body-medium: 0.25em;
-  --tracking-body-small: 0.4em;
+  --tracking-title-small: 0.1px;
+  --tracking-label-large: 0.1px;
+  --tracking-label-medium: 0.5px;
+  --tracking-label-small: 0.5px;
+  --tracking-body-large: 0.5px;
+  --tracking-body-medium: 0.25px;
+  --tracking-body-small: 0.4px;
 
   /* Graisse de la police */
   --font-weight-roboto-medium: 500;
