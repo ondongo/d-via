@@ -10,10 +10,12 @@ export const LocationContext = createContext<{
   locationsContext: any[] | null;
   currentLocation: any | null;
   refreshLocation: () => void;
+  coords: { latitude: number; longitude: number } | null;
 }>({
   locationsContext: null,
   currentLocation: null,
   refreshLocation: () => {},
+  coords: null,
 });
 
 export const useLocationContext = () => {
@@ -24,6 +26,7 @@ export const useLocationContext = () => {
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [locationsContext, setLocationsContext] = useState<any[]>([]);
   const [currentLocation, setCurrentLocation] = useState<any>();
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const getAddressFromCoordinates = async (
     latitude: number,
@@ -34,24 +37,29 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
       );
 
-      if (!response.ok) {
-        throw new Error("Réponse du serveur non valide");
-      }
+      if (!response.ok) throw new Error("Réponse du serveur non valide");
 
       const data = await response.json();
       if (data.address) {
         const country = data.address.country;
         const region = data.address.state;
-        const city = data.address.city;
+        const city = data.address.city || data.address.town || data.address.village;
         const countryCode = data.address.country_code;
 
-        const locationObj = { country, region, city, countryCode, latitude, longitude };
+        const locationObj = {
+          country,
+          region,
+          city,
+          countryCode,
+          latitude,
+          longitude,
+        };
 
         setCurrentLocation(locationObj);
         setLocationsContext([locationObj]);
       }
     } catch (error) {
-      console.error("Error while retrieving data", error);
+      console.error("Erreur lors de la récupération de l'adresse", error);
     }
   };
 
@@ -60,23 +68,22 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          getAddressFromCoordinates(latitude, longitude);
+          setCoords({ latitude, longitude }); // disponible instantanément pour la carte
+          getAddressFromCoordinates(latitude, longitude); // résolution de l'adresse en parallèle
         },
         (error) => {
           console.error(error);
         }
       );
     } else {
-      console.error("Geolocation is not supported");
+      console.error("La géolocalisation n'est pas supportée");
     }
   };
 
-  // Initial load
   useEffect(() => {
     getUserLocation();
   }, []);
 
-  // Fonction exposée pour rafraîchir la localisation
   const refreshLocation = () => {
     getUserLocation();
   };
@@ -87,6 +94,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         locationsContext,
         currentLocation,
         refreshLocation,
+        coords, 
       }}
     >
       {children}

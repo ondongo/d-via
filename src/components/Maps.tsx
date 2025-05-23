@@ -25,7 +25,8 @@ const Circle = dynamic(
 );
 
 const MapComponent: React.FC = () => {
-  const { currentLocation, refreshLocation } = useLocationContext();
+  const { coords, currentLocation, refreshLocation } = useLocationContext();
+
   const [L, setL] = useState<any>(null);
   const [map, setMap] = useState<LeafletMap | null>(null);
 
@@ -34,11 +35,10 @@ const MapComponent: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (map && currentLocation) {
-      const { latitude, longitude } = currentLocation;
-      map.setView([latitude, longitude], 13);
+    if (map && coords) {
+      map.setView([coords.latitude, coords.longitude], 13);
     }
-  }, [map, currentLocation]);
+  }, [map, coords]);
 
   if (!L) return null;
 
