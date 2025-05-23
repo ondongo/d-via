@@ -19,8 +19,7 @@ export const LocationContext = createContext<{
 });
 
 export const useLocationContext = () => {
-  const locationContext = useContext(LocationContext);
-  return locationContext;
+  return useContext(LocationContext);
 };
 
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
@@ -68,11 +67,27 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setCoords({ latitude, longitude }); // disponible instantanément pour la carte
-          getAddressFromCoordinates(latitude, longitude); // résolution de l'adresse en parallèle
+
+          // 1. Coords immédiats
+          setCoords({ latitude, longitude });
+
+          // 2. Localisation minimale
+          const locationObj = {
+            latitude,
+            longitude,
+            city: null,
+            region: null,
+            country: null,
+            countryCode: null,
+          };
+          setLocationsContext([locationObj]);
+          setCurrentLocation(locationObj);
+
+          // 3. Résolution d'adresse en fond
+          getAddressFromCoordinates(latitude, longitude);
         },
         (error) => {
-          console.error(error);
+          console.error("Erreur de géolocalisation", error);
         }
       );
     } else {
@@ -94,7 +109,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         locationsContext,
         currentLocation,
         refreshLocation,
-        coords, 
+        coords,
       }}
     >
       {children}
