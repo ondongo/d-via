@@ -26,7 +26,7 @@ export const LeftSection = () => {
         href="#"
         className="text-dvianeutralvariant-30 underline text-sm font-bold"
       >
-        Comprendre l'estimation clients
+        Comprendre l&apos;estimation clients
       </a>
 
       {/* Slider */}
