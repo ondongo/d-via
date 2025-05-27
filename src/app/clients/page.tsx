@@ -2,7 +2,7 @@ import { LeftSection } from "@/components/landing-artisan/LeftSection";
 import MapComponent from "@/components/Maps";
 import Image from "next/image";
 
-export default function Home() {
+export default function Clients() {
   return (
     <div className="flex flex-row h-screen p-14 gap-12">
       <div className="w-1/2">

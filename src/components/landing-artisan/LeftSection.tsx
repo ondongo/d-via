@@ -1,10 +1,20 @@
-"use client"
+"use client";
 import { useLocationContext } from "@/providers/LocationProvider";
+import { useState } from "react";
+import { Modal } from "../ui/modals/CustomModal";
 
 export const LeftSection = () => {
   const { currentLocation } = useLocationContext();
 
   const city = currentLocation?.city || "Paris";
+  const [modalOpen, setModalOpen] = useState(false);
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
       <h1 className="text-4xl md:text-5xl text-display-large font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
@@ -66,12 +76,23 @@ export const LeftSection = () => {
         </svg>
 
         <span className="text-sm font-bold text-dvianeutral-10">{city}</span>
-        <input
-          type="text"
-          placeholder="· Carreleur · 3 ans d’expériences"
-          className="font-normal outline-none border-none bg-transparent  placeholder-dvianeutralvariant-30 placeholder:tracking-body-small text-sm text-dvianeutral-10 w-full"
-        />
+        <button
+          onClick={() => openModal()}
+          className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutral-10 w-full"
+        >
+          Carreleur · 3 ans d’expériences
+        </button>
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        showCloseButton={true}
+        className="max-w-[520px] z-[99999]"
+        title={"Parlez-nous de votre situation"}
+      >
+        sksks
+      </Modal>
     </div>
   );
 };
