@@ -21,9 +21,13 @@ export default function Home() {
           validation des artisans, la détection d'arnaques et bien plus encore.
         </p>
 
-        <button className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px]">
-          Analyser votre devis
-        </button>
+        <button
+  className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2"
+>
+  <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
+  Analyser votre devis
+</button>
+
         <div className="relative overflow-hidden">
     
           <FileMarquee />
@@ -35,15 +39,15 @@ export default function Home() {
         subtitle="Découvrez comment vérifier la fiabilité de vos devis d'artisans en trois étapes simples."
         steps={[
           {
-            icon: "/icons/iconuser.svg",
+            icon: "/icons/iconDownload.svg",
             text: "Uploadez votre devis en quelques clics",
           },
           {
-            icon: "/icons/iconsuccess.svg",
+            icon: "/icons/iconSearch.svg",
             text: "Notre IA analyse les prix et vérifie l'artisan",
           },
           {
-            icon: "/icons/add_chart.svg",
+            icon: "/icons/iconsuccess.svg",
             text: "Recevez votre rapport détaillé instantanément",
           },
         ]}

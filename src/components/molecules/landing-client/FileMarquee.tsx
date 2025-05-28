@@ -20,7 +20,7 @@ const FileCard = ({ name }: { name: string }) => {
         isVisible ? "opacity-100" : "opacity-40"
       }`}
     >
-      <MdDriveFileMoveOutline className="w-4 h-4 text-dviaprimary-40" />
+      <img src="/icons/draftPrimary.svg" className="w-4 h-4 text-dviaprimary-40" />
       <span>{name}</span>
     </div>
   );
