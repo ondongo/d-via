@@ -1,21 +1,39 @@
 import React from "react";
 
-export function StepsSection() {
+type Step = {
+  icon: string;
+  text: string;
+};
+
+type StepsSectionProps = {
+  title: string;
+  highlight: string;
+  subtitle: string;
+  imageSrc?: string;
+  steps: Step[];
+};
+
+export function StepsSection({
+  title,
+  highlight,
+  subtitle,
+  imageSrc = "/illustrations/phone.png",
+  steps,
+}: StepsSectionProps) {
   return (
     <section>
       <div className="mx-auto text-center">
         <h1 className="text-4xl md:text-[40px] leading-display-medium tracking-display-medium font-bold  text-dvianeutral-10 mb-2">
-          Gagner du temps avec D-VIA,{" "}
-          <span className="text-dviaprimary-40">c’est facile !</span>
+        {title}{" "}
+          <span className="text-dviaprimary-40">{highlight}</span>
         </h1>
         <p className="font-normal text-[20px] text-dvianeutral-10 leading-headline-small  tracking-headline-small mb-10">
-          Découvrez comment simplifier la gestion de vos demandes clients en
-          trois étapes simples.
+        {subtitle}
         </p>
 
         <div className="flex justify-center mb-10">
           <img
-            src="/illustrations/phone.png"
+           src={imageSrc}
             alt="Phone 1"
             className="w-[1296px] h-[543px] z-10 relative"
           />
@@ -23,18 +41,9 @@ export function StepsSection() {
 
         {/* Étapes */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <StepCard
-            icon="/icons/iconuser.svg"
-            text="Créez votre profile en quelques étapes"
-          />
-          <StepCard
-            icon="/icons/iconsuccess.svg"
-            text="Faites valider votre expertise"
-          />
-          <StepCard
-            icon="/icons/add_chart.svg"
-            text="Recevez des demandes de clients qualifiés"
-          />
+        {steps.map((step, index) => (
+            <StepCard key={index} icon={step.icon} text={step.text} />
+          ))}
         </div>
       </div>
     </section>

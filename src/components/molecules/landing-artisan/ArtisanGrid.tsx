@@ -51,7 +51,7 @@ const ArtisanGrid = () => {
         </h4>
 
         <div className="relative w-full mt-8 " ref={containerRef}>
-          <div className="animate-marquee flex w-max space-x-4">
+          <div className="animate-marqueeGrid flex w-max space-x-4">
             {[...cards, ...cards].map((_, idx) => (
               <div
                 key={idx}
