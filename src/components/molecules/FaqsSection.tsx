@@ -14,7 +14,7 @@ function FaqsSection() {
         <div className="space-y-4 min-w-[722px] max-w-[722px]">
           <details
             className="group [&_summary::-webkit-details-marker]:hidden "
-            open
+            /* open */
           >
             <summary className="flex items-center justify-between gap-1.5 rounded-md border border-dvianeutralvariant-50 bg-transparent p-4 text-dvianeutral-10 cursor-pointer ">
               <h2 className="text-lg font-medium">
@@ -156,7 +156,7 @@ function FaqsSection() {
           Trouvez des réponses à vos questions auprès de nous.
         </p>
         <button
-          className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-12px border-transparent text-sm font-medium
+          className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium
                hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px]  max-h-[40px]"
         >
           Discuter avec nous

@@ -17,7 +17,7 @@ export const LeftSection = () => {
   };
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
-      <h1 className="text-4xl md:text-[40px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
+      <h1 className="text-4xl md:text-[44px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
         Votre inscription pourrait
         <br />
         vous rapporter <span className="text-dviaprimary-40">35 Clients</span>

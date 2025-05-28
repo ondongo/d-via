@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/providers/providers";
 import Script from "next/script";
 import Header from "@/components/organisms/Header";
+import Footer from "@/components/organisms/Footer";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -43,6 +44,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>

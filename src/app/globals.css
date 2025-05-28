@@ -222,6 +222,7 @@
 
   /* Raduis */
   --radius-12px: 12px;
+  --radius-8px: 8px;
 }
 body {
   background-color: var(--background);
@@ -250,9 +251,9 @@ span {
 }
 
 .animate-25s {
-  animation: animate 25s linear infinite;
+  animation: animate 30s linear infinite;
 }
 
-.marquee {
+.animate-marquee {
   animation: marquee 30s linear infinite;
 }
