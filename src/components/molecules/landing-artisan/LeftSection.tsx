@@ -78,20 +78,97 @@ export const LeftSection = () => {
         <span className="text-sm font-bold text-dvianeutral-10">{city}</span>
         <button
           onClick={() => openModal()}
-          className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutral-10 w-full"
+          className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutral-10 w-full cursor-pointer"
         >
           Carreleur · 3 ans d’expériences
         </button>
       </div>
 
       <Modal
-        isOpen={modalOpen}
         onClose={closeModal}
-        showCloseButton={true}
-        className="max-w-[520px] z-[99999]"
-        title={"Parlez-nous de votre situation"}
+        title="Parlez-nous de votre situation"
+        isOpen={modalOpen}
       >
-        sksks
+        <div className="flex flex-col gap-4 w-[450px] overflow-hidden items-center">
+          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
+            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
+              Adresse ou zone
+            </p>
+            <div className=" mx-4 bg-white border border-dvianeutral-10 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
+              <svg
+                className="w-4 h-4 text-dvianeutral-10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+                />
+              </svg>
+
+              <span className="text-sm font-bold text-dvianeutral-10">
+                {city}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
+            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
+              Métier
+            </p>
+            <div className=" mx-4 bg-white border border-dvianeutral-10 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
+              <svg
+                className="w-4 h-4 text-dvianeutral-10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+                />
+              </svg>
+
+              <span className="text-sm font-bold text-dvianeutral-10">
+                Carreleur
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
+            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
+              Années d&apos;expériences
+            </p>
+            <div className=" mx-4 bg-white border border-dvianeutral-10 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
+              <svg
+                className="w-4 h-4 text-dvianeutral-10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"
+                />
+              </svg>
+
+              <span className="text-sm font-bold text-dvianeutral-10">
+                3 ans d’expériences
+              </span>
+            </div>
+          </div>
+
+          <button className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] mb-4">
+            Mettre à jour l’estimation
+          </button>
+        </div>
       </Modal>
     </div>
   );
