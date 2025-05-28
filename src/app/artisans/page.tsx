@@ -42,19 +42,22 @@ function page() {
         faqs={[
           {
             question: "Combien coûte l'inscription sur la plateforme ?",
-            answer: "L'inscription est totalement gratuite pour les artisans.",
+            answer: `L'inscription de base est gratuite. 
+        Nous proposons aussi des formules premium à partir de 29€/mois, avec des fonctionnalités avancées pour vous aider à décrocher plus de missions. 
+        Vous ne payez que lorsque vous recevez des demandes qualifiées.`,
           },
           {
             question: "Comment sont vérifiés les profils des artisans ?",
-            answer:
-              "Chaque profil est vérifié manuellement par notre équipe pour garantir la qualité.",
+            answer: `Tous les profils sont vérifiés manuellement par notre équipe. 
+        Nous nous assurons que chaque artisan respecte nos critères de qualité pour garantir des prestations fiables aux clients.`,
           },
           {
             question: "Puis-je choisir ma zone d'intervention ?",
-            answer:
-              "Oui, vous pouvez configurer vos zones préférées dans votre profil.",
+            answer: `Oui, vous pouvez définir vos zones d’intervention préférées directement dans votre espace personnel. 
+        Cela vous permet de recevoir uniquement des demandes correspondant à votre secteur géographique.`,
           },
         ]}
+        isArtisan={true}
       />
     </div>
   );

@@ -11,7 +11,7 @@ export default function Home() {
       <div className="flex flex-col  gap-4 items-center">
         <h1 className="text-4xl md:text-[44px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
           Analysez vos devis. Trouver des artisans.
-          <br /> Évitez {" "}
+          <br /> Évitez{" "}
           <span className="text-dviaprimary-40">les arnaques.</span>
         </h1>
 
@@ -21,15 +21,12 @@ export default function Home() {
           validation des artisans, la détection d'arnaques et bien plus encore.
         </p>
 
-        <button
-  className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2"
->
-  <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
-  Analyser votre devis
-</button>
+        <button className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2">
+          <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
+          Analyser votre devis
+        </button>
 
         <div className="relative overflow-hidden">
-    
           <FileMarquee />
         </div>
       </div>
@@ -55,23 +52,26 @@ export default function Home() {
       <ClientGrid />
       <FaqsSection
         title="Questions fréquentes"
-        subtitle="Voici les questions les plus fréquentes que se posent nos artisans."
+        subtitle="Voici les questions les plus fréquentes que se posent nos clients."
         faqs={[
           {
-            question: "Combien coûte l'inscription sur la plateforme ?",
-            answer: "L'inscription est totalement gratuite pour les artisans.",
+            question: "Combien coûte l'analyse de devis sur la plateforme ?",
+            answer: `La première analyse est entièrement gratuite. 
+      Ensuite, pour accéder aux analyses suivantes, vous devrez utiliser des crédits que vous pouvez acheter depuis votre espace personnel.`,
           },
           {
-            question: "Comment sont vérifiés les profils des artisans ?",
-            answer:
-              "Chaque profil est vérifié manuellement par notre équipe pour garantir la qualité.",
+            question: "Comment fonctionne l'analyse de devis ?",
+            answer: `Nos experts analysent chaque devis en s’appuyant sur une base de données actualisée de prix du marché et sur les retours clients. 
+      Cela permet d’identifier les incohérences, les éventuelles surévaluations ou les frais cachés.`,
           },
           {
-            question: "Puis-je choisir ma zone d'intervention ?",
-            answer:
-              "Oui, vous pouvez configurer vos zones préférées dans votre profil.",
+            question: "Mes données personnelles sont-elles sécurisées ?",
+            answer: `Oui, la sécurité de vos données est notre priorité. 
+      Elles sont chiffrées et stockées selon les normes en vigueur. 
+      Vous pouvez également configurer vos préférences de confidentialité depuis votre profil.`,
           },
         ]}
+        isArtisan={false}
       />
     </div>
   );

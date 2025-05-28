@@ -11,6 +11,7 @@ type FaqsSectionProps = {
   faqs: FaqItem[];
   contactTitle?: string;
   contactSubtitle?: string;
+  isArtisan?: boolean;
 };
 
 export function FaqsSection({
@@ -19,6 +20,7 @@ export function FaqsSection({
   faqs,
   contactTitle = "Vous avez encore des questions ?",
   contactSubtitle = "Trouvez des réponses à vos questions auprès de nous.",
+  isArtisan ,
 }: FaqsSectionProps) {
   return (
     <section>
@@ -34,13 +36,29 @@ export function FaqsSection({
           {faqs.map((faq, index) => (
             <details
               key={index}
-              className="group [&_summary::-webkit-details-marker]:hidden"
+              className="group [&_summary::-webkit-details-marker]:hidden rounded-md border border-dvianeutralvariant-50 bg-transparent open:bg-dvianeutral-94 open:border-dvianeutralvariant-50"
             >
-              <summary className="cursor-pointer flex items-center justify-between gap-1.5 rounded-md border border-dvianeutralvariant-50 bg-transparent p-4 text-dvianeutral-10">
+              <summary className="cursor-pointer flex items-center justify-between gap-1.5 p-4 text-dvianeutral-10">
                 <h2 className="text-lg font-medium">{faq.question}</h2>
                 <ToggleIcon />
               </summary>
-              <p className="px-4 pt-4 text-dvianeutral-10">{faq.answer}</p>
+
+              <div className="flex flex-col gap-4 items-start mb-6">
+                <p className="px-4 pt-4 text-dvianeutral-10 text-start">{faq.answer}</p>
+
+                {index == 0 && (
+                  <button className="flex items-center gap-2 text-dviaprimary-40 hover:bg-dviaprimary-87 py-1 text-label-large leading-label-large tracking-label-large bg-transparent px-4  hover:rounded-full text-sm font-medium cursor-pointer">
+                    <img
+                      src="/icons/error.svg"
+                      alt="Icône draft"
+                      className="w-4 h-4"
+                    />{" "}
+                    {isArtisan
+                      ? "Voir les conditions d’inscription"
+                      : "Voir les tarifs"}
+                  </button>
+                )}
+              </div>
             </details>
           ))}
         </div>
