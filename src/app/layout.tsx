@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/providers/providers";
 import Script from "next/script";
+import Header from "@/components/organisms/Header";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -39,7 +40,10 @@ export default function RootLayout({
             })(document, "script");
           `}
         </Script>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

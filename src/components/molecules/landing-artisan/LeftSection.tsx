@@ -1,7 +1,7 @@
 "use client";
 import { useLocationContext } from "@/providers/LocationProvider";
 import { useState } from "react";
-import { Modal } from "../ui/modals/CustomModal";
+import { Modal } from "../../atoms/ui/modals/CustomModal";
 
 export const LeftSection = () => {
   const { currentLocation } = useLocationContext();
@@ -17,7 +17,7 @@ export const LeftSection = () => {
   };
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
-      <h1 className="text-4xl md:text-5xl text-display-large font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
+      <h1 className="text-4xl md:text-[40px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
         Votre inscription pourrait
         <br />
         vous rapporter <span className="text-dviaprimary-40">35 Clients</span>

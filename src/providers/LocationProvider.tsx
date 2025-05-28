@@ -91,7 +91,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         }
       );
     } else {
-      console.error("La géolocalisation n'est pas supportée");
+      console.log("La géolocalisation n'est pas supportée");
     }
   };
 

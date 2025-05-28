@@ -1,16 +1,17 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 
 :root {
   /* Couleurs de base */
   --background: #feefed;
+  --font-body: "Montserrat", sans-serif;
 }
 
 @theme {
   /* Polices de caractères */
-  --font-title: "Sunborn Sans One", sans-serif;
-  --font-body: Arial, sans-serif;
-  --font-roboto: "Roboto", sans-serif;
+  --font-title: "Montserrat", sans-serif;
+  --font-body: "Montserrat", sans-serif;
+  --font-roboto: "Montserrat", sans-serif;
 
   /* Tailles de police */
   --text-display-large: 3.5625rem; /* 57px */
@@ -19,6 +20,7 @@
   --text-headline-large: 2rem; /* 32px */
   --text-headline-medium: 1.75rem; /* 28px */
   --text-headline-small: 1.5rem; /* 24px */
+  --text-title-large: 1.25rem; /* 20px */
   --text-title-small: 0.875rem; /* 14px */
   --text-title-medium-size: 18px;
   --text-label-large: 0.875rem; /* 14px */
@@ -223,7 +225,7 @@
 }
 body {
   background-color: var(--background);
-  font-family: var(--font-roboto);
+  font-family: var(--font-body);
 }
 
 /* Appliquer Roboto à tous les titres */
@@ -232,11 +234,11 @@ h2,
 h3,
 h4,
 h5,
-h6 {
-  font-family: var(--font-roboto);
+h6,
+p,
+span {
+  font-family: var(--font-body);
 }
-
-
 
 @keyframes marquee {
   0% {
