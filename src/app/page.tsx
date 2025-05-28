@@ -7,7 +7,7 @@ import MapComponent from "@/components/molecules/Maps";
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-auto gap-[110px] py-14 px-16 overflow-hidden">
+    <div className="flex flex-col h-auto gap-[90px] py-14 px-16 overflow-hidden">
       <div className="flex flex-row  gap-12">
         <div className="w-1/2">
           <LeftSection />

@@ -87,7 +87,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
           getAddressFromCoordinates(latitude, longitude);
         },
         (error) => {
-          console.error("Erreur de géolocalisation", error);
+          console.log("Erreur de géolocalisation", error);
         }
       );
     } else {
