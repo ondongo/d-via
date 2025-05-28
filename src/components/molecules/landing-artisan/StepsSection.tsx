@@ -45,7 +45,7 @@ function StepCard({ icon, text }: { icon: string; text: string }) {
   return (
     <div className="bg-dvianeutral-96 border border-dvianeutral-50 rounded-lg px-4 py-6 text-center inline-flex flex-col items-center max-h-[170px]">
       <img src={icon} alt="Step icon" className="w-[45px] h-[45px] mb-3" />
-      <p className="text-dvianeutralvariant-30 text-title-large leading-title-small tracking-title-small font-[400]">
+      <p className="text-dvianeutralvariant-30 text-[16px] leading-title-small tracking-title-small font-[400]">
         {text}
       </p>
     </div>

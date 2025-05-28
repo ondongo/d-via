@@ -1,5 +1,6 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
 
 :root {
   /* Couleurs de base */
@@ -226,7 +227,7 @@
 }
 body {
   background-color: var(--background);
-  font-family: var(--font-body);
+  font-family:var(--font-body)!important;
 }
 
 /* Appliquer Roboto à tous les titres */
@@ -238,7 +239,7 @@ h5,
 h6,
 p,
 span {
-  font-family: var(--font-body);
+  font-family: var(--font-body) !important;
 }
 
 @keyframes marquee {
