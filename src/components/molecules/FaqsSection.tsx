@@ -38,12 +38,12 @@ export function FaqsSection({
               key={index}
               className="group [&_summary::-webkit-details-marker]:hidden rounded-md border border-dvianeutralvariant-50 bg-transparent open:bg-dvianeutral-94 open:border-dvianeutralvariant-50"
             >
-              <summary className="cursor-pointer flex items-center justify-between gap-1.5 p-4 text-dvianeutral-10">
+              <summary className="cursor-pointer flex items-center justify-between gap-1.5 p-4 text-dvianeutral-10 mx-2">
                 <h2 className="text-lg font-medium">{faq.question}</h2>
                 <ToggleIcon />
               </summary>
 
-              <div className="flex flex-col gap-4 items-start mb-6">
+              <div className="flex flex-col gap-4 items-start mb-6 mx-2">
                 <p className="px-4 pt-4 text-dvianeutral-10 text-start">{faq.answer}</p>
 
                 {index == 0 && (
