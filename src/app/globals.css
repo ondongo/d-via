@@ -281,4 +281,5 @@ span {
 .custom-toast .Toastify__toast {
   font-family: 'Montserrat', sans-serif;
   font-size: 14px; 
+  z-index: 999999;
 }
