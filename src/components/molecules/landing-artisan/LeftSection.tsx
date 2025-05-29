@@ -37,12 +37,19 @@ export const LeftSection = () => {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
-      <h1 className="text-[24px] font-bold leading-display-small tracking-display-small md:text-[44px] md:leading-display-large md:tracking-display-large  text-dvianeutral-10 text-center">
+      {/* Pour les grands écrans (md et +) */}
+      <h1 className="hidden md:block text-[44px] font-bold leading-display-large tracking-display-large text-dvianeutral-10 text-center">
         Votre inscription pourrait
-        <br />
-        vous rapporter <span className="text-dviaprimary-40">35 Clients</span>
-        <br />
-        avec <span className="text-dvianeutral-10">D-VIA</span>
+        <br /> vous rapporter{" "} 
+        <span className="text-dviaprimary-40">35 Clients {" "}</span>
+        {" "} avec <span className="text-dvianeutral-10">D-VIA</span>
+      </h1>
+
+      {/* Pour les petits écrans (en dessous de md) */}
+      <h1 className="min-w-[330px]  block md:hidden text-[24px] font-bold leading-display-small tracking-display-small text-dvianeutral-10 text-center">
+        Votre inscription pourrait vous rapporter
+        <span className="text-dviaprimary-40">{" "} 35 Client</span>
+        <br /> avec <span className="text-dvianeutral-10">D-VIA</span>
       </h1>
 
       <div className="flex flex-row items-center gap-2  text-dvianeutral-10 text-base md:text-lg mt-4">
@@ -82,7 +89,7 @@ export const LeftSection = () => {
 
       <div
         onClick={() => openModal()}
-        className="  cursor-pointer mt-6 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 min-w-[360px]"
+        className="  cursor-pointer mt-6 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 min-w-[320px] max-w-[320px] md:min-w-[360px] md:max-w-full"
       >
         <img
           className="w-4 h-4 text-dvianeutralvariant-30"
@@ -91,7 +98,7 @@ export const LeftSection = () => {
 
         <span className="text-sm font-bold text-dvianeutralvariant-30 text-nowrap">
           {selectedAddress.length > 20
-            ? selectedAddress.slice(0, 23).trim() + "…"
+            ? selectedAddress.slice(0, 12).trim() + "…"
             : selectedAddress}
         </span>
         <button className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutralvariant-30 w-full">
@@ -108,7 +115,7 @@ export const LeftSection = () => {
         }
         isOpen={modalOpen}
       >
-        <div className="flex flex-col gap-4 w-[450px] overflow-hidden items-center">
+        <div className="flex flex-col gap-4 w-[450px] overflow-hidden items-center mx-4">
           {modalStep === "overview" ? (
             <OverviewStep
               onAddressClick={() => setModalStep("address")}

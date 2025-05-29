@@ -36,7 +36,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
   };
 
   return (
-    <div className="w-full p-4 flex flex-col  bg-red-50 rounded-xl">
+    <div className="w-full p-4 flex flex-col  bg-red-50 rounded-xl px-16 md:px-0">
       <div
         className={` border px-4 py-3 flex items-center gap-2 ${
           query

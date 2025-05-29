@@ -26,7 +26,7 @@ const ClientCard = () => {
     <div
       ref={ref}
       className={`rounded-12px shadow-md bg-white p-4 w-64 flex-shrink-0 ${
-        isVisible ? "opacity-100" : "opacity-40"
+        isVisible ? "opacity-100" : "md:opacity-40"
       }`}
       style={{ transition: "opacity 0.3s ease-in-out" }}
     >

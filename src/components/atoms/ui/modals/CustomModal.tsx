@@ -15,7 +15,7 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   title,
-  className="md:w-[450px]"
+  className="max-w-[350px] md:w-[450px] md:max-w-full"
 }) => {
   return (
     <>
