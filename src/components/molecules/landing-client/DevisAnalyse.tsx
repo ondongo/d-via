@@ -181,9 +181,10 @@ function DevisAnalyse() {
         onClose={closeModal}
         title={"Analyser votre devis"}
         isOpen={modalOpen}
-        className="  max-w-[375px] max-h-[596px] md:w-[750px] md:max-h-[708px]"
+        className="md:w-[750px] max-h-[596px] md:max-h-[750px]"
       >
-        <div className="flex flex-col gap-4 max-w-[375px] max-h-[596px] md:w-[750px] md:max-h-[708px] overflow-auto items-center p-10">
+    <div className="flex flex-col gap-4 w-[750px] max-w-[375px] max-h-[596px] md:max-w-[750px] md:max-h-[750px] overflow-y-auto items-center p-6 md:px-8 justify-center">
+
           {!isAnalyzed && !isLoading ? (
             <>
               {!fileData.base64 ? (
@@ -227,20 +228,25 @@ function DevisAnalyse() {
                 </>
               ) : (
                 <>
-                  <div className="w-full grid gap-1">
+                  <div className="w-full grid gap-1 p-4">
                     {fileData.type?.startsWith("image/") ? (
-                      <img
-                        src={`data:${fileData.type};base64,${fileData.base64}`}
-                        alt="Aperçu de l'image"
-                        className="w-[300px] rounded-12px mb-4"
-                      />
+                      <div className="w-full h-[250px] md:h-[400px] overflow-hidden rounded-12px mb-4">
+                        <img
+                          src={`data:${fileData.type};base64,${fileData.base64}`}
+                          alt="Aperçu de l'image"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
                     ) : fileData.type === "application/pdf" ? (
-                      <iframe
-                        src={`data:application/pdf;base64,${fileData.base64}`}
-                        title="Aperçu PDF"
-                        width="100%"
-                        height="400px"
-                      />
+                      <div className="w-full h-[250px] md:h-[400px]">
+                        <iframe
+                          src={`data:application/pdf;base64,${fileData.base64}`}
+                          title="Aperçu PDF"
+                          width="100%"
+                          height="100%"
+                          className="w-full h-full"
+                        />
+                      </div>
                     ) : null}
                     <div className="flex items-center justify-between gap-2 mt-4">
                       <div className="flex items-center gap-2">
@@ -317,7 +323,7 @@ function DevisAnalyse() {
                   </div>
                 </>
               )}
-              <div className="w-full flex justify-end mt-8">
+              <div className="w-full flex justify-end mt-2 mb-5">
                 <button
                   onClick={handleExtractAndAnalyze}
                   disabled={isLoading}
