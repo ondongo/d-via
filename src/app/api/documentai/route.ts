@@ -47,8 +47,8 @@ export async function POST(request: any) {
       type: process.env.TYPE,
       project_id: process.env.PROJECT_ID,
       private_key_id: process.env.PRIVATE_KEY_ID,
-      //private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
-      private_key: process.env.PRIVATE_KEY,
+      private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
+      //private_key: process.env.PRIVATE_KEY,
       client_email: process.env.CLIENT_EMAIL,
       client_id: process.env.CLIENT_ID,
       //auth_uri: process.env.AUTH_URI,
@@ -97,7 +97,6 @@ export async function POST(request: any) {
 
   try {
     const [response] = await documentclient.processDocument(req);
-    //console.log("Document processed successfully:", response);
     const document:any = response.document;
 
     const { text } = document;
@@ -130,7 +129,7 @@ export async function POST(request: any) {
   } catch (error) {
     return NextResponse.json({
       status: 500,
-      message: "Error processing document",
+      message: error,
     });
   }
 

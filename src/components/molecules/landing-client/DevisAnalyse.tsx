@@ -9,14 +9,6 @@ import AnalysisResults from "./AnalysisResults";
 import { toast } from "react-toastify";
 
 function DevisAnalyse() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = () => {
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-  };
 
   const resultsRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +24,23 @@ function DevisAnalyse() {
 
   const [extractedText, setExtractedText] = useState("");
   const [isAnalyzed, setIsAnalyzed] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setFileData({
+        base64: null,
+        name: null,
+        type: null,
+      })
+
+      setIsLoading(false)
+      setIsAnalyzed(false)
+  };
+
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -159,28 +168,60 @@ function DevisAnalyse() {
     }
   };
 
+  const replaceOKLCHColors = (element: HTMLElement) => {
+    const style = window.getComputedStyle(element);
+  
+    for (const property of style) {
+      const value = style.getPropertyValue(property);
+      if (value.includes("oklch")) {
+        // Ici tu peux utiliser une fonction pour convertir oklch en rgb
+        // mais ce n’est pas trivial directement en JS pur
+        // Pour l’exemple, on remplace par une couleur fixe ou semi-transparente
+        element.style.setProperty(property, "rgb(50, 50, 50)");
+      }
+    }
+  
+    // Récursivement sur les enfants
+    Array.from(element.children).forEach((child) =>
+      replaceOKLCHColors(child as HTMLElement)
+    );
+  };
+  
   const handleDownloadSectionAsPDF = async () => {
     if (!resultsRef.current) return;
-
-    // Capturer la section comme une image avec html2canvas
-    const canvas = await html2canvas(resultsRef.current, {
-      scale: 2, // Améliorer la qualité
-    });
-
-    // Convertir le canvas en image
-    const imgData = canvas.toDataURL("image/png");
-
-    // Créer un document PDF avec jsPDF
-    const pdf = new jsPDF("p", "mm", "a4"); // Portrait, millimètres, A4
-    const imgWidth = 190; // Largeur de l'image en mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Hauteur proportionnelle
-
-    pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-
-    // Télécharger le PDF
-    pdf.save("resultats-analyse.pdf");
+  
+    const el = resultsRef.current;
+  
+    // Sauvegarder les styles inline originaux (plus complexe si beaucoup d’enfants, on pourrait cloner l’élément)
+    // Ici juste un clone
+    const clone = el.cloneNode(true) as HTMLElement;
+    clone.style.position = "fixed";
+    clone.style.top = "-9999px";
+    document.body.appendChild(clone);
+  
+    // Remplacer les couleurs oklch dans le clone
+    replaceOKLCHColors(clone);
+  
+    try {
+      const canvas = await html2canvas(clone, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: null,
+      });
+  
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      pdf.save("resultats-analyse.pdf");
+    } finally {
+      document.body.removeChild(clone);
+    }
   };
-
+  
   return (
     <>
       <button
@@ -195,9 +236,9 @@ function DevisAnalyse() {
         onClose={closeModal}
         title={"Analyser votre devis"}
         isOpen={modalOpen}
-        className="w-[750px]"
+        className="w-[750px]  max-h-[708px]"
       >
-        <div className="flex flex-col gap-4 w-[750px] overflow-hidden items-center p-10">
+        <div className="flex flex-col gap-4 w-[750px] max-h-[708px] overflow-auto items-center p-10">
           {!isAnalyzed && !isLoading ? (
             <>
               {!fileData.base64 ? (
@@ -371,6 +412,7 @@ function DevisAnalyse() {
               isLoading={isLoading}
               isAnalyzed={isAnalyzed}
               analysis={analysis}
+              resultsRef={resultsRef}
               handleDownloadSectionAsPDF={handleDownloadSectionAsPDF}
               handleShareResults={handleShareResults}
             />
