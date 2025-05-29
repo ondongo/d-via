@@ -5,7 +5,6 @@ export default function AnalysisResults({
   isLoading,
   isAnalyzed,
   analysis,
-  handleDownloadSectionAsPDF,
   handleShareResults,
   resultsRef,
 }: any) {
@@ -105,13 +104,8 @@ export default function AnalysisResults({
                 </div>
 
                 {/* Actions */}
-                <div className="mt-8 flex flex-col md:flex-row justify-between gap-4">
-                  <button
-                    className="cursor-pointer bg-dviaprimary-40 hover:bg-dviaprimary-60 text-white font-medium py-2 px-4 rounded-md"
-                    onClick={handleDownloadSectionAsPDF}
-                  >
-                    Télécharger le rapport
-                  </button>
+                <div className="mt-8 flex flex-col md:flex-row justify-end gap-4">
+               
                   <button
                     className="cursor-pointer border border-dviaprimary-40 text-dviaprimary-40 hover:bg-dviaprimary-70 font-medium py-2 px-4 rounded-md"
                     onClick={handleShareResults}

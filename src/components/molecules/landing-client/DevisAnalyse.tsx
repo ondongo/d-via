@@ -9,7 +9,6 @@ import AnalysisResults from "./AnalysisResults";
 import { toast } from "react-toastify";
 
 function DevisAnalyse() {
-
   const resultsRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fileData, setFileData] = useState<{
@@ -32,13 +31,13 @@ function DevisAnalyse() {
   const closeModal = () => {
     setModalOpen(false);
     setFileData({
-        base64: null,
-        name: null,
-        type: null,
-      })
+      base64: null,
+      name: null,
+      type: null,
+    });
 
-      setIsLoading(false)
-      setIsAnalyzed(false)
+    setIsLoading(false);
+    setIsAnalyzed(false);
   };
 
   const onDrop = (acceptedFiles: File[]) => {
@@ -168,60 +167,7 @@ function DevisAnalyse() {
     }
   };
 
-  const replaceOKLCHColors = (element: HTMLElement) => {
-    const style = window.getComputedStyle(element);
-  
-    for (const property of style) {
-      const value = style.getPropertyValue(property);
-      if (value.includes("oklch")) {
-        // Ici tu peux utiliser une fonction pour convertir oklch en rgb
-        // mais ce n’est pas trivial directement en JS pur
-        // Pour l’exemple, on remplace par une couleur fixe ou semi-transparente
-        element.style.setProperty(property, "rgb(50, 50, 50)");
-      }
-    }
-  
-    // Récursivement sur les enfants
-    Array.from(element.children).forEach((child) =>
-      replaceOKLCHColors(child as HTMLElement)
-    );
-  };
-  
-  const handleDownloadSectionAsPDF = async () => {
-    if (!resultsRef.current) return;
-  
-    const el = resultsRef.current;
-  
-    // Sauvegarder les styles inline originaux (plus complexe si beaucoup d’enfants, on pourrait cloner l’élément)
-    // Ici juste un clone
-    const clone = el.cloneNode(true) as HTMLElement;
-    clone.style.position = "fixed";
-    clone.style.top = "-9999px";
-    document.body.appendChild(clone);
-  
-    // Remplacer les couleurs oklch dans le clone
-    replaceOKLCHColors(clone);
-  
-    try {
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: null,
-      });
-  
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgWidth = 190;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
-      pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
-      pdf.save("resultats-analyse.pdf");
-    } finally {
-      document.body.removeChild(clone);
-    }
-  };
-  
+
   return (
     <>
       <button
@@ -413,7 +359,7 @@ function DevisAnalyse() {
               isAnalyzed={isAnalyzed}
               analysis={analysis}
               resultsRef={resultsRef}
-              handleDownloadSectionAsPDF={handleDownloadSectionAsPDF}
+        
               handleShareResults={handleShareResults}
             />
           )}
