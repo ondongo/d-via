@@ -55,12 +55,15 @@ function DevisAnalyse() {
                 Format PDF, PNG ou JPG, moins de 50MB
               </h2>
               <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
-              Glissez votre devis ici ou  <span className="text-dviaprimary-40">choisissez un fichier</span>
+                Glissez votre devis ici ou{" "}
+                <span className="text-dviaprimary-40">
+                  choisissez un fichier
+                </span>
               </h4>
               <input id="dropzone-file" type="file" className="hidden" />
             </label>
           </div>
-        
+
           <div className="w-full grid gap-1">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -123,6 +126,11 @@ function DevisAnalyse() {
                 80%
               </span>
             </div>
+          </div>
+          <div className="w-full flex justify-end mt-8">
+            <button className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px]">
+              Lancer l&apos;analyse
+            </button>
           </div>
         </div>
       </Modal>
