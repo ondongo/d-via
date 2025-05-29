@@ -10,7 +10,7 @@ function OverviewStep({
   return (
     <>
       {" "}
-      <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-0">
+      <div className="flex flex-col gap-2 py-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-4">
         <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
           Adresse ou zone
         </p>
@@ -28,7 +28,7 @@ function OverviewStep({
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-0">
+      <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-4">
         <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
           Métier
         </p>
@@ -46,7 +46,7 @@ function OverviewStep({
           />
         </div>
       </div>
-      <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-0">
+      <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full px-16 md:px-4">
         <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
           Années d&apos;expériences
         </p>
