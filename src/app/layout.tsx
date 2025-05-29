@@ -7,6 +7,7 @@ import Header from "@/components/organisms/Header";
 import Footer from "@/components/organisms/Footer";
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import BottomActionButton from "@/components/organisms/BottomActionButton";
 
 export const metadata = {
   title: "Analyser votre devis | Dvia",
@@ -76,11 +77,12 @@ export default function RootLayout({
           `}
         </Script>
         <Providers>
-          <div className="overflow-hidden">
+          <div className="overflow-hidden pb-20 md:pb-0">
             <Header />
             {children}
             <Footer />
           </div>
+          <BottomActionButton />
           <ToastContainer
             position="bottom-center"
             autoClose={5000}

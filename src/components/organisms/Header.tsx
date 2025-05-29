@@ -21,7 +21,7 @@ function Header() {
   };
   return (
     <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50">
-      <div onClick={handleClickHome}>
+      <div onClick={handleClickHome} className="cursor-pointer">
         <Image
           src="/logos/logo.png"
           alt="Logo"
