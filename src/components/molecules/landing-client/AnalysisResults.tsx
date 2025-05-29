@@ -10,7 +10,7 @@ export default function AnalysisResults({
   return (
     <div
       ref={resultsRef}
-      className="bg-white rounded-xl my-10 p-6 md:p-8 w-full max-w-4xl mx-auto shadow-sm"
+      className="bg-white rounded-xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-sm"
     >
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-gray-800">

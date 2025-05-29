@@ -55,7 +55,7 @@ export const Modal: React.FC<ModalProps> = ({
                 </p>
               </div>
 
-              <div>{children}</div>
+              <div className="overflow-auto py-4">{children}</div>
             </motion.div>
           </div>
         </AnimatePresence>
