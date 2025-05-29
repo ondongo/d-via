@@ -37,7 +37,7 @@ export const LeftSection = () => {
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
-      <h1 className="text-4xl md:text-[44px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
+      <h1 className="text-[24px] font-bold leading-display-small tracking-display-small md:text-[44px] md:leading-display-large md:tracking-display-large  text-dvianeutral-10 text-center">
         Votre inscription pourrait
         <br />
         vous rapporter <span className="text-dviaprimary-40">35 Clients</span>
@@ -54,7 +54,7 @@ export const LeftSection = () => {
 
       <a
         href="#"
-        className="text-dvianeutralvariant-30 underline text-md leading-display-medium tracking-title-small mb-4"
+        className="text-dvianeutralvariant-30 underline text-sm md:text-md leading-display-medium tracking-title-small mb-4"
       >
         Comprendre l&apos;estimation clients
       </a>
@@ -62,7 +62,7 @@ export const LeftSection = () => {
       {/* Slider */}
       <div className="relative mt-10 max-w-[349px] w-full">
         <div className="absolute -top-13 left-[30%] transform -translate-x-1/2">
-          <div className="bg-dviaprimary-40 text-white px-3.5 py-2.5 rounded-full text-sm font-bold">
+          <div className="bg-dviaprimary-40 text-white px-3.5 py-2.5 rounded-full text-sm font-[400] md:font-bold">
             10 Km
           </div>
         </div>

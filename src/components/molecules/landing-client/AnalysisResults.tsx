@@ -10,7 +10,7 @@ export default function AnalysisResults({
 }: any) {
   return (
     <div ref={resultsRef}>
-      <div className="flex-1 bg-white rounded-md p-8 shadow-sm  h-auto mb-20">
+      <div className="flex-1 bg-white rounded-md p-2 md:p-8 shadow-sm  h-auto mb-20">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Résultats de l’analyse</h2>
 

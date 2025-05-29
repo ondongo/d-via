@@ -7,12 +7,12 @@ import { FaqsSection } from "@/components/molecules/FaqsSection";
 
 function page() {
   return (
-    <div className="flex flex-col h-auto gap-[90px] py-14 px-16 overflow-hidden">
-      <div className="flex flex-row  gap-12">
-        <div className="w-1/2">
+    <div className="flex flex-col h-auto gap-12 lg:gap-[90px] py-10 sm:py-12 lg:py-14 px-4 sm:px-8 lg:px-16 overflow-hidden">
+      <div className="flex flex-col md:flex-row  gap-12">
+        <div className="w-full md:w-1/2">
           <LeftSection />
         </div>
-        <div className="w-1/2">
+        <div className="w-full md:w-1/2">
           <MapComponent />
         </div>
       </div>

@@ -46,7 +46,7 @@ const ArtisanGrid = () => {
   return (
     <section className="relative py-12">
       <div className="text-center flex flex-col items-center justify-center gap-4">
-        <h4 className="text-4xl md:text-[40px] leading-display-medium tracking-display-medium font-bold text-dvianeutral-10">
+        <h4 className="text-[24px] md:text-[40px] leading-display-small tracking-display-small md:leading-display-medium md:tracking-display-medium font-bold text-dvianeutral-10">
           Rejoignez notre communauté d&apos;artisans d&apos;excellence
         </h4>
 

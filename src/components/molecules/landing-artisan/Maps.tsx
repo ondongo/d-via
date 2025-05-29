@@ -93,7 +93,7 @@ const MapComponent: React.FC = () => {
 
   return (
     <>
-      <div className="relative h-[705px] max-w-[879px] shadow-lg   border-2 border-dvianeutral-50 rounded-12px overflow-hidden">
+      <div className="relative h-[350px] w-full md:h-[650px] md:max-w-[879px] shadow-lg   border-2 border-dvianeutral-50 rounded-12px overflow-hidden">
         <MapContainer
           center={[latitude, longitude]}
           zoom={13}
@@ -142,12 +142,10 @@ const MapComponent: React.FC = () => {
         </div>
 
         {/* Bouton (en haut à droite) */}
-        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-[2000]">
+        <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-[2000] flex justify-center w-full px-4">
           <button
-            /*  onClick={refreshLocation} */
             onClick={() => openModal()}
-            className="bg-dvianeutral-92 text-dvianeutral-10 px-4 py-2 shadow-lg border rounded-12px border-transparent text-sm font-medium
-               hover:shadow-sm transition-shadow duration-300 cursor-pointer tracking-label-large"
+            className="w-full max-w-[280px] md:max-w-[306px] bg-dvianeutral-92 text-dvianeutral-10 px-4 py-2 shadow-lg border border-transparent rounded-[12px] text-xs md:text-sm font-medium tracking-label-large hover:shadow-sm transition-shadow duration-300 cursor-pointer whitespace-nowrap"
           >
             Découvrir zone autour de chez vous
           </button>
