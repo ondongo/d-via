@@ -224,6 +224,7 @@
   /* Raduis */
   --radius-12px: 12px;
   --radius-8px: 8px;
+  --radius-28px : 28px;
 }
 body {
   background-color: var(--background);

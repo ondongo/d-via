@@ -2,10 +2,14 @@
 import { useLocationContext } from "@/providers/LocationProvider";
 import { useState } from "react";
 import { Modal } from "../../atoms/ui/modals/CustomModal";
+import OverviewStep from "./OverviewStep";
+import AddressStep from "./AddressStep";
 
 export const LeftSection = () => {
   const { currentLocation } = useLocationContext();
-
+  const [modalStep, setModalStep] = useState<"overview" | "address">(
+    "overview"
+  );
   const city = currentLocation?.city || "Paris";
   const [modalOpen, setModalOpen] = useState(false);
   const openModal = () => {
@@ -13,8 +17,23 @@ export const LeftSection = () => {
   };
 
   const closeModal = () => {
-    setModalOpen(false);
+    if (modalStep === "overview") {
+      setModalOpen(false);
+    } else {
+      setModalStep("overview");
+    }
   };
+
+  const [selectedAddress, setSelectedAddress] = useState<string>(city);
+
+  const handleSelectAddress = (address: string) => {
+    setSelectedAddress(address);
+  };
+
+  const handleBack = () => {
+    setModalStep("overview");
+  };
+
   return (
     <div className="w-full h-full flex flex-col justify-center items-center px-4">
       <h1 className="text-4xl md:text-[44px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
@@ -66,8 +85,10 @@ export const LeftSection = () => {
           src="/icons/LocationBlue.svg"
         />
 
-        <span className="text-sm font-bold text-dvianeutralvariant-30">
-          {city}
+        <span className="text-sm font-bold text-dvianeutralvariant-30 text-nowrap">
+          {selectedAddress.length > 20
+            ? selectedAddress.slice(0, 30).trim() + "…"
+            : selectedAddress}
         </span>
         <button
           onClick={() => openModal()}
@@ -79,61 +100,25 @@ export const LeftSection = () => {
 
       <Modal
         onClose={closeModal}
-        title="Parlez-nous de votre situation"
+        title={
+          modalStep === "overview"
+            ? "Parlez-nous de votre situation"
+            : "Votre adresse ou votre zone"
+        }
         isOpen={modalOpen}
       >
         <div className="flex flex-col gap-4 w-[450px] overflow-hidden items-center">
-          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
-            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
-              Adresse ou zone
-            </p>
-            <div className=" mx-4 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
-              <img
-                className="w-4 h-4 text-dvianeutralvariant-30"
-                src="/icons/LocationBlue.svg"
-              />
-
-              <span className="text-sm font-bold text-dvianeutralvariant-30">
-                {city}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
-            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
-              Métier
-            </p>
-            <div className=" mx-4 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
-              <img
-                className="w-4 h-4 text-dvianeutralvariant-30"
-                src="/icons/SearchBlue.svg"
-              />
-
-              <span className="text-sm font-bold text-dvianeutralvariant-30">
-                Carreleur
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 p-6 border-dvianeutral-50 border-b-1 w-full">
-            <p className="text-dvianeutralvariant-30 text-[14px] leading-title-small tracking-title-small font-[400]">
-              Années d&apos;expériences
-            </p>
-            <div className=" mx-4 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 ">
-              <img
-                className="w-4 h-4 text-dvianeutralvariant-30"
-                src="/icons/SearchBlue.svg"
-              />
-
-              <span className="text-sm font-bold text-dvianeutralvariant-30">
-                3 ans d’expériences
-              </span>
-            </div>
-          </div>
-
-          <button className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] mb-4">
-            Mettre à jour l’estimation
-          </button>
+          {modalStep === "overview" ? (
+            <OverviewStep
+              onAddressClick={() => setModalStep("address")}
+              city={selectedAddress}
+            />
+          ) : (
+            <AddressStep
+              onSelectAddress={handleSelectAddress}
+              onBack={handleBack}
+            />
+          )}
         </div>
       </Modal>
     </div>
