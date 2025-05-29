@@ -13,13 +13,7 @@ const ClientGrid = () => {
         </h4>
 
         <div className=" w-full mt-8 ">
-          <div className="animate-marqueeGrid flex w-max space-x-4">
-            {[...cards, ...cards].map((_, idx) => (
-              <div key={idx} className="mx-2 Client-card">
-                <ClientCard />
-              </div>
-            ))}
-          </div>
+          <UserMarqueeGrid />
         </div>
       </div>
     </section>
@@ -61,5 +55,33 @@ const ClientCard = () => {
     </div>
   );
 };
+
+const MarqueeRow = ({ direction, className }: { direction: "left" | "right", className?: string }) => {
+  const cards = Array.from({ length: 15 }).map((_, i) => (
+    <ClientCard key={i} />
+  ));
+
+  return (
+    <div className={`w-full relative ${className || ''}`}>
+      <div
+        className={`flex gap-4 w-fit animate-marquee ${
+          direction === "right" ? "animate-reverse" : ""
+        }`}
+      >
+        {cards}
+        {cards}
+      </div>
+    </div>
+  );
+};
+
+function UserMarqueeGrid() {
+  return (
+    <div className="space-y-6 py-10">
+      <MarqueeRow direction="left" />
+      <MarqueeRow direction="right" className="block md:hidden" />
+    </div>
+  );
+}
 
 export default ClientGrid;
