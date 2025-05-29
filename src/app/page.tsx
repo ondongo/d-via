@@ -1,9 +1,12 @@
+"use client";
 import { LeftSection } from "@/components/molecules/landing-artisan/LeftSection";
 import { StepsSection } from "@/components/molecules/StepsSection";
 import ClientGrid from "@/components/molecules/landing-client/ClientGrid";
 import MapComponent from "@/components/molecules/landing-artisan/Maps";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
 import FileMarquee from "@/components/molecules/landing-client/FileMarquee";
+import { useState } from "react";
+import DevisAnalyse from "@/components/molecules/landing-client/DevisAnalyse";
 
 export default function Home() {
   return (
@@ -20,11 +23,7 @@ export default function Home() {
           devis et D-VIA peut vous aider pour la vérification des prix, la
           validation des artisans, la détection d'arnaques et bien plus encore.
         </p>
-
-        <button className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2">
-          <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
-          Analyser votre devis
-        </button>
+        <DevisAnalyse />
 
         <div className="relative overflow-hidden">
           <FileMarquee />
