@@ -183,8 +183,7 @@ function DevisAnalyse() {
         isOpen={modalOpen}
         className="md:w-[750px] max-h-[596px] md:max-h-[750px]"
       >
-    <div className="flex flex-col gap-4 w-[750px] max-w-[375px] max-h-[596px] md:max-w-[750px] md:max-h-[750px] overflow-y-auto items-center p-6 md:px-8 justify-center">
-
+        <div className="flex flex-col gap-4 w-[750px] max-w-[375px] max-h-[596px] md:max-w-[750px] md:max-h-[750px] overflow-y-auto items-center p-6 md:px-8 justify-center">
           {!isAnalyzed && !isLoading ? (
             <>
               {!fileData.base64 ? (
@@ -359,13 +358,16 @@ function DevisAnalyse() {
               </div>
             </>
           ) : (
-            <AnalysisResults
-              isLoading={isLoading}
-              isAnalyzed={isAnalyzed}
-              analysis={analysis}
-              resultsRef={resultsRef}
-              handleShareResults={handleShareResults}
-            />
+            <div className="w-full mb-5">
+              {" "}
+              <AnalysisResults
+                isLoading={isLoading}
+                isAnalyzed={isAnalyzed}
+                analysis={analysis}
+                resultsRef={resultsRef}
+                handleShareResults={handleShareResults}
+              />
+            </div>
           )}
         </div>
       </Modal>

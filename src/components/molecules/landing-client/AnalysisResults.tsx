@@ -9,8 +9,7 @@ export default function AnalysisResults({
   resultsRef,
 }: any) {
   return (
-    <div ref={resultsRef}>
-      <div className="flex-1 bg-white rounded-md p-2 md:p-8 shadow-sm  h-auto mb-20">
+    <div className=" bg-white rounded-md my-20 p-4 ">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Résultats de l’analyse</h2>
 
@@ -43,7 +42,7 @@ export default function AnalysisResults({
           ) : (
             isAnalyzed &&
             analysis && (
-              <div className="mt-8 p-6 bg-white rounded-md shadow-sm w-full">
+              <div className="mt-20 p-6 bg-white rounded-md shadow-sm w-full">
                 {/* Fiabilité globale */}
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-xl font-bold">Résultats de l’analyse</h2>
@@ -118,6 +117,5 @@ export default function AnalysisResults({
           )}
         </div>
       </div>
-    </div>
   );
 }
