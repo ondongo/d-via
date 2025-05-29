@@ -25,26 +25,26 @@ export function FaqsSection({
   return (
     <section>
       <div className="text-center flex flex-col items-center justify-center gap-4">
-        <h4 className="text-4xl md:text-[40px] leading-display-medium tracking-display-medium font-bold text-dvianeutral-10">
+        <h4 className="text-[24px] md:text-[40px] leading-display-small tracking-display-small md:leading-display-medium md:tracking-display-medium  font-bold text-dvianeutral-10">
           {title}
         </h4>
-        <p className="font-normal text-[20px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-5">
+        <p className="font-normal text-title-small  md:text-[20px] text-dvianeutral-10 md:leading-headline-small tracking-headline-small mb-5">
           {subtitle}
         </p>
 
-        <div className="space-y-4 min-w-[722px] max-w-[722px]">
+        <div className="space-y-4 max-w-[300px] md:min-w-[722px] md:max-w-[722px]">
           {faqs.map((faq, index) => (
             <details
               key={index}
               className="group [&_summary::-webkit-details-marker]:hidden rounded-md border border-dvianeutralvariant-50 bg-transparent open:bg-dvianeutral-94 open:border-dvianeutralvariant-50"
             >
-              <summary className="cursor-pointer flex items-center justify-between gap-1.5 p-4 text-dvianeutral-10 mx-2">
-                <h2 className="text-lg font-medium">{faq.question}</h2>
+              <summary className="cursor-pointer flex items-center justify-between gap-1.5 p-2 md:p-4 text-dvianeutral-10 mx-2">
+                <h2 className="text-sm md:text-lg font-medium text-start md:text-center">{faq.question}</h2>
                 <ToggleIcon />
               </summary>
 
               <div className="flex flex-col gap-4 items-start mb-6 mx-2">
-                <p className="px-4 pt-4 text-dvianeutral-10 text-start">{faq.answer}</p>
+                <p className="px-4 pt-4 text-dvianeutral-10 text-start text-sm md:text-title-medium-size">{faq.answer}</p>
 
                 {index == 0 && (
                   <button className="flex items-center gap-2 text-dviaprimary-40 hover:bg-dviaprimary-87 py-1 text-label-large leading-label-large tracking-label-large bg-transparent px-4  hover:rounded-full text-sm font-medium cursor-pointer">
@@ -63,13 +63,13 @@ export function FaqsSection({
           ))}
         </div>
 
-        <h4 className="text-headline-large leading-headline-large tracking-headline-large font-bold text-dvianeutral-10 mt-4">
+        <h4 className=" text-[16px] md:text-headline-large leading-headline-large tracking-headline-large font-bold text-dvianeutral-10 mt-4">
           {contactTitle}
         </h4>
-        <p className="font-normal text-[20px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-2">
+        <p className="font-normal text-title-small  md:text-[20px] text-dvianeutral-10 md:leading-headline-small tracking-headline-small mb-2">
           {contactSubtitle}
         </p>
-        <button className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px]">
+        <button className="text-white text-[12px] md:text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px]">
           Nous contacter
         </button>
       </div>

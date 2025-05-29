@@ -10,15 +10,23 @@ import DevisAnalyse from "@/components/molecules/landing-client/DevisAnalyse";
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-auto gap-[90px] py-14 px-16 overflow-hidden">
+    <div className="flex flex-col h-auto gap-12 lg:gap-[90px] py-10 sm:py-12 lg:py-14 px-4 sm:px-8 lg:px-16 overflow-hidden">
       <div className="flex flex-col  gap-4 items-center">
-        <h1 className="text-4xl md:text-[44px] font-bold leading-display-large tracking-display-large  text-dvianeutral-10 text-center">
+        {/* Pour les grands écrans (md et +) */}
+        <h1 className="hidden md:block text-[44px] font-bold leading-display-large tracking-display-large text-dvianeutral-10 text-center">
           Analysez vos devis. Trouver des artisans.
           <br /> Évitez{" "}
           <span className="text-dviaprimary-40">les arnaques.</span>
         </h1>
 
-        <p className="font-normal text-[20px] text-dvianeutral-10 leading-headline-small  tracking-headline-small mb-10 text-center">
+        {/* Pour les petits écrans (en dessous de md) */}
+        <h1 className="block md:hidden text-[24px] font-bold leading-display-small tracking-display-small text-dvianeutral-10 text-center">
+          Analysez vos devis. <br /> Trouver des artisans.
+          <br /> Évitez{" "}
+          <span className="text-dviaprimary-40">les arnaques.</span>
+        </h1>
+
+        <p className="font-normal text-title-small leading-title-small tracking-title-small gap-5 md:text-[20px] text-dvianeutral-10 md:leading-headline-small  md:tracking-headline-small md:mb-10 text-center">
           Premier devis gratuit. Essai instantané. Il suffit d'uploader votre
           devis et D-VIA peut vous aider pour la vérification des prix, la
           validation des artisans, la détection d'arnaques et bien plus encore.

@@ -2,7 +2,7 @@
 
 
 const files = [
-  "Devis plomberie salle bain 15k.pdf",
+  "Devis plomberie salle bain.pdf",
   "Renovation cuisine artisan .pdf",
   "toiture devis comparaison 3.pdf",
 ];
@@ -16,11 +16,11 @@ const FileCard = ({ name }: { name: string }) => {
   return (
     <div
       ref={ref}
-      className={`artisan-card flex items-center gap-2 px-4 py-3 bg-dvianeutral-96 border border-dvianeutral-50 text-dvianeutral-10 rounded-12px whitespace-nowrap shadow-md text-sm transition-opacity duration-700 ease-in-out ${
+      className={`artisan-card flex items-center gap-2 px-4 py-3 bg-dvianeutral-96 border border-dvianeutral-50 text-dvianeutral-10 rounded-12px whitespace-nowrap shadow-md text-xs md:text-sm transition-opacity duration-700 ease-in-out ${
         isVisible ? "opacity-100" : "opacity-40"
       }`}
     >
-      <img src="/icons/draftPrimary.svg" className="w-4 h-4 text-dviaprimary-40" />
+      <img src="/icons/draftPrimary.svg" className="w-3 h-3 md:w-4 md:h-4 text-dviaprimary-40" />
       <span>{name}</span>
     </div>
   );

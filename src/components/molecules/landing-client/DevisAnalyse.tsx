@@ -172,7 +172,7 @@ function DevisAnalyse() {
     <>
       <button
         onClick={() => openModal()}
-        className="my-5 text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2"
+        className="my-5 text-white text-[12px] md:text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2"
       >
         <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
         Analyser votre devis
