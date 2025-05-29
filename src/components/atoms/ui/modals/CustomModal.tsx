@@ -15,7 +15,7 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   title,
-  className="w-[450px]"
+  className="md:w-[450px]"
 }) => {
   return (
     <>
@@ -27,7 +27,7 @@ export const Modal: React.FC<ModalProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", stiffness: 120 }}
-              className={`bg-dvianeutral-90 rounded-2xl min-h-[508px] shadow-lg relative flex flex-col items-center overflow-hidden ${className}`}
+              className={`bg-dvianeutral-90 rounded-2xl md:min-h-[508px] shadow-lg relative flex flex-col items-center overflow-hidden ${className}`}
             >
               <div className="border-dvianeutral-50 border-b-1 flex flex-row gap-4 p-4 items-center w-full">
                 <button

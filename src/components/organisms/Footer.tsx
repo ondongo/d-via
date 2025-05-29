@@ -1,13 +1,11 @@
 import React from "react";
 import Image from "next/image";
-import { HiArrowRight } from "react-icons/hi";
-import { FiSend } from "react-icons/fi";
 import { MdSend } from "react-icons/md";
 import { FaInstagram } from "react-icons/fa";
 
 function Footer() {
   return (
-    <footer className="flex flex-row items-start justify-center p-8 border-t border-dvianeutral-50 mt-10 gap-24">
+    <footer className="flex flex-col md:flex-row items-center md:items-start justify-center p-8 border-t border-dvianeutral-50 mt-10 gap-10 md:gap-24">
       {/* Logo + description ou autre */}
       <div className="flex flex-col gap-4 max-w-xs items-center">
         <Image
@@ -42,89 +40,91 @@ function Footer() {
         </p>
       </div>
 
-      {/* Colonne Société */}
-      <div className="flex flex-col gap-2">
-        <p className="font-semibold text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-4">
-          Société
-        </p>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          À propos de nous
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Carrières
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Blog
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Contactez-nous
-        </a>{" "}
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Tarifs
-        </a>{" "}
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Témoignages
-        </a>
-      </div>
+      <div className="flex flex-row gap-10 md:gap-24">
+        {/* Colonne Société */}
+        <div className="flex flex-col gap-2">
+          <p className="font-semibold text-[14px] md:text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-4">
+            Société
+          </p>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            À propos de nous
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Carrières
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Blog
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Contactez-nous
+          </a>{" "}
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Tarifs
+          </a>{" "}
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Témoignages
+          </a>
+        </div>
 
-      {/* Colonne Support */}
-      <div className="flex flex-col gap-2">
-        <p className="font-semibold text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-4">
-          Support
-        </p>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Centre d&apos;aide
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Conditions d&apos;utilisation
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50transition text-sm"
-        >
-          Mentions légales
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Politique de confidentialité
-        </a>
-        <a
-          href="#"
-          className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
-        >
-          Statut
-        </a>
+        {/* Colonne Support */}
+        <div className="flex flex-col gap-2">
+          <p className="font-semibold text-[14px] md:text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-4">
+            Support
+          </p>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Centre d&apos;aide
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Conditions d&apos;utilisation
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50transition text-sm"
+          >
+            Mentions légales
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Politique de confidentialité
+          </a>
+          <a
+            href="#"
+            className="text-dvianeutralvariant-30 hover:text-dvianeutralvariant-50 transition text-sm"
+          >
+            Statut
+          </a>
+        </div>
       </div>
 
       {/* Colonne Restez informés */}
       <div className="flex flex-col gap-4 max-w-sm">
-        <p className="font-semibold text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-2">
+        <p className="font-semibold text-[14px] md:text-[16px] text-dvianeutral-10 leading-headline-small tracking-headline-small mb-2">
           Restez informés
         </p>
         <form className="relative w-full max-w-sm">

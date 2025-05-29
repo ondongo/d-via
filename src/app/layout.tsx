@@ -8,14 +8,21 @@ import Footer from "@/components/organisms/Footer";
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
 export const metadata = {
   title: "Analyser votre devis | Dvia",
-  description: "Évitez les arnaques et analysez votre devis avec précision grâce à notre outil sécurisé.",
-  keywords: ["analyse devis", "arnaque artisan", "économie travaux", "client satisfait", "dvia"],
+  description:
+    "Évitez les arnaques et analysez votre devis avec précision grâce à notre outil sécurisé.",
+  keywords: [
+    "analyse devis",
+    "arnaque artisan",
+    "économie travaux",
+    "client satisfait",
+    "dvia",
+  ],
   openGraph: {
     title: "Analyser votre devis | Dvia",
-    description: "Des milliers de clients nous font confiance pour détecter les arnaques dans leurs devis.",
+    description:
+      "Des milliers de clients nous font confiance pour détecter les arnaques dans leurs devis.",
     url: "https://d-via.vercel.app/",
     siteName: "Dvia",
     images: [
@@ -32,7 +39,8 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Analysez vos devis avec Dvia",
-    description: "Évitez les pièges dans les devis grâce à notre technologie d’analyse intelligente.",
+    description:
+      "Évitez les pièges dans les devis grâce à notre technologie d’analyse intelligente.",
     images: ["/og/og.png"],
   },
 };
@@ -68,23 +76,25 @@ export default function RootLayout({
           `}
         </Script>
         <Providers>
-          <Header />
-          {children}
-          <Footer />
+          <div className="overflow-hidden">
+            <Header />
+            {children}
+            <Footer />
+          </div>
           <ToastContainer
-          position="bottom-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition={Zoom}
-           className="custom-toast"
-        />
+            position="bottom-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Zoom}
+            className="custom-toast"
+          />
         </Providers>
       </body>
     </html>
