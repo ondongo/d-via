@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "../../atoms/ui/modals/CustomModal";
 import OverviewStep from "./OverviewStep";
 import AddressStep from "./AddressStep";
+import { useGlobalState } from "@/providers/globalState";
 
 export const LeftSection = () => {
   const { currentLocation } = useLocationContext();
@@ -24,7 +25,7 @@ export const LeftSection = () => {
     }
   };
 
-  const [selectedAddress, setSelectedAddress] = useState<string>(city);
+  const { selectedAddress, setSelectedAddress } = useGlobalState();
 
   const handleSelectAddress = (address: string) => {
     setSelectedAddress(address);
@@ -79,7 +80,10 @@ export const LeftSection = () => {
         />
       </div>
 
-      <div className="mt-6 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 min-w-[360px]">
+      <div
+        onClick={() => openModal()}
+        className="  cursor-pointer mt-6 bg-white border border-dvianeutralvariant-30 rounded-full px-5 py-4 flex items-center space-x-2 text-dvianeutral-10 min-w-[360px]"
+      >
         <img
           className="w-4 h-4 text-dvianeutralvariant-30"
           src="/icons/LocationBlue.svg"
@@ -87,13 +91,10 @@ export const LeftSection = () => {
 
         <span className="text-sm font-bold text-dvianeutralvariant-30 text-nowrap">
           {selectedAddress.length > 20
-            ? selectedAddress.slice(0, 30).trim() + "…"
+            ? selectedAddress.slice(0, 23).trim() + "…"
             : selectedAddress}
         </span>
-        <button
-          onClick={() => openModal()}
-          className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutralvariant-30 w-full cursor-pointer"
-        >
+        <button className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutralvariant-30 w-full">
           Carreleur · 3 ans d’expériences
         </button>
       </div>

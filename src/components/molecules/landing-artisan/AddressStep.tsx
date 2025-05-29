@@ -54,6 +54,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
         />
         {query && (
           <button
+          className="cursor-pointer"
             onClick={() => {
               setQuery("");
               setResults([]);
