@@ -120,7 +120,7 @@ function DevisAnalyse() {
         }
       } else {
         console.log("Erreur d'extraction :", extractData.message);
-        toast.error("Erreur d'extraction ");
+        toast.error("Erreur survenue lors de l'analyse ");
       }
     } catch (error) {
       console.log("Erreur lors du traitement :", error);
