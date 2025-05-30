@@ -51,8 +51,16 @@ const MapComponent: React.FC = () => {
     setMap,
   } = useGlobalState();
 
-  const handleSelectAddress = (address: string) => {
+  const handleSelectAddress = (
+    address: string,
+    lat?: number,
+    long?: number
+  ) => {
     setSelectedAddress(address);
+
+    if (typeof lat === "number" && typeof long === "number") {
+      setCoordinates([lat, long]);
+    }
   };
 
   const handleBack = () => setModalStep("overview");
