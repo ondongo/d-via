@@ -88,7 +88,7 @@ const MapComponent: React.FC = () => {
 
   const handleUpdateEstimation = () => {
     if (map && coordinates) {
-      map.setView(coordinates, map.getZoom());
+      map.setView(coordinates, 13);
     }
 
     setModalOpen(false);
