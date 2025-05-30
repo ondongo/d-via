@@ -54,7 +54,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
         />
         {query && (
           <button
-          className="cursor-pointer"
+            className="cursor-pointer"
             onClick={() => {
               setQuery("");
               setResults([]);
@@ -79,7 +79,11 @@ function AddressStep({ onBack, onSelectAddress }: any) {
                     key={i}
                     onClick={() => {
                       onBack();
-                      onSelectAddress(r.display_name);
+                      onSelectAddress(
+                        r.display_name,
+                        parseFloat(r.lat),
+                        parseFloat(r.lon)
+                      );
                     }}
                     className={`flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-100 cursor-pointer ${
                       i !== results.length - 1

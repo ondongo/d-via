@@ -1,12 +1,17 @@
+"use client";
+import { useGlobalState } from "@/providers/globalState";
 import React, { useState } from "react";
 
 function OverviewStep({
   onAddressClick,
   city,
+  handleUpdateEstimation,
 }: {
   onAddressClick: () => void;
   city: string;
+  handleUpdateEstimation: any;
 }) {
+  const { setJob, setExperienceYears } = useGlobalState();
   return (
     <>
       {" "}
@@ -40,6 +45,7 @@ function OverviewStep({
         >
           <img src="/icons/SearchBlue.svg" alt="loc" className="w-4 h-4" />
           <input
+            onChange={(e) => setJob(e.target.value)}
             type="text"
             placeholder="Quel est votre métier ?"
             className="flex-1 text-sm font-bold text-dvianeutralvariant-30 outline-none placeholder:dvianeutralvariant-30 placeholder:text-sm placeholder:font-normal"
@@ -57,6 +63,7 @@ function OverviewStep({
         >
           <img src="/icons/SearchBlue.svg" alt="loc" className="w-4 h-4" />
           <input
+            onChange={(e) => setExperienceYears(Number(e.target.value))}
             type="number"
             min={1}
             placeholder="Combien d'années d'experiences ?"
@@ -64,7 +71,7 @@ function OverviewStep({
           />
         </div>
       </div>
-      <button className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] mb-4">
+      <button onClick={handleUpdateEstimation} className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] mb-4">
         Mettre à jour l’estimation
       </button>
     </>

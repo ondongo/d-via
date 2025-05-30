@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
-import { useLocationContext } from "@/providers/LocationProvider";
-import { Map as LeafletMap } from "leaflet";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
 import OverviewStep from "./OverviewStep";
 import AddressStep from "./AddressStep";
@@ -29,16 +27,12 @@ const Circle = dynamic(
 );
 
 const MapComponent: React.FC = () => {
-  const { coords, currentLocation, refreshLocation } = useLocationContext();
   const [modalOpen, setModalOpen] = useState(false);
-  const openModal = () => {
-    setModalOpen(true);
-  };
+  const openModal = () => setModalOpen(true);
 
   const [modalStep, setModalStep] = useState<"overview" | "address">(
     "overview"
   );
-  const city = currentLocation?.city || "Paris";
 
   const closeModal = () => {
     if (modalStep === "overview") {
@@ -48,28 +42,35 @@ const MapComponent: React.FC = () => {
     }
   };
 
-  const { selectedAddress, setSelectedAddress } = useGlobalState();
+  const {
+    selectedAddress,
+    setSelectedAddress,
+    coordinates,
+    setCoordinates,
+    map,
+    setMap,
+  } = useGlobalState();
 
   const handleSelectAddress = (address: string) => {
     setSelectedAddress(address);
   };
 
-  const handleBack = () => {
-    setModalStep("overview");
-  };
+  const handleBack = () => setModalStep("overview");
 
   const [L, setL] = useState<any>(null);
-  const [map, setMap] = useState<LeafletMap | null>(null);
 
   useEffect(() => {
     import("leaflet").then((leaflet) => setL(leaflet));
   }, []);
 
+
+
+  // Quand coordinates changent, on recentre la carte
   useEffect(() => {
-    if (map && coords) {
-      map.setView([coords.latitude, coords.longitude], 13);
+    if (map && coordinates) {
+      map.setView(coordinates, map.getZoom());
     }
-  }, [map, coords]);
+  }, [coordinates, map]);
 
   if (!L) return null;
 
@@ -82,11 +83,21 @@ const MapComponent: React.FC = () => {
   });
 
   const defaultCenter: [number, number] = [48.856614, 2.3522219];
-  const latitude = currentLocation?.latitude || defaultCenter[0];
-  const longitude = currentLocation?.longitude || defaultCenter[1];
+  const latitude = coordinates?.[0] || defaultCenter[0];
+  const longitude = coordinates?.[1] || defaultCenter[1];
+
+  const handleUpdateEstimation = () => {
+    if (map && coordinates) {
+      map.setView(coordinates, map.getZoom());
+    }
+
+    setModalOpen(false);
+  };
+
   const zoomIn = () => {
     if (map) map.setZoom(map.getZoom() + 1);
   };
+
   const zoomOut = () => {
     if (map) map.setZoom(map.getZoom() - 1);
   };
@@ -165,6 +176,7 @@ const MapComponent: React.FC = () => {
             <OverviewStep
               onAddressClick={() => setModalStep("address")}
               city={selectedAddress}
+              handleUpdateEstimation={handleUpdateEstimation}
             />
           ) : (
             <AddressStep

@@ -7,11 +7,10 @@ import AddressStep from "./AddressStep";
 import { useGlobalState } from "@/providers/globalState";
 
 export const LeftSection = () => {
-  const { currentLocation } = useLocationContext();
   const [modalStep, setModalStep] = useState<"overview" | "address">(
     "overview"
   );
-  const city = currentLocation?.city || "Paris";
+
   const [modalOpen, setModalOpen] = useState(false);
   const openModal = () => {
     setModalOpen(true);
@@ -25,14 +24,37 @@ export const LeftSection = () => {
     }
   };
 
-  const { selectedAddress, setSelectedAddress } = useGlobalState();
+  const {
+    selectedAddress,
+    setSelectedAddress,
+    job,
+    experienceYears,
+    setCoordinates,
+    coordinates,
+    map,
+  } = useGlobalState();
 
-  const handleSelectAddress = (address: string) => {
+  const handleSelectAddress = (
+    address: string,
+    lat?: number,
+    long?: number
+  ) => {
     setSelectedAddress(address);
+
+    if (typeof lat === "number" && typeof long === "number") {
+      setCoordinates([lat, long]);
+    }
   };
 
   const handleBack = () => {
     setModalStep("overview");
+  };
+
+  const handleUpdateEstimation = () => {
+    if (map && coordinates) {
+      map.setView(coordinates, map.getZoom());
+    }
+    setModalOpen(false);
   };
 
   return (
@@ -40,15 +62,15 @@ export const LeftSection = () => {
       {/* Pour les grands écrans (md et +) */}
       <h1 className="hidden md:block text-[44px] font-bold leading-display-large tracking-display-large text-dvianeutral-10 text-center">
         Votre inscription pourrait
-        <br /> vous rapporter{" "} 
-        <span className="text-dviaprimary-40">35 Clients {" "}</span>
-        {" "} avec <span className="text-dvianeutral-10">D-VIA</span>
+        <br /> vous rapporter{" "}
+        <span className="text-dviaprimary-40">35 Clients </span> avec{" "}
+        <span className="text-dvianeutral-10">D-VIA</span>
       </h1>
 
       {/* Pour les petits écrans (en dessous de md) */}
       <h1 className="min-w-[330px]  block md:hidden text-[24px] font-bold leading-display-small tracking-display-small text-dvianeutral-10 text-center">
         Votre inscription pourrait vous rapporter
-        <span className="text-dviaprimary-40">{" "} 35 Client</span>
+        <span className="text-dviaprimary-40"> 35 Client</span>
         <br /> avec <span className="text-dvianeutral-10">D-VIA</span>
       </h1>
 
@@ -102,7 +124,8 @@ export const LeftSection = () => {
             : selectedAddress}
         </span>
         <button className="font-normal outline-none border-none bg-transparent   text-sm text-dvianeutralvariant-30 w-full">
-          Carreleur · 3 ans d’expériences
+          {job} · {experienceYears} {experienceYears > 1 ? "ans" : "an"}{" "}
+          d&apos;expérience
         </button>
       </div>
 
@@ -120,6 +143,7 @@ export const LeftSection = () => {
             <OverviewStep
               onAddressClick={() => setModalStep("address")}
               city={selectedAddress}
+              handleUpdateEstimation={handleUpdateEstimation}
             />
           ) : (
             <AddressStep
