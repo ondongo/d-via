@@ -1,14 +1,7 @@
-import type { Metadata } from "next";
 
 import "./globals.css";
 import { Providers } from "@/providers/providers";
 import Script from "next/script";
-import Header from "@/components/organisms/Header";
-import Footer from "@/components/organisms/Footer";
-import { ToastContainer, Zoom } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import BottomActionButton from "@/components/organisms/BottomActionButton";
-
 export const metadata = {
   title: "Analyser votre devis | Dvia",
   description:
@@ -77,26 +70,7 @@ export default function RootLayout({
           `}
         </Script>
         <Providers>
-          <div className="overflow-hidden pb-20 md:pb-0">
-            <Header />
-            {children}
-            <Footer />
-          </div>
-          <BottomActionButton />
-          <ToastContainer
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick={false}
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Zoom}
-            className="custom-toast"
-          />
+          <div className="overflow-hidden">{children}</div>
         </Providers>
       </body>
     </html>

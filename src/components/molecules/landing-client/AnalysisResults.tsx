@@ -1,3 +1,5 @@
+"use client"
+import { useRouter } from "next/navigation";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 
 export default function AnalysisResults({
@@ -7,6 +9,7 @@ export default function AnalysisResults({
   handleShareResults,
   resultsRef,
 }: any) {
+  const router = useRouter();
   return (
     <div
       ref={resultsRef}
@@ -87,12 +90,8 @@ export default function AnalysisResults({
                         )}
                       </div>
                       <div>
-                        <p className="text-md font-bold text-gray-800">
-                          {key}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {String(value)}
-                        </p>
+                        <p className="text-md font-bold text-gray-800">{key}</p>
+                        <p className="text-sm text-gray-600">{String(value)}</p>
                       </div>
                     </div>
                   </div>
@@ -113,6 +112,12 @@ export default function AnalysisResults({
                 onClick={handleShareResults}
               >
                 Partager l’analyse
+              </button>
+              <button
+                className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center justify-center gap-2 "
+                onClick={() => router.push("/dashboard/clients/search")}
+              >
+                Trouver des artisans
               </button>
             </div>
           </div>
