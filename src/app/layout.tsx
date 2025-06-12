@@ -72,6 +72,23 @@ export default function RootLayout({
         <Providers>
           <div className="overflow-hidden">{children}</div>
         </Providers>
+        <Script
+          id="crisp-chat"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.$crisp=[];
+              window.CRISP_WEBSITE_ID="67015992-6c5f-44e4-9f35-6c29aec4eb43";
+              (function(){
+                var d=document;
+                var s=d.createElement("script");
+                s.src="https://client.crisp.chat/l.js";
+                s.async=1;
+                d.getElementsByTagName("head")[0].appendChild(s);
+              })();
+            `,
+          }}
+        />
       </body>
     </html>
   );
