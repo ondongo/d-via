@@ -2,18 +2,28 @@
 import React from "react";
 import { FaFile } from "react-icons/fa";
 import { usePathname, useRouter } from "next/navigation";
-
+import Image from "next/image";
 function NavigationRail() {
   const pathname = usePathname();
   const router = useRouter();
-
+  const handleClickHome = () => {
+    router.push("/");
+  };
   return (
     <div
       className="group fixed top-0 left-0 h-screen z-50 bg-dvianeutral-90 border-r border-dvianeutral-50 
                 w-[90px] hover:w-[160px] transition-all duration-300 ease-in-out overflow-hidden"
     >
       <div className="flex flex-col py-[44px] justify-between h-full min-h-screen items-center">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 justify-center items-center">
+          <div onClick={handleClickHome} className="cursor-pointer">
+            <img
+              src="/logos/picto.png"
+              alt="Logo"
+              className="w-12 h-12 mb-4 transition-all duration-200"
+            />
+          </div>
+
           <div className="flex flex-col justify-center items-center gap-2 leading-label-medium text-label-medium tracking-label-medium font-semibold">
             <button
               onClick={() => router.push("/dashboard/clients")}

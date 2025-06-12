@@ -78,12 +78,19 @@ function page() {
           <p className="text-dvianeutralvariant-30 text-[16px] font-normal">
             Catégorie :
           </p>
-          <select className="ml-4 p-3 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94  text-dvianeutralvariant-30 text-sm font-normal">
-            <option>Tous les métiers</option>
-          </select>
+          <div className="relative w-fit">
+            <select className="appearance-none ml-4 p-3 pr-10 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94   focus:outline-none focus:border-dvianeutral-40 text-dvianeutralvariant-30 text-sm font-normal cursor-pointer">
+              <option>Tous les métiers</option>
+            </select>
+            <img
+              src="/dashboard/card/select.svg"
+              alt="flèche"
+              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3"
+            />
+          </div>
         </div>
 
-        <button className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px">
+        <button className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px cursor-pointer">
           <img
             src="/dashboard/card/discover_tune.svg"
             alt="loc"
@@ -102,11 +109,11 @@ function page() {
           />{" "}
           Filtrer par :{" "}
         </div>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
           <img src="/dashboard/card/star.svg" alt="loc" className="w-4 h-4" />{" "}
           Note
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
           <img
             src="/dashboard/card/location.svg"
             alt="loc"
@@ -114,7 +121,7 @@ function page() {
           />{" "}
           Distance
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
           <img src="/dashboard/card/check.svg" alt="loc" className="w-4 h-4" />{" "}
           Artisans vérifiés uniquement
         </button>

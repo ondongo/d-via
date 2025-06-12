@@ -32,14 +32,14 @@ export const ArtisanCard = ({
             <div className="text-sm text-gray-800 font-medium">
               Rénovation Habitat
             </div>
-            <div className="text-xs text-gray-500 max-w-[120px] truncate overflow-hidden whitespace-nowrap">
+            <div className="text-xs text-gray-500 max-w-[150px] truncate overflow-hidden whitespace-nowrap">
               Entreprise générale de rénovation
             </div>
           </div>
         </div>
 
         <img
-          src="/dashboard/card/threepoints.svg"
+          src="/dashboard/card/threePoints.svg"
           alt="Options"
           className="w-4 h-4 cursor-pointer"
         />
@@ -86,7 +86,7 @@ export const ArtisanCard = ({
       </div>
 
       <div className="flex flex-row gap-2">
-        <button className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4">
+        <button className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4 cursor-pointer">
           <img
             src="/dashboard/card/contact.svg"
             alt="loc"
@@ -95,7 +95,7 @@ export const ArtisanCard = ({
           Contacter
         </button>
 
-        <button className="max-w-[50px] w-full border bg-dviaprimary-40  text-white text-sm py-2 rounded-8px flex items-center justify-center">
+        <button className="max-w-[50px] w-full border bg-dviaprimary-40  text-white text-sm py-2 rounded-8px flex items-center justify-center cursor-pointer">
           <img src="/icons/call.svg" alt="" className="w-[14px] h-[14px]" />
         </button>
       </div>
