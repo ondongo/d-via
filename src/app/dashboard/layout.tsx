@@ -9,9 +9,9 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body>
-        <div className="overflow-hidden flex flex-row gap-[40px]">
-          <NavigationRail />
-          <div className="flex-1 mt-5">
+        <NavigationRail />
+        <div className="ml-[100px] transition-all duration-300">
+          <div className="mt-5">
             <Breadcumb />
             <div className="w-full flex justify-center items-center mt-4">
               {children}
@@ -22,3 +22,4 @@ export default function DashboardLayout({
     </html>
   );
 }
+

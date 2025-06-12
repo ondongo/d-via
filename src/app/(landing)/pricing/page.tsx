@@ -4,7 +4,7 @@ const tiers = [
   {
     name: "Pack 5 devis",
     id: "pack-5",
-    href: "#",
+    href: "/coming",
     price: "9€",
     description: "Créditez votre compte pour analyser 5 devis avec l’IA.",
     features: ["5 crédits d’analyse de devis", "Utilisable à tout moment"],
@@ -13,7 +13,7 @@ const tiers = [
   {
     name: "Pack 20 devis",
     id: "pack-20",
-    href: "#",
+    href: "/coming",
     price: "24€",
     description: "Idéal pour un usage plus régulier ou professionnel.",
     features: [
@@ -64,7 +64,7 @@ export default function Pricing() {
             key={tier.id}
             className={classNames(
               tier.featured
-                ? "relative bg-dvianeutralvariant-30 shadow-2xl"
+                ? "relative bg-dvianeutral-10 shadow-2xl"
                 : "bg-white/60 sm:mx-8 lg:mx-0",
               tier.featured
                 ? ""

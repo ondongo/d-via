@@ -33,7 +33,7 @@ export default function Home() {
         </p>
         <DevisAnalyse />
 
-        <div className="relative overflow-hidden">
+        <div className=" overflow-hidden">
           <FileMarquee />
         </div>
       </div>

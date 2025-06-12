@@ -2,6 +2,8 @@
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
+import { NavItem } from "./NavItem";
+import ResponsiveMenu from "./ResponsiveMenu";
 
 function Header() {
   const router = useRouter();
@@ -10,9 +12,9 @@ function Header() {
 
   const handleClick = () => {
     if (isOnArtisanPage) {
-      router.push("/");
+      router.push("/coming");
     } else {
-      router.push("/artisans");
+      router.push("/dashboard/clients");
     }
   };
 
@@ -31,15 +33,18 @@ function Header() {
         />
       </div>
 
-      <button
-        onClick={handleClick}
-        className="hidden md:block text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-1 shadow-lg border rounded-8px border-transparent text-sm font-medium
-               hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px]  max-h-[40px]"
-      >
-        {isOnArtisanPage
-          ? "Commencer en tant que client"
-          : "Commencer en tant qu'artisan"}
-      </button>
+      <div className="flex flex-row gap-8 justify-center items-center">
+        <ResponsiveMenu />
+        <button
+          onClick={handleClick}
+          className="hidden md:block text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-1 shadow-lg border rounded-8px border-transparent text-sm font-medium
+               hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px]  min-h-[40px] max-h-[40px]"
+        >
+          {isOnArtisanPage
+            ? "Commencer en tant qu'artisan "
+            : "Commencer en tant que client"}
+        </button>
+      </div>
     </div>
   );
 }
