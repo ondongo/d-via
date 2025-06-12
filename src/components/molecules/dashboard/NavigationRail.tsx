@@ -18,7 +18,7 @@ function NavigationRail() {
         <div className="flex flex-col gap-4 justify-center items-center">
           <div onClick={handleClickHome} className="cursor-pointer">
             <img
-              src="/logos/picto.png"
+              src="/logos/Picto.png"
               alt="Logo"
               className="w-12 h-12 mb-4 transition-all duration-200"
             />
