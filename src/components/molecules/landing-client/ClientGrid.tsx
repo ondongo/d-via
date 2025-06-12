@@ -1,7 +1,15 @@
 "use client";
 
+import { clients } from "@/data";
 import { useInView } from "@/hooks/useInView";
-
+type ClientCardProps = {
+  image: string;
+  name: string;
+  location: string;
+  description: string;
+  rating: number; 
+  savings: string; 
+};
 const ClientGrid = () => {
   const cards = [...Array(8)];
 
@@ -20,8 +28,18 @@ const ClientGrid = () => {
   );
 };
 
-const ClientCard = () => {
+ const ClientCard = ({
+  image,
+  name,
+  location,
+  description,
+  rating,
+  savings,
+}: ClientCardProps) => {
   const { ref, isVisible } = useInView(1);
+
+  const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+
   return (
     <div
       ref={ref}
@@ -33,33 +51,41 @@ const ClientCard = () => {
       <div className="flex flex-col items-center">
         <div className="bg-dvianeutral-96 w-40 h-40 flex items-center justify-center rounded-lg overflow-hidden mb-4">
           <img
-            src="/artisans/plombier_salledebain_rennes 2.png"
-            alt="Portrait Client"
+            src={image}
+            alt={`Portrait de ${name}`}
             className="object-cover w-full h-full"
           />
         </div>
-        <p className="text-lg font-semibold">Marvin</p>
-        <p className="text-sm text-dvianeutralvariant-30">
-          Paris · Rénovation cuisine
-        </p>
+        <p className="text-lg font-semibold">{name}</p>
+        <p className="text-sm text-dvianeutralvariant-30">{location} · {description}</p>
 
         <div className="bg-dvianeutral-90 p-2 rounded-8px mt-4 w-full text-center">
           <div className="flex items-center justify-center space-x-1 text-dviaprimary-40 mb-1">
-            {"★".repeat(4)}☆ <span className="text-black ml-1"> 4</span>
+            {stars} <span className="text-black ml-1">{rating}</span>
           </div>
-          <p className="text-dviasecondary-40 font-bold text-sm">
-            200€ d&apos;économies
-          </p>
+          <p className="text-dviasecondary-40 font-bold text-sm">{savings}</p>
         </div>
       </div>
     </div>
   );
 };
-
 const MarqueeRow = ({ direction, className }: { direction: "left" | "right", className?: string }) => {
-  const cards = Array.from({ length: 15 }).map((_, i) => (
-    <ClientCard key={i} />
-  ));
+  const cards = (
+    <>
+      {clients.map((client, index) => (
+        <ClientCard
+          key={index}
+          image={client.image}
+          name={client.name}
+          location={client.location}
+          description={client.description}
+          rating={client.rating}
+          savings={client.savings}
+        />
+      ))}
+    </>
+  );
+  
 
   return (
     <div className={`w-full relative ${className || ''}`}>
