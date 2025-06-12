@@ -63,7 +63,7 @@ function page() {
     },
   ];
   return (
-    <div className="min-h-screen  p-6 w-full">
+    <div className="min-h-screen p-4  md:p-6 w-full">
       <div className="flex w-full items-center mb-6 gap-4">
         <div className="w-full max-w-[350px]  border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94">
           <img src="/dashboard/card/search.svg" alt="loc" className="w-4 h-4" />
@@ -74,7 +74,7 @@ function page() {
           />
         </div>
 
-        <div className="flex flex-row justify-center items-center">
+        <div className="hidden md:flex flex-row justify-center items-center">
           <p className="text-dvianeutralvariant-30 text-[16px] font-normal">
             Catégorie :
           </p>
@@ -99,30 +99,36 @@ function page() {
         </button>
       </div>
 
-      <div className="flex gap-2 mb-4 items-center text-dvianeutralvariant-30">
-        <div className="flex flex-row gap-2 justify-content-center items-center">
-          {" "}
+      <div className="flex gap-2 mb-4 items-center text-dvianeutralvariant-30 overflow-x-scroll md:overflow-hidden w-full whitespace-nowrap">
+        <div className="flex flex-row gap-2 justify-center items-center mr-4 md:mr-0">
           <img
             src="/dashboard/card/filter_alt.svg"
-            alt="loc"
+            alt="filtrer"
             className="w-4 h-4"
-          />{" "}
-          Filtrer par :{" "}
+          />
+          <span>Filtrer par :</span>
         </div>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
-          <img src="/dashboard/card/star.svg" alt="loc" className="w-4 h-4" />{" "}
+
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer">
+          <img src="/dashboard/card/star.svg" alt="note" className="w-4 h-4" />
           Note
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
+
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer">
           <img
             src="/dashboard/card/location.svg"
-            alt="loc"
+            alt="distance"
             className="w-4 h-4"
-          />{" "}
+          />
           Distance
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center cursor-pointer">
-          <img src="/dashboard/card/check.svg" alt="loc" className="w-4 h-4" />{" "}
+
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer">
+          <img
+            src="/dashboard/card/check.svg"
+            alt="artisans vérifiés"
+            className="w-4 h-4"
+          />
           Artisans vérifiés uniquement
         </button>
       </div>

@@ -166,7 +166,7 @@ function page() {
   };
 
   return (
-    <div className="min-w-[838px]">
+    <div className="min-w-[320px] md:min-w-[838px]">
       {!isAnalyzed && !isLoading ? (
         <>
           {!fileData.base64 ? (
@@ -174,7 +174,7 @@ function page() {
               <div className="w-full mb-5">
                 <div
                   {...getRootProps()}
-                  className="flex flex-col items-center justify-center py-24 w-full border border-gray-300 border-dashed rounded-2xl cursor-pointer bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40"
+                  className="flex flex-col items-center justify-center py-24 w-full border border-gray-300 border-dashed rounded-2xl cursor-pointer bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40 px-4"
                 >
                   <div className="mb-3 flex items-center justify-center">
                     <svg

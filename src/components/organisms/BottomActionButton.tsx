@@ -12,7 +12,7 @@ export default function BottomActionButton() {
     if (isOnArtisanPage) {
       router.push("/coming");
     } else {
-      router.push("/dashboard/clients");
+      router.push("/dashboard/clients/search");
     }
   };
 

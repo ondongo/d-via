@@ -23,7 +23,7 @@ function Breadcumb({ title }: BreadcumbProps) {
   };
 
   return (
-    <h1 className="text-display-medium leading-display-medium tracking-display-medium text-dvianeutral-10 font-[600]  px-6">
+    <h1 className="text-headline-small leading-headline-small  tracking-headline-small  md:text-display-medium md:leading-display-medium md:tracking-display-medium text-dvianeutral-10 font-[600]  px-6">
       {title || getBreadcrumbTitle()}
     </h1>
   );
