@@ -1,9 +1,19 @@
 "use client";
 
-type ArtisanCardProps = {
+type Artisan = {
+  image: string;
+  name: string;
+  location: string;
+  job: string;
+  rating: number;
+  completed: number;
+};
+
+type ArtisanCardProps = Artisan & {
   opacity?: number;
 };
 
+import { artisans } from "@/data";
 import { useEffect, useRef, useState } from "react";
 
 const ArtisanGrid = () => {
@@ -52,7 +62,7 @@ const ArtisanGrid = () => {
 
         <div className="relative w-full mt-8 " ref={containerRef}>
           <div className="animate-marqueeGrid flex w-max space-x-4">
-            {[...cards, ...cards].map((_, idx) => (
+            {[...artisans].map((artisan, idx) => (
               <div
                 key={idx}
                 className="mx-2 transition-opacity duration-300 ease-in-out artisan-card"
@@ -61,7 +71,7 @@ const ArtisanGrid = () => {
                   transition: "opacity 0.3s ease-in-out",
                 }}
               >
-                <ArtisanCard />
+                <ArtisanCard {...artisan} opacity={opacities[idx] ?? 1} />
               </div>
             ))}
           </div>
@@ -71,7 +81,15 @@ const ArtisanGrid = () => {
   );
 };
 
-const ArtisanCard = ({ opacity = 1 }: ArtisanCardProps) => {
+const ArtisanCard = ({
+  image,
+  name,
+  location,
+  job,
+  rating,
+  completed,
+  opacity = 1,
+}: ArtisanCardProps) => {
   return (
     <div
       className="rounded-12px shadow-md bg-white p-4 w-64 flex-shrink-0"
@@ -80,20 +98,24 @@ const ArtisanCard = ({ opacity = 1 }: ArtisanCardProps) => {
       <div className="flex flex-col items-center">
         <div className="bg-dvianeutral-96 w-40 h-40 flex items-center justify-center rounded-lg overflow-hidden mb-4">
           <img
-            src="/artisans/plombier_salledebain_rennes 2.png"
-            alt="Portrait artisan"
+            src={image}
+            alt={`Portrait de ${name}`}
             className="object-cover w-full h-full"
           />
         </div>
-        <p className="text-lg font-semibold">Matys</p>
-        <p className="text-sm text-dvianeutralvariant-30">Paris · Carreleur</p>
+        <p className="text-lg font-semibold">{name}</p>
+        <p className="text-sm text-dvianeutralvariant-30">
+          {location} · {job}
+        </p>
 
         <div className="bg-dvianeutral-90 p-2 rounded-8px mt-4 w-full text-center">
           <div className="flex items-center justify-center space-x-1 text-dviaprimary-40 mb-1">
-            {"★".repeat(4)}☆ <span className="text-black ml-1"> 4</span>
+            {"★".repeat(rating)}
+            {"☆".repeat(5 - rating)}{" "}
+            <span className="text-black ml-1">{rating}</span>
           </div>
           <p className="text-dviasecondary-40 font-bold text-sm">
-            29 chantiers réaliser
+            {completed} chantiers réalisés
           </p>
         </div>
       </div>
