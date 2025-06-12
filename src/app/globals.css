@@ -283,3 +283,12 @@ span {
   font-size: 14px; 
   z-index: 999999;
 }
+
+
+/* Cacher le widget Crisp sur écran < md (768px) */
+@media (max-width: 767px) {
+  #crisp-chatbox, /* si id */
+  .crisp-client { /* si classe */
+    display: none !important;
+  }
+}
