@@ -64,38 +64,58 @@ function page() {
   ];
   return (
     <div className="min-h-screen  p-6 w-full">
-      <div className="flex justify-between items-center mb-6">
-        <div className="w-full max-w-[60%] p-4 flex flex-col rounded-xl px-16 md:px-4">
-          <div className="border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94">
-            <img src="/icons/LocationBlue.svg" alt="loc" className="w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Rechercher par nom ou métier..."
-              className="flex-1 text-sm  text-dvianeutralvariant-30 outline-none placeholder:dvianeutralvariant-30 placeholder:text-sm placeholder:font-normal"
-            />
-          </div>
+      <div className="flex w-full items-center mb-6 gap-4">
+        <div className="w-full max-w-[350px]  border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94">
+          <img src="/dashboard/card/search.svg" alt="loc" className="w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Rechercher par nom ou métier..."
+            className="flex-1 text-sm  text-dvianeutralvariant-30 outline-none placeholder:dvianeutralvariant-30 placeholder:text-sm placeholder:font-normal"
+          />
         </div>
-        <div className="flex flex-row gap-2 items-center justify-center">
-          <InputAddress />
 
-          <div className="flex flex-row justify-center items-center">
-            <p>Catégorie :</p>
-            <select className="ml-4 p-2 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94">
-              <option>Tous les métiers</option>
-            </select>
-          </div>
+        <div className="flex flex-row justify-center items-center">
+          <p className="text-dvianeutralvariant-30 text-[16px] font-normal">
+            Catégorie :
+          </p>
+          <select className="ml-4 p-3 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94  text-dvianeutralvariant-30 text-sm font-normal">
+            <option>Tous les métiers</option>
+          </select>
         </div>
+
+        <button className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px">
+          <img
+            src="/dashboard/card/discover_tune.svg"
+            alt="loc"
+            className="w-4 h-4"
+          />
+        </button>
       </div>
 
       <div className="flex gap-2 mb-4 items-center text-dvianeutralvariant-30">
-        <div className=" mr-2"> Filtrer par : </div>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px">
+        <div className="flex flex-row gap-2 justify-content-center items-center">
+          {" "}
+          <img
+            src="/dashboard/card/filter_alt.svg"
+            alt="loc"
+            className="w-4 h-4"
+          />{" "}
+          Filtrer par :{" "}
+        </div>
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+          <img src="/dashboard/card/star.svg" alt="loc" className="w-4 h-4" />{" "}
           Note
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px">
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+          <img
+            src="/dashboard/card/location.svg"
+            alt="loc"
+            className="w-4 h-4"
+          />{" "}
           Distance
         </button>
-        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px">
+        <button className="border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-content-center items-center">
+          <img src="/dashboard/card/check.svg" alt="loc" className="w-4 h-4" />{" "}
           Artisans vérifiés uniquement
         </button>
       </div>
