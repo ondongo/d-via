@@ -6,7 +6,7 @@ const tiers = [
     id: "pack-5",
     href: "/coming",
     price: "8.99€",
-    description: "Créditez votre compte pour analyser 5 devis avec l’IA.",
+    description: "Créditez votre compte pour analyser 10 devis avec l’IA.",
     features: ["10 crédits d’analyse de devis", "Utilisable à tout moment"],
     featured: false,
   },
