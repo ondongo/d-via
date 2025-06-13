@@ -2,7 +2,7 @@ import { BiCheck } from "react-icons/bi";
 
 const tiers = [
   {
-    name: "Pack décourvert",
+    name: "Pack décourverte",
     id: "pack-5",
     href: "/coming",
     price: "8.99€",
