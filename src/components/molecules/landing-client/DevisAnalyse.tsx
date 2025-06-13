@@ -267,7 +267,7 @@ function DevisAnalyse() {
                           </g>
                         </svg>
                         <div className="grid gap-1">
-                          <h4 className="text-gray-900 text-sm font-normal leading-snug">
+                          <h4 className="text-gray-900 text-sm font-normal leading-snug max-w-[120px] md:max-w-full truncate overflow-hidden whitespace-nowrap">
                             {fileData.name}
                           </h4>
                           <h5 className="text-gray-400   text-xs font-normal leading-4">
