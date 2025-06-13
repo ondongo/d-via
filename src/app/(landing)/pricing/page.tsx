@@ -2,22 +2,22 @@ import { BiCheck } from "react-icons/bi";
 
 const tiers = [
   {
-    name: "Pack 5 devis",
+    name: "Pack décourvert",
     id: "pack-5",
     href: "/coming",
-    price: "9€",
+    price: "8.99€",
     description: "Créditez votre compte pour analyser 5 devis avec l’IA.",
-    features: ["5 crédits d’analyse de devis", "Utilisable à tout moment"],
+    features: ["10 crédits d’analyse de devis", "Utilisable à tout moment"],
     featured: false,
   },
   {
-    name: "Pack 20 devis",
+    name: "Pack pro",
     id: "pack-20",
     href: "/coming",
-    price: "24€",
+    price: "29.99€",
     description: "Idéal pour un usage plus régulier ou professionnel.",
     features: [
-      "20 crédits d’analyse de devis",
+      "30 crédits d’analyse de devis",
       "Utilisable à tout moment",
       "Sans expiration",
     ],
