@@ -47,28 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Script id="axeptio-sdk" strategy="beforeInteractive">
-          {`
-            window.axeptioSettings = {
-              clientId: "68307104da135f22c9435963",
-              cookiesVersion: "github/ondongo/d-via-fr-CA-QC",
-              googleConsentMode: {
-                default: {
-                  analytics_storage: "denied",
-                  ad_storage: "denied",
-                  ad_user_data: "denied",
-                  ad_personalization: "denied",
-                  wait_for_update: 500
-                }
-              }
-            };
-            (function(d,s) {
-              var t = d.getElementsByTagName(s)[0], e = d.createElement(s);
-              e.async = true; e.src = "//static.axept.io/sdk.js";
-              t.parentNode.insertBefore(e, t);
-            })(document, "script");
-          `}
-        </Script>
+    
         <Providers>
           <div className="overflow-hidden">{children}</div>
         </Providers>
