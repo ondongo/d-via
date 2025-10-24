@@ -7,9 +7,9 @@ import BlogBreadcrumb from "@/components/molecules/blog/BlogBreadcrumb";
 import TableOfContentsStickyCard from "@/components/molecules/blog/TableOfContentsStickyCard";
 
 interface BlogPostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -25,9 +25,11 @@ export async function generateStaticParams() {
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  const { slug } = await params;
+  
   const post = await prisma.blog.findUnique({
     where: {
-      slug: params.slug,
+      slug: slug,
     },
     include: {
       reactions: true,

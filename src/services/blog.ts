@@ -12,10 +12,7 @@ export async function getBlogPost(slug: string) {
   return post
 }
 
-export async function createBlogPost(title: string, content: string) {
-  const post = await prisma.blog.create({ data: { title, content } })
-  return post
-}
+
 
 export async function updateBlogPost(id: string, title: string, content: string) {
   const post = await prisma.blog.update({ where: { id }, data: { title, content } })
