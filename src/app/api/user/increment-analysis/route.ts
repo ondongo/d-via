@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       data: {
         analysisCount: {
           increment: 1,

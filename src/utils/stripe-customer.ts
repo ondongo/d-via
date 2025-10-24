@@ -22,7 +22,7 @@ export async function createStripeCustomer({
     });
 
     await prisma.user.update({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
       data: { stripeCustomerId: customer.id },
     });
 
@@ -40,7 +40,7 @@ export async function createStripeCustomer({
 export async function getStripeCustomer(userId: string) {
   try {
     const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
+      where: { id: userId },
     });
 
     if (!user?.stripeCustomerId) {
