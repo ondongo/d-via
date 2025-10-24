@@ -7,7 +7,7 @@ provider = "postgresql"
 url = env("DATABASE_URL")
 }
 
-/// output = "../app/generated/prisma"
+/// output   = "../app/generated/prisma"
 
 enum Role {
 USER
@@ -15,18 +15,32 @@ ADMIN
 }
 
 model User {
-id String @id @default(cuid())
-name String?
-email String? @unique
-emailVerified DateTime?
-image String?
-stripeCustomerId String? @unique
-accounts Account[]
-sessions Session[]
-role Role @default(USER)
-Authenticator Authenticator[]
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  id               String          @id @default(cuid())
+  name             String?
+  email            String?         @unique
+  emailVerified    DateTime?
+  image            String?
+  stripeCustomerId String?         @unique
+  accounts         Account[]
+  sessions         Session[]
+  role             Role            @default(USER)
+  Authenticator    Authenticator[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Artisan {
+  id             String  @id @default(cuid())
+  image          String?
+  rating         Float?
+  reviews        Int?
+  verified       Boolean @default(false)
+  location       String?
+  distance       Float?
+  availability   String?
+  certifications String?
+  profession     String?
+  category       String?
 }
 
 model Account {
