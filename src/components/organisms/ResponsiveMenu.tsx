@@ -21,6 +21,13 @@ export default function ResponsiveMenu() {
           path="/artisans"
           isActive={pathname === "/artisans"}
         />
+
+        <NavItem
+          title="Blog"
+          path="/blog"
+          isActive={pathname === "/blog"}
+        />
+
         {pathname !== "/artisans" && (
           <NavItem
             title="Tarifs"
