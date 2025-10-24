@@ -48,7 +48,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="flex gap-8">
           {/* Sidebar avec table des matières */}
           <div className="hidden lg:block w-64 flex-shrink-0">
-            <TableOfContentsStickyCard content={post.content} />
+            <div className="sticky top-24">
+              <TableOfContentsStickyCard content={post.content} />
+            </div>
           </div>
 
           {/* Contenu principal */}

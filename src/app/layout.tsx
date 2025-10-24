@@ -49,7 +49,7 @@ export default function RootLayout({
       <body>
     
         <Providers>
-          <div className="overflow-hidden">{children}</div>
+          <div>{children}</div>
         </Providers>
         <Script
           id="crisp-chat"

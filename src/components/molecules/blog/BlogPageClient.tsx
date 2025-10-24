@@ -78,11 +78,13 @@ export default function BlogPageClient({
       </div>
       {/* Sidebar avec catégories */}
       <div className="hidden lg:block w-[350px] flex-shrink-0">
-        <CategoryStickyCard
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        <div className="sticky top-24">
+          <CategoryStickyCard
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        </div>
       </div>
     </div>
   );

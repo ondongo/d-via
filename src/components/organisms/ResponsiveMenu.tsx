@@ -12,12 +12,12 @@ export default function ResponsiveMenu() {
       {/* Menu desktop */}
       <div className="hidden md:flex flex-row gap-2 justify-center items-center">
         <NavItem
-          title="Pour les clients"
+          title="Vous êtes un particulier"
           path="/"
           isActive={pathname === "/"}
         />
         <NavItem
-          title="Pour les artisans"
+          title="Vous êtes un artisan"
           path="/artisans"
           isActive={pathname === "/artisans"}
         />
@@ -28,21 +28,21 @@ export default function ResponsiveMenu() {
           isActive={pathname === "/blog"}
         />
 
-        {pathname !== "/artisans" && (
+{/*         {pathname !== "/artisans" && (
           <NavItem
             title="Tarifs"
             path="/pricing"
             isActive={pathname === "/pricing"}
           />
-        )}
+        )} */}
 
-        {pathname == "/artisans" && (
+        {/* {pathname == "/artisans" && (
           <NavItem
             title="Abonnements"
             path="/coming"
             onClick={() => setIsOpen(false)}
           />
-        )}
+        )} */}
       </div>
 
       {/* Bouton hamburger mobile */}
