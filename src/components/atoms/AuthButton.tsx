@@ -9,10 +9,10 @@ interface AuthButtonProps {
   redirectTo?: string;
 }
 
-export default function AuthButton({ 
-  children, 
-  className = "", 
-  redirectTo = "/dashboard" 
+export default function AuthButton({
+  children,
+  className = "",
+  redirectTo = "/dashboard",
 }: AuthButtonProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -25,11 +25,18 @@ export default function AuthButton({
 
   const handleAuth = () => {
     if (status === "authenticated") {
-      signOut();
+      signOut({ callbackUrl: "/" });
     } else {
-      signIn("google", { callbackUrl: redirectTo });
+      // Forcer la déconnexion avant de se reconnecter pour éviter les conflits
+      signOut({ redirect: false }).then(() => {
+        signIn("google", { callbackUrl: redirectTo });
+      });
     }
   };
+
+  if (status === "authenticated") {
+    return null;
+  }
 
   return (
     <button
