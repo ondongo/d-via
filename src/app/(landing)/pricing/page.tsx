@@ -1,23 +1,24 @@
 import { BiCheck } from "react-icons/bi";
+import StripeCheckoutButton from "@/components/atoms/StripeCheckoutButton";
 
 const tiers = [
   {
     name: "Pack décourverte",
     id: "pack-5",
-    href: "/coming",
+    priceId: "prod_TIEctMRjGKuhjM",
     price: "8.99€",
-    description: "Créditez votre compte pour analyser 10 devis avec l’IA.",
-    features: ["10 crédits d’analyse de devis", "Utilisable à tout moment"],
+    description: "Créditez votre compte pour analyser 10 devis avec l'IA.",
+    features: ["10 crédits d'analyse de devis", "Utilisable à tout moment"],
     featured: false,
   },
   {
     name: "Pack pro",
     id: "pack-20",
-    href: "/coming",
+    priceId: "prod_TIEcGkuK4G2Aer",
     price: "29.99€",
     description: "Idéal pour un usage plus régulier ou professionnel.",
     features: [
-      "30 crédits d’analyse de devis",
+      "30 crédits d'analyse de devis",
       "Utilisable à tout moment",
       "Sans expiration",
     ],
@@ -121,9 +122,8 @@ export default function Pricing() {
                 </li>
               ))}
             </ul>
-            <a
-              href={tier.href}
-              aria-describedby={tier.id}
+            <StripeCheckoutButton
+              priceId={tier.priceId}
               className={classNames(
                 tier.featured
                   ? "bg-dviaprimary-40 text-white shadow-xs hover:bg-dviaprimary-30 focus-visible:outline-dviaprimary-50"
@@ -132,7 +132,7 @@ export default function Pricing() {
               )}
             >
               Acheter maintenant
-            </a>
+            </StripeCheckoutButton>
           </div>
         ))}
       </div>
