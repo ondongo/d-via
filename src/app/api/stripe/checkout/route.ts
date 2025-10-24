@@ -1,19 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/configs/stripe/stripe";
+import { createStripeCustomer } from "@/utils/stripe-customer";
+
 
 export async function POST(request: NextRequest) {
   try {
-    const { priceId, customerId } = await request.json();
+    const { priceId, userEmail, userName, userId } = await request.json();
 
-    if (!priceId || !customerId) {
+    if (!priceId || !userEmail || !userId) {
       return NextResponse.json(
-        { error: "priceId et customerId sont requis" },
+        { error: "priceId, userEmail et userId sont requis" },
         { status: 400 }
       );
     }
 
+    const customer = await createStripeCustomer({
+      email: userEmail,
+      name: userName,
+      userId: userId,
+    });
+
+  
+    const { stripe } = await import("@/configs/stripe/stripe");
+
     const session = await stripe.checkout.sessions.create({
-      customer: customerId,
+      customer: customer.id,
       payment_method_types: ["card"],
       line_items: [
         {
@@ -22,8 +32,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/pricing?canceled=true`,
+      success_url: `${process.env.HOST_URL}/dashboard?success=true`,
+      cancel_url: `${process.env.HOST_URL}/pricing?canceled=true`,
     });
 
     return NextResponse.json({ url: session.url });

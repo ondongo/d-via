@@ -5,7 +5,7 @@ const tiers = [
   {
     name: "Pack décourverte",
     id: "pack-5",
-    priceId: "prod_TIEctMRjGKuhjM",
+    priceId: "price_1SLe96D2zF3CMgdYupzJm7gF", 
     price: "8.99€",
     description: "Créditez votre compte pour analyser 10 devis avec l'IA.",
     features: ["10 crédits d'analyse de devis", "Utilisable à tout moment"],
@@ -14,7 +14,7 @@ const tiers = [
   {
     name: "Pack pro",
     id: "pack-20",
-    priceId: "prod_TIEcGkuK4G2Aer",
+    priceId: "price_1SLe9ZD2zF3CMgdYsmFTrRFP", 
     price: "29.99€",
     description: "Idéal pour un usage plus régulier ou professionnel.",
     features: [
@@ -128,7 +128,7 @@ export default function Pricing() {
                 tier.featured
                   ? "bg-dviaprimary-40 text-white shadow-xs hover:bg-dviaprimary-30 focus-visible:outline-dviaprimary-50"
                   : "text-dviaprimary-40 ring-1 ring-dvianeutral-50  ring-inset hover:ring-dvianeutral-60  focus-visible:outline-dviaprimary-60",
-                "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10"
+                "mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10 cursor-pointer"
               )}
             >
               Acheter maintenant

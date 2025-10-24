@@ -1,6 +1,5 @@
 "use client";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
-import AuthButton from "@/components/atoms/AuthButton";
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
@@ -8,18 +7,8 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import AnalysisResults from "./AnalysisResults";
 import { toast } from "react-toastify";
-import { useSession } from "next-auth/react";
-import { useAnalysisCounter } from "@/hooks/useAnalysisCounter";
 
 function DevisAnalyse() {
-  const { data: session } = useSession();
-  const {
-    analysisCount,
-    canAnalyze,
-    remainingFree,
-    incrementAnalysisCount,
-    isLoading: counterLoading,
-  } = useAnalysisCounter();
   const resultsRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [fileData, setFileData] = useState<{
@@ -82,22 +71,6 @@ function DevisAnalyse() {
   });
 
   const handleExtractAndAnalyze = async () => {
-    // Si l'utilisateur n'est pas connecté et a déjà fait une analyse, exiger la connexion
-    if (!session && analysisCount >= 1) {
-      toast.error(
-        "Veuillez vous connecter pour continuer à analyser des devis."
-      );
-      return;
-    }
-
-    // Si l'utilisateur est connecté et a épuisé ses analyses gratuites
-    if (session && !canAnalyze) {
-      toast.error(
-        "Vous avez épuisé vos analyses gratuites. Veuillez acheter des crédits."
-      );
-      return;
-    }
-
     setIsLoading(true);
     try {
       if (!fileData.base64) {
@@ -150,9 +123,6 @@ function DevisAnalyse() {
           });
           setIsAnalyzed(true);
 
-          // Incrémenter le compteur d'analyses
-          await incrementAnalysisCount();
-
           console.log("Analyse réussie :", analyzeData);
         } else {
           console.log("Erreur d'analyse :", analyzeData.error);
@@ -201,41 +171,13 @@ function DevisAnalyse() {
   return (
     <>
       <div className="flex flex-col items-center gap-2">
-        {analysisCount >= 1 && !session ? (
-          // Si l'utilisateur a déjà fait une analyse et n'est pas connecté
-          <AuthButton className="whitespace-nowrap my-5 text-white text-[12px] md:text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer flex items-center gap-2">
-            <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
-            {!counterLoading && (
-              <p className="text-sm">
-                {analysisCount === 0
-                  ? "Première analyse gratuite"
-                  : remainingFree > 0
-                  ? `${remainingFree} analyse${
-                      remainingFree > 1 ? "s" : ""
-                    } gratuite${remainingFree > 1 ? "s" : ""} restante${
-                      remainingFree > 1 ? "s" : ""
-                    }`
-                  : session
-                  ? "Achetez des crédits pour analyser un devis"
-                  : "Connectez-vous pour analyser un nouveau devis"}
-              </p>
-            )}
-          </AuthButton>
-        ) : (
-          // Bouton d'analyse normal
-          <button
-            onClick={() => openModal()}
-            disabled={!canAnalyze}
-            className={`my-5 text-white text-[12px] md:text-label-large leading-label-large tracking-label-large px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2 ${
-              canAnalyze
-                ? "bg-dviaprimary-40 hover:bg-dviaprimary-30"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
-            <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
-            {canAnalyze ? "Analyser votre devis" : "Analyses épuisées"}
-          </button>
-        )}
+        <button
+          onClick={() => openModal()}
+          className="my-5 text-white text-[12px] md:text-label-large leading-label-large tracking-label-large px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2 bg-dviaprimary-40 hover:bg-dviaprimary-30"
+        >
+          <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
+          Analyser un devis
+        </button>
       </div>
 
       <Modal

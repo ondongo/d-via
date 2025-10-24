@@ -1,7 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
-import { createStripeCustomer } from "@/utils/stripe-customer";
 
 interface StripeCheckoutButtonProps {
   priceId: string;
@@ -26,14 +25,7 @@ export default function StripeCheckoutButton({
     setIsLoading(true);
     
     try {
-      // Créer ou récupérer le client Stripe
-      const customer = await createStripeCustomer({
-        email: session.user.email,
-        name: session.user.name || undefined,
-        userId: session.user.id || "",
-      });
-
-      // Rediriger vers Stripe Checkout
+      // Appeler l'API checkout qui gérera la création du client Stripe
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: {
@@ -41,11 +33,17 @@ export default function StripeCheckoutButton({
         },
         body: JSON.stringify({
           priceId,
-          customerId: customer.id,
+          userEmail: session.user.email,
+          userName: session.user.name || undefined,
+          userId: session.user.id || "",
         }),
       });
 
-      const { url } = await response.json();
+      const { url, error } = await response.json();
+      
+      if (error) {
+        throw new Error(error);
+      }
       
       if (url) {
         window.location.href = url;

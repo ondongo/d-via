@@ -7,7 +7,6 @@ const files = [
   "toiture devis comparaison 3.pdf",
 ];
 
-import { MdDriveFileMoveOutline } from "react-icons/md";
 import { useInView } from "@/hooks/useInView";
 
 const FileCard = ({ name }: { name: string }) => {
