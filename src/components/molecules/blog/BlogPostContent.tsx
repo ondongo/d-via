@@ -1,40 +1,76 @@
 "use client";
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useMemo } from 'react';
 
 interface BlogPostContentProps {
   content: string;
 }
 
+// Fonction pour générer un ID à partir du texte
+const generateId = (text: string) => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim();
+};
+
+// Compteur pour les IDs uniques
+let headingCounter = 0;
+
 const components = {
-  h1: ({ children, ...props }: any) => (
-    <h1 className="text-3xl font-bold text-dvianeutral-10 mb-6 mt-8 first:mt-0" {...props}>
-      {children}
-    </h1>
-  ),
-  h2: ({ children, ...props }: any) => (
-    <h2 className="text-2xl font-bold text-dvianeutral-10 mb-4 mt-6" {...props}>
-      {children}
-    </h2>
-  ),
-  h3: ({ children, ...props }: any) => (
-    <h3 className="text-xl font-semibold text-dvianeutral-10 mb-3 mt-5" {...props}>
-      {children}
-    </h3>
-  ),
+  h1: ({ children, ...props }: any) => {
+    const text = typeof children === 'string' ? children : children?.toString() || '';
+    const id = `heading-${headingCounter++}`;
+    return (
+      <h1 
+        id={id}
+        className="text-3xl font-bold text-dviaprimary-40 mb-6 mt-8 first:mt-0" 
+        {...props}
+      >
+        {children}
+      </h1>
+    );
+  },
+  h2: ({ children, ...props }: any) => {
+    const text = typeof children === 'string' ? children : children?.toString() || '';
+    const id = `heading-${headingCounter++}`;
+    return (
+      <h2 
+        id={id}
+        className="text-2xl font-bold text-dvianeutral-10 mb-4 mt-6" 
+        {...props}
+      >
+        {children}
+      </h2>
+    );
+  },
+  h3: ({ children, ...props }: any) => {
+    const text = typeof children === 'string' ? children : children?.toString() || '';
+    const id = `heading-${headingCounter++}`;
+    return (
+      <h3 
+        id={id}
+        className="text-xl font-semibold text-dvianeutral-10 mb-3 mt-5" 
+        {...props}
+      >
+        {children}
+      </h3>
+    );
+  },
   p: ({ children, ...props }: any) => (
-    <p className="text-dvianeutral-40 leading-relaxed mb-4" {...props}>
+    <p className="text-dvianeutralvariant-30 text-[14px] md:text-[16px] leading-title-small tracking-title-small font-[400]" {...props}>
       {children}
     </p>
   ),
   ul: ({ children, ...props }: any) => (
-    <ul className="list-disc list-inside text-dvianeutral-40 mb-4 space-y-2" {...props}>
+    <ul className="list-disc list-inside text-dvianeutralvariant-30 mb-4 space-y-2" {...props}>
       {children}
     </ul>
   ),
   ol: ({ children, ...props }: any) => (
-    <ol className="list-decimal list-inside text-dvianeutral-40 mb-4 space-y-2" {...props}>
+    <ol className="list-decimal list-inside text-dvianeutralvariant-30 mb-4 space-y-2" {...props}>
       {children}
     </ol>
   ),
@@ -106,13 +142,16 @@ const components = {
     </th>
   ),
   td: ({ children, ...props }: any) => (
-    <td className="px-4 py-3 text-sm text-dvianeutral-40 border-b border-dvianeutral-90" {...props}>
+    <td className="px-4 py-3 text-sm text-dvianeutralvariant-30 border-b border-dvianeutral-90" {...props}>
       {children}
     </td>
   ),
 };
 
 export default function BlogPostContent({ content }: BlogPostContentProps) {
+  // Réinitialiser le compteur à chaque rendu
+  headingCounter = 0;
+  
   return (
     <div className="prose prose-lg max-w-none">
       <MDXRemote 

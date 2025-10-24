@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import BlogPostContent from "@/components/molecules/blog/BlogPostContent";
 import BlogPostHeader from "@/components/molecules/blog/BlogPostHeader";
 import BlogPostFooter from "@/components/molecules/blog/BlogPostFooter";
+import BlogBreadcrumb from "@/components/molecules/blog/BlogBreadcrumb";
+import TableOfContentsStickyCard from "@/components/molecules/blog/TableOfContentsStickyCard";
 
 interface BlogPostPageProps {
   params: {
@@ -37,15 +39,27 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-dvianeutral-98">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        <BlogPostHeader post={post} />
+    <div className="min-h-screen">
+      <div className="mx-auto px-6 py-12">
+        <BlogBreadcrumb title={post.title} />
         
-        <div className="bg-white rounded-2xl shadow-sm border border-dvianeutral-90 p-8 md:p-12">
-          <BlogPostContent content={post.content} />
+        <div className="flex gap-8">
+          {/* Sidebar avec table des matières */}
+          <div className="hidden lg:block w-64 flex-shrink-0">
+            <TableOfContentsStickyCard content={post.content} />
+          </div>
+
+          {/* Contenu principal */}
+          <div className="flex-1">
+            <BlogPostHeader post={post} />
+            
+            <div className="bg-white rounded-2xl shadow-sm border border-dvianeutral-90 p-8 md:p-12">
+              <BlogPostContent content={post.content} />
+            </div>
+            
+            <BlogPostFooter post={post} />
+          </div>
         </div>
-        
-        <BlogPostFooter post={post} />
       </div>
     </div>
   );

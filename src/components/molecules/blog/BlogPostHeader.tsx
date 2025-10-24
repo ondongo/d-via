@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -7,6 +8,8 @@ interface BlogPostHeaderProps {
     id: string;
     title: string;
     slug: string;
+    author?: string;
+    featuredImage?: string;
     createdAt: Date;
     reactions: Array<{
       id: string;
@@ -21,24 +24,36 @@ export default function BlogPostHeader({ post }: BlogPostHeaderProps) {
 
   return (
     <div className="mb-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Link 
-          href="/blog"
-          className="flex items-center gap-2 text-dvianeutral-50 hover:text-dviaprimary-40 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          <span className="text-sm font-medium">Retour au blog</span>
-        </Link>
-      </div>
+      {/* Image en grand */}
+      {post.featuredImage && (
+        <div className="mb-8">
+          <div className="relative w-full h-64 md:h-80 lg:h-96 rounded-2xl overflow-hidden">
+            <Image
+              src={post.featuredImage}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+            />
+          </div>
+        </div>
+      )}
 
       <div className="text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-dvianeutral-10 mb-6 leading-tight">
           {post.title}
         </h1>
         
-        <div className="flex items-center justify-center gap-6 text-dvianeutral-50">
+        <div className="flex items-center justify-center gap-6 text-dviaprimary-40">
+          {post.author && (
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="font-medium">{post.author}</span>
+            </div>
+          )}
+          
           <time className="flex items-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

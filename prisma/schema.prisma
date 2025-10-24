@@ -101,24 +101,29 @@ user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Blog {
-id String @id @default(auto()) @map("_id") @db.ObjectId
+id String @id @default(cuid())
 title String
 slug String @unique
 content String
+excerpt String?
+featuredImage String?
+previewImage String?
+author String?
+tags String[]
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
 reactions Reaction[]
 }
 
 model Reaction {
-id String @id @default(auto()) @map("_id") @db.ObjectId
+id String @id @default(cuid())
 count Int? @default(1)
 section String?
 type ReactionType @default(CLAPPING)
 createdAt DateTime @default(now())
 sessionId String
 
-contentId String @db.ObjectId
+contentId String
 content Blog @relation(fields: [contentId], references: [id], onDelete: Cascade)
 }
 

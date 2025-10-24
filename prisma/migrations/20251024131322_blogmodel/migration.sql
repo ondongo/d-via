@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "public"."Role" AS ENUM ('USER', 'ADMIN');
 
+-- CreateEnum
+CREATE TYPE "public"."ReactionType" AS ENUM ('CLAPPING', 'THINKING', 'AMAZED');
+
 -- CreateTable
 CREATE TABLE "public"."User" (
     "id" TEXT NOT NULL,
@@ -9,12 +12,28 @@ CREATE TABLE "public"."User" (
     "emailVerified" TIMESTAMP(3),
     "image" TEXT,
     "stripeCustomerId" TEXT,
-    "analysisCount" INTEGER NOT NULL DEFAULT 0,
     "role" "public"."Role" NOT NULL DEFAULT 'USER',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Artisan" (
+    "id" TEXT NOT NULL,
+    "image" TEXT,
+    "rating" DOUBLE PRECISION,
+    "reviews" INTEGER,
+    "verified" BOOLEAN NOT NULL DEFAULT false,
+    "location" TEXT,
+    "distance" DOUBLE PRECISION,
+    "availability" TEXT,
+    "certifications" TEXT,
+    "profession" TEXT,
+    "category" TEXT,
+
+    CONSTRAINT "Artisan_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -70,6 +89,31 @@ CREATE TABLE "public"."Authenticator" (
     CONSTRAINT "Authenticator_pkey" PRIMARY KEY ("userId","credentialID")
 );
 
+-- CreateTable
+CREATE TABLE "public"."Blog" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Blog_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Reaction" (
+    "id" TEXT NOT NULL,
+    "count" INTEGER DEFAULT 1,
+    "section" TEXT,
+    "type" "public"."ReactionType" NOT NULL DEFAULT 'CLAPPING',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sessionId" TEXT NOT NULL,
+    "contentId" TEXT NOT NULL,
+
+    CONSTRAINT "Reaction_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 
@@ -88,6 +132,9 @@ CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "public"."Verifi
 -- CreateIndex
 CREATE UNIQUE INDEX "Authenticator_credentialID_key" ON "public"."Authenticator"("credentialID");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Blog_slug_key" ON "public"."Blog"("slug");
+
 -- AddForeignKey
 ALTER TABLE "public"."Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -96,3 +143,6 @@ ALTER TABLE "public"."Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "public"."Authenticator" ADD CONSTRAINT "Authenticator_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."Reaction" ADD CONSTRAINT "Reaction_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "public"."Blog"("id") ON DELETE CASCADE ON UPDATE CASCADE;
