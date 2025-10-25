@@ -14,7 +14,7 @@ export default function LandingLayout({
   return (
     <html lang="en">
       <body>
-        <div className="overflow-hidden pb-20 md:pb-0 ">
+        <div className="pb-20 md:pb-0">
           <Header />
           {children}
           <Footer />

@@ -186,7 +186,7 @@ export default function BlogCard({ post }: BlogCardProps) {
         )}
 
         {/* Titre */}
-        <h2 className="text-lg line-clamp-1 font-bold text-dvianeutral-10 mb-3 group-hover:text-dviaprimary-40 transition-colors">
+        <h2 className="text-lg line-clamp-2 font-bold text-dvianeutral-10 mb-3 group-hover:text-dviaprimary-40 transition-colors">
           {post.title}
         </h2>
 
@@ -198,7 +198,7 @@ export default function BlogCard({ post }: BlogCardProps) {
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (
           <div className="flex gap-2 mb-4 flex-wrap">
-            {post.tags.slice(0, 3).map((tag) => (
+            {post.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
                 className="border border-dvianeutral-50 text-xs px-2 py-1 rounded bg-dvianeutral-94 text-dvianeutral-30"
@@ -206,9 +206,9 @@ export default function BlogCard({ post }: BlogCardProps) {
                 {tag}
               </span>
             ))}
-            {post.tags.length > 3 && (
+            {post.tags.length > 2 && (
               <span className="text-xs text-dvianeutral-40 px-2 py-1">
-                +{post.tags.length - 3}
+                +{post.tags.length - 2}
               </span>
             )}
           </div>

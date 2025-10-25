@@ -77,7 +77,7 @@ export default function TableOfContentsStickyCard({
   }
 
   return (
-    <div className="sticky top-4 bg-dvianeutral-96 border border-dvianeutral-50 rounded-2xl p-4">
+    <div className="bg-dvianeutral-96 border border-dvianeutral-50 rounded-2xl p-4 z-10">
       <h3 className="text-sm font-semibold text-dvianeutral-10 mb-3">
         Table des matières
       </h3>
