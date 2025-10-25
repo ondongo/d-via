@@ -85,7 +85,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
                         parseFloat(r.lon)
                       );
                     }}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-100 cursor-pointer ${
+                    className={`flex items-center gap-2 px-4 py-3 text-sm hover:bg-dvianeutral-90 cursor-pointer ${
                       i !== results.length - 1
                         ? "border-b border-dvianeutral-50"
                         : ""

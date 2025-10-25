@@ -105,7 +105,7 @@ export default function BlogPostFooter({ post }: BlogPostFooterProps) {
                   onClick={() => handleReaction(type)}
                 />
                 <div className="text-center">
-                  <div className="text-xs font-medium text-dvianeutral-40">
+                  <div className="text-xs font-medium text-dviaprimary-40">
                     {config.title}
                   </div>
                   {count > 0 && (
@@ -120,7 +120,7 @@ export default function BlogPostFooter({ post }: BlogPostFooterProps) {
         </div>
         
         <div className="mt-6 pt-6 border-t border-dvianeutral-90">
-          <p className="text-sm text-dvianeutral-50">
+          <p className="text-sm text-dvianeutral-10">
             Merci pour votre retour ! Vos réactions nous aident à améliorer notre contenu.
           </p>
         </div>

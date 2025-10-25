@@ -134,7 +134,7 @@ export default function BlogCard({ post }: BlogCardProps) {
 
   return (
     <Link href={`/blog/${post.slug}`} className="group">
-      <article className="border border-dvianeutral-50 rounded-2xl px-4 w-full md:max-w-xs min-h-[480px] bg-dvianeutral-96 hover:hover:border-dvianeutral-50 transition-all duration-300">
+      <article className="border border-dvianeutral-50 rounded-2xl px-4 w-full md:max-w-xs min-h-[480px] bg-dvianeutral-90 hover:hover:border-dvianeutral-50 transition-all duration-300">
         {/* Header avec auteur */}
         <div className="flex items-center justify-between py-4 rounded-xl">
           <div className="flex items-center gap-3">
@@ -201,13 +201,13 @@ export default function BlogCard({ post }: BlogCardProps) {
             {post.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
-                className="border border-dvianeutral-50 text-xs px-2 py-1 rounded bg-dvianeutral-94 text-dvianeutral-30"
+                className="border border-dvianeutral-50 text-xs px-2 py-1 rounded bg-dvianeutral-94 text-dvianeutral-10"
               >
                 {tag}
               </span>
             ))}
             {post.tags.length > 2 && (
-              <span className="text-xs text-dvianeutral-40 px-2 py-1">
+              <span className="text-label-medium leading-label-medium tracking-label-medium text-dvianeutral-40 px-2 py-1 font-[700]">
                 +{post.tags.length - 2}
               </span>
             )}
@@ -216,7 +216,10 @@ export default function BlogCard({ post }: BlogCardProps) {
 
         {/* Bouton d'action */}
         <div className="flex flex-row gap-2 mt-auto">
-          <button className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4 cursor-pointer hover:bg-dviaprimary-90 hover:border-dvianeutral-50 transition-colors ">
+          <button
+            className="w-full whitespace-nowrap text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4  shadow-lg border rounded-8px border-transparent text-sm font-medium
+               hover:shadow-sm transition-shadow duration-300 cursor-pointer flex items-center justify-center gap-2 h-[40px]"
+          >
             <svg
               className="w-4 h-4"
               fill="none"

@@ -25,7 +25,7 @@ function Header() {
     router.push("/");
   };
   return (
-    <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50">
+    <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 bg-dviaheader">
       <div onClick={handleClickHome} className="cursor-pointer">
         <Image
           src="/logos/logo.png"

@@ -4,7 +4,7 @@
 
 :root {
   /* Couleurs de base */
-  --background: #feefed;
+  --background: #F8F5F3;
   --font-body: "Montserrat", sans-serif;
 }
 
@@ -66,6 +66,7 @@
   --font-weight-roboto-regular: 400;
 
   /* Couleurs primaires */
+  --color-dviaheader:#EFE8E2;
   --color-dviaprimary-0: #f7f8ff;
   --color-dviaprimary-4: #160804;
   --color-dviaprimary-6: #220b05;
@@ -76,7 +77,7 @@
   --color-dviaprimary-22: #7d2b17;
   --color-dviaprimary-24: #892f19;
   --color-dviaprimary-30: #ac3416;
-  --color-dviaprimary-40: #e5451d;
+  --color-dviaprimary-40: #E16A26;/* Important */
   --color-dviaprimary-50: #e96443;
   --color-dviaprimary-60: #ee8368;
   --color-dviaprimary-70: #f2a28e;
@@ -181,16 +182,16 @@
   --color-dvianeutral-24: #96625b;
   --color-dvianeutral-30: #bc7970;
   --color-dvianeutral-40: #fba195;
-  --color-dvianeutral-50: #fcb1a7;
+  --color-dvianeutral-50: #D0B8A2; /* Important */
   --color-dvianeutral-60: #fcc0b8;
   --color-dvianeutral-70: #fdd0ca;
   --color-dvianeutral-80: #fee0dc;
   --color-dvianeutral-87: #feebe8;
-  --color-dvianeutral-90: #feefed;
+  --color-dvianeutral-90: #F8F5F3;  /* Important */
   --color-dvianeutral-92: #fef2f1;
-  --color-dvianeutral-94: #fef5f4;
+  --color-dvianeutral-94: #EFE8E2;/* Important */
   --color-dvianeutral-95: #fff7f6;
-  --color-dvianeutral-96: #fff9f8;
+  --color-dvianeutral-96: #F4EEEB; /* Important */
   --color-dvianeutral-98: #fffcfb;
   --color-dvianeutral-99: #fffdfd;
   --color-dvianeutral-100: #ffffff;

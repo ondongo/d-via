@@ -77,7 +77,7 @@ export default function TableOfContentsStickyCard({
   }
 
   return (
-    <div className="bg-dvianeutral-96 border border-dvianeutral-50 rounded-2xl p-4 z-10">
+    <div className="bg-dvianeutral-90 border border-dvianeutral-50 rounded-2xl p-4 z-10">
       <h3 className="text-sm font-semibold text-dvianeutral-10 mb-3">
         Table des matières
       </h3>
@@ -99,7 +99,7 @@ export default function TableOfContentsStickyCard({
             }}
             className={`block text-xs py-1 px-2 rounded transition-colors cursor-pointer ${
               activeId === item.id
-                ? "bg-dviaprimary-90 text-dviaprimary-40 border-l-2 border-dviaprimary-40"
+                ? "bg-dviaprimary-96 text-dviaprimary-40 border-l-2 border-dviaprimary-40"
                 : "text-dvianeutral-30 hover:bg-dvianeutral-90 hover:text-dvianeutral-10"
             }`}
             style={{ paddingLeft: `${(item.level - 1) * 12 + 8}px` }}

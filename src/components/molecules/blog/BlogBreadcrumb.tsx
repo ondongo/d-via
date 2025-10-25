@@ -9,14 +9,14 @@ export default function BlogBreadcrumb({ title }: BlogBreadcrumbProps) {
     <nav className="flex items-center space-x-2 text-sm mb-6">
       <Link
         href="/"
-        className="text-dvianeutral-40 hover:text-dviaprimary-40 transition-colors"
+        className="text-dviaprimary-40 hover:text-dviasecondary-40 transition-colors"
       >
         Accueil
       </Link>
       <span className="text-dvianeutral-50">/</span>
       <Link
         href="/blog"
-        className="text-dvianeutral-40 hover:text-dviaprimary-40 transition-colors"
+        className="text-dviasecondary-40 hover:text-dvianeutral-40 transition-colors"
       >
         Blog
       </Link>
