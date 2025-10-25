@@ -95,6 +95,11 @@ CREATE TABLE "public"."Blog" (
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "excerpt" TEXT,
+    "featuredImage" TEXT,
+    "previewImage" TEXT,
+    "author" TEXT,
+    "tags" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
