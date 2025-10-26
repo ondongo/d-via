@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import { NavItem } from "./NavItem";
 import ResponsiveMenu from "./ResponsiveMenu";
-import AuthButton from "@/components/atoms/AuthButton";
+import AuthButton from "@/components/atoms/auth/AuthButton";
 import { useSession } from "next-auth/react";
 
 function Header() {
