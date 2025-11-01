@@ -11,7 +11,7 @@ function Footer() {
         <Image
           src="/logos/logo.png"
           alt="Logo"
-          width={150}
+          width={90}
           height={80}
           style={{ objectFit: "contain" }}
         />

@@ -15,11 +15,11 @@ function HeaderAuth() {
   };
   return (
     <div className="flex flex-row justify-between p-4">
-      <div onClick={handleClickHome} className="cursor-pointer">
+      <div onClick={handleClickHome} className="cursor-pointer flex items-center">
         <Image
           src="/logos/logo.png"
           alt="Logo"
-          width={120}
+          width={90}
           height={0}
           style={{ maxWidth: "213px", maxHeight: "80px" }}
         />
