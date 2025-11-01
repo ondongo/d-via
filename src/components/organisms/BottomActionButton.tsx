@@ -10,7 +10,7 @@ export default function BottomActionButton() {
 
   const handleClick = () => {
     if (isOnArtisanPage) {
-      router.push("/coming");
+      router.push("/signup");
     } else {
       router.push("/dashboard/clients/search");
     }
@@ -20,8 +20,12 @@ export default function BottomActionButton() {
     <div className="fixed bottom-0 left-0 w-full bg-dvianeutral-96 px-4 py-6  z-[99999] md:hidden flex justify-center">
       <button
         onClick={handleClick}
-        className="text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-1 shadow-lg border rounded-8px border-transparent text-sm font-medium
-               hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px]  h-[40px]"
+        className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
+               hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
+                 isOnArtisanPage
+                   ? "text-dviaprimary-40 bg-transparent border-dvianeutral-50"
+                   : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
+               }`}
       >
         {isOnArtisanPage
           ? "Commencer en tant qu'artisan "

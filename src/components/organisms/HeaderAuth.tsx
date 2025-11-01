@@ -25,7 +25,7 @@ function HeaderAuth() {
         />
       </div>
 
-      <SaveAndExitButton children={"Quitter"} />
+      <SaveAndExitButton children={"Quitter"} onClick={handleClickHome} />
     </div>
   );
 }

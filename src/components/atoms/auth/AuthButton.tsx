@@ -1,6 +1,6 @@
 "use client";
 import { signIn, signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 interface AuthButtonProps {
@@ -16,7 +16,7 @@ export default function AuthButton({
 }: AuthButtonProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  const pathname = usePathname();
   useEffect(() => {
     if (status === "authenticated" && session) {
       router.push(redirectTo);
@@ -24,13 +24,18 @@ export default function AuthButton({
   }, [session, status, router, redirectTo]);
 
   const handleAuth = () => {
-    if (status === "authenticated") {
-      signOut({ callbackUrl: "/" });
+    const isOnArtisanPage = pathname === "/artisans";
+    if (isOnArtisanPage) {
+      router.push("/signup");
     } else {
-      // Forcer la déconnexion avant de se reconnecter pour éviter les conflits
-      signOut({ redirect: false }).then(() => {
-        signIn("google", { callbackUrl: redirectTo });
-      });
+      if (status === "authenticated") {
+        signOut({ callbackUrl: "/" });
+      } else {
+        // Forcer la déconnexion avant de se reconnecter pour éviter les conflits
+        signOut({ redirect: false }).then(() => {
+          signIn("google", { callbackUrl: redirectTo });
+        });
+      }
     }
   };
 
