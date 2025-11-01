@@ -2,24 +2,43 @@
 
 import { useState, useRef, useEffect } from "react";
 
-export default function CodePinInput({ length = 6, onComplete }: { length?: number; onComplete?: (code: string) => void }) {
+export default function CodePinInput({
+  length = 6,
+  onChange,
+}: {
+  length?: number;
+  onComplete?: (code: string) => void;
+  onChange?: (code: string) => void;
+}) {
   const [code, setCode] = useState<string[]>(Array(length).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleChange = (index: number, value: string) => {
     // Accepter seulement les chiffres
     const digit = value.replace(/[^0-9]/g, "");
-    
+
     if (digit.length === 0) {
       // Permettre la suppression
       const newCode = [...code];
       newCode[index] = "";
       setCode(newCode);
+      // Appeler onChange avec le code mis à jour
+      const updatedCode = [...newCode];
+      const fullCode = updatedCode.join("");
+      if (onChange) {
+        onChange(fullCode);
+      }
     } else {
       // Prendre le dernier caractère entré
       const newCode = [...code];
       newCode[index] = digit.slice(-1);
       setCode(newCode);
+
+      // Appeler onChange avec le code mis à jour
+      const fullCode = newCode.join("");
+      if (onChange) {
+        onChange(fullCode);
+      }
 
       // Passer à l'input suivant
       if (index < length - 1) {
@@ -28,7 +47,10 @@ export default function CodePinInput({ length = 6, onComplete }: { length?: numb
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
       // Si l'input est vide, revenir au précédent
       inputRefs.current[index - 1]?.focus();
@@ -38,25 +60,23 @@ export default function CodePinInput({ length = 6, onComplete }: { length?: numb
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").replace(/[^0-9]/g, "");
-    
+
     const newCode = [...code];
     for (let i = 0; i < length && i < pastedData.length; i++) {
       newCode[i] = pastedData[i];
     }
     setCode(newCode);
 
+    // Appeler onChange avec le code collé
+    const fullCode = newCode.join("");
+    if (onChange) {
+      onChange(fullCode);
+    }
+
     // Focus sur le dernier input rempli ou le dernier si tout est rempli
     const lastIndex = Math.min(pastedData.length - 1, length - 1);
     inputRefs.current[lastIndex]?.focus();
   };
-
-  // Surveiller les changements pour appeler onComplete
-  useEffect(() => {
-    const fullCode = code.join("");
-    if (fullCode.length === length && onComplete) {
-      onComplete(fullCode);
-    }
-  }, [code, length, onComplete]);
 
   return (
     <div className="flex gap-x-3 items-center">

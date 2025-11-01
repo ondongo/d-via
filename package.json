@@ -38,7 +38,8 @@
     "react-leaflet": "^5.0.0",
     "react-syntax-highlighter": "^16.0.0",
     "react-toastify": "^11.0.5",
-    "stripe": "^18.5.0"
+    "stripe": "^18.5.0",
+    "twilio": "^5.10.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

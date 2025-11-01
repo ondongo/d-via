@@ -15,7 +15,7 @@ function Header() {
 
   const handleClick = () => {
     if (isOnArtisanPage) {
-      router.push("/coming");
+      router.push("/signup");
     } else {
       router.push("/dashboard/clients");
     }
@@ -41,8 +41,12 @@ function Header() {
         {session ? (
           <button
             onClick={handleClick}
-            className="hidden md:block text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-1 shadow-lg border rounded-8px border-transparent text-sm font-medium
-                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px]  min-h-[40px] max-h-[40px]"
+            className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
+              hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
+                isOnArtisanPage
+                  ? "text-dviaprimary-40 bg-transparent border-dvianeutral-50"
+                  : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
+              }`}
           >
             {isOnArtisanPage
               ? "Commencer en tant qu'artisan "
@@ -51,8 +55,12 @@ function Header() {
         ) : (
           <div className="hidden md:flex gap-4">
             <AuthButton
-              className="hidden md:block text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-4 py-1 shadow-lg border rounded-8px border-transparent text-sm font-medium
-                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px]  min-h-[40px] max-h-[40px]"
+              className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
+                hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
+                  isOnArtisanPage
+                    ? "text-dviaprimary-40 bg-transparent border-dvianeutral-50"
+                    : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
+                }`}
             >
               {isOnArtisanPage
                 ? "Commencer en tant qu'artisan "
