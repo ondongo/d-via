@@ -1,6 +1,8 @@
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderAuth from "@/components/organisms/HeaderAuth";
+import FooterAuth from "@/components/organisms/FooterAuth";
+import { SignupProvider } from "@/providers/SignupContext";
 
 export default function LandingLayout({
   children,
@@ -10,26 +12,27 @@ export default function LandingLayout({
   return (
     <html lang="en">
       <body>
-        <div className="pb-20 md:pb-0">
-          <HeaderAuth />
-          {children}
-          {/* <Footer /> */}
-        </div>
-        {/*         <BottomActionButton /> */}
-        <ToastContainer
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition={Zoom}
-          className="custom-toast"
-        />
+        <SignupProvider>
+          <div className="pb-20 md:pb-0">
+            <HeaderAuth />
+            {children}
+            <FooterAuth />
+          </div>
+          <ToastContainer
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Zoom}
+            className="custom-toast"
+          />
+        </SignupProvider>
       </body>
     </html>
   );
