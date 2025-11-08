@@ -1,80 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useSignup } from "@/providers/SignupContext";
 
 export default function Step2() {
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const { phoneNumber, setPhoneNumber, error, success, setError } = useSignup();
   const [isFocused, setIsFocused] = useState(false);
-  const router = useRouter();
 
-  // Valider et formater le numéro de téléphone
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Ne permettre que les chiffres, espaces, +, - et ()
     const cleanedValue = value.replace(/[^\d+\s\-()]/g, "");
     setPhoneNumber(cleanedValue);
-    setError(""); // Effacer l'erreur quand l'utilisateur tape
-  };
-
-  // Valider le format du numéro avant l'envoi
-  const validatePhoneNumber = (phone: string): boolean => {
-    // Supprimer les espaces, tirets et parenthèses pour la validation
-    const cleaned = phone.replace(/[\s\-()]/g, "");
-    // Doit commencer par + et contenir entre 10 et 15 chiffres au total
-    if (!cleaned.startsWith("+")) {
-      return false;
-    }
-    const digits = cleaned.substring(1);
-    return /^\d{10,14}$/.test(digits);
-  };
-
-  const handleSendCode = async () => {
-    if (!phoneNumber.trim()) {
-      setError("Veuillez entrer un numéro de téléphone");
-      return;
-    }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      setError("Veuillez entrer un numéro de téléphone valide (ex: +33 7 89 54 36 18)");
-      return;
-    }
-
-    setLoading(true);
     setError("");
-    setSuccess("");
-
-    try {
-      const response = await fetch("/api/twilio/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ phoneNumber }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess("Code envoyé avec succès !");
-        // Stocker le numéro dans sessionStorage pour l'utiliser dans Step3
-        sessionStorage.setItem("phoneNumber", phoneNumber);
-        // Optionnel: rediriger vers Step3 après quelques secondes
-        setTimeout(() => {
-          router.push("/signup/step3");
-        }, 1500);
-      } else {
-        setError(data.error || "Erreur lors de l'envoi du code");
-      }
-    } catch (err: any) {
-      setError("Erreur de connexion. Veuillez réessayer.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -98,7 +35,6 @@ export default function Step2() {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
             className="w-full px-4 py-3 border-1 border-dvianeutral-50 rounded-md focus:border-dvianeutral-60 focus:outline-none"
-            disabled={loading}
           />
           <label
             htmlFor="phone-input"
@@ -110,21 +46,9 @@ export default function Step2() {
           </label>
         </div>
 
-        {error && (
-          <p className="text-red-500 text-sm">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
 
-        {success && (
-          <p className="text-green-500 text-sm">{success}</p>
-        )}
-
-        <button
-          onClick={handleSendCode}
-          disabled={loading}
-          className="text-dviaprimary-40 text-label-large leading-label-large tracking-label-large bg-transparent px-6 py-1 border rounded-8px border-dvianeutral-50 text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] min-h-[40px] max-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Envoi en cours..." : "Envoyer le code"}
-        </button>
+        {success && <p className="text-green-500 text-sm">{success}</p>}
       </div>
     </div>
   );
