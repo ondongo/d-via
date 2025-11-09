@@ -15,9 +15,12 @@ export default function FooterAuth() {
   } = useSignup();
 
   useEffect(() => {
-    if (pathname === "/signup") {
+    if (pathname === "/signup/step1") {
+      setCurrentStep(1);
+    } else if (pathname === "/signup/step2") {
       setCurrentStep(2);
-    } else if (pathname === "/signup/step3") {
+    }
+    if (pathname === "/signup/step3") {
       setCurrentStep(3);
     }
   }, [pathname, setCurrentStep]);
@@ -30,8 +33,8 @@ export default function FooterAuth() {
   // Déterminer si le bouton doit être désactivé
   const isButtonDisabled = () => {
     if (currentStep >= 4 || loading) return true;
-    if (currentStep === 2 && !phoneNumber.trim()) return true;
-    if (currentStep === 3 && (!code || code.length !== 6)) return true;
+    if (currentStep === 1 && !phoneNumber.trim()) return true;
+    if (currentStep === 2 && (!code || code.length !== 6)) return true;
     return false;
   };
 
