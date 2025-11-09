@@ -11,7 +11,7 @@ function HeaderAuth() {
   const pathname = usePathname();
 
   const handleClickHome = () => {
-    router.push("/");
+    router.push("/artisans");
   };
   return (
     <div className="flex flex-row justify-between p-4">

@@ -8,6 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 type SignupContextType = {
   currentStep: number;
@@ -29,7 +30,7 @@ const SignupContext = createContext<SignupContextType | undefined>(undefined);
 
 export const SignupProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,15 +47,15 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
     return /^\d{10,14}$/.test(digits);
   };
 
-  // Action pour Step 2 : Envoyer le code
-  const handleStep2Action = useCallback(async () => {
+  // Action pour Step 1 : Envoyer le code
+  const handleStep1Action = useCallback(async () => {
     if (!phoneNumber.trim()) {
-      setError("Veuillez entrer un numéro de téléphone");
+      toast.error("Veuillez entrer un numéro de téléphone");
       return;
     }
 
     if (!validatePhoneNumber(phoneNumber)) {
-      setError(
+      toast.error(
         "Veuillez entrer un numéro de téléphone valide (ex: +33 7 89 54 36 18)"
       );
       return;
@@ -76,33 +77,33 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Code envoyé avec succès !");
+        toast.success("Code envoyé avec succès !");
         sessionStorage.setItem("phoneNumber", phoneNumber);
-        // Rediriger vers Step3 après un court délai
+        // Rediriger vers Step2 après un court délai
         setTimeout(() => {
-          setCurrentStep(3);
-          router.push("/signup/step3");
+          setCurrentStep(2);
+          router.push("/signup/step2");
         }, 1500);
       } else {
-        setError(data.error || "Erreur lors de l'envoi du code");
+        toast.error(data.error || "Erreur lors de l'envoi du code");
       }
     } catch (err: any) {
-      setError("Erreur de connexion. Veuillez réessayer.");
+      toast.error("Erreur de connexion. Veuillez réessayer.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   }, [phoneNumber, router]);
 
-  // Action pour Step 3 : Vérifier le code
-  const handleStep3Action = useCallback(async () => {
+  // Action pour Step 2 : Vérifier le code
+  const handleStep2Action = useCallback(async () => {
     if (!phoneNumber) {
-      setError("Numéro de téléphone non trouvé. Veuillez recommencer.");
+      toast.error("Numéro de téléphone non trouvé. Veuillez recommencer.");
       return;
     }
 
     if (!code || code.length !== 6) {
-      setError("Veuillez entrer un code à 6 chiffres");
+      toast.error("Veuillez entrer un code à 6 chiffres");
       return;
     }
 
@@ -122,32 +123,34 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
 
       if (response.ok && data.verified) {
-        setSuccess("Code vérifié avec succès !");
-        // Ici vous pouvez passer à l'étape suivante
-        // setCurrentStep(4);
-        // router.push("/signup/step4");
+        toast.success("Code vérifié avec succès !");
+        setCurrentStep(3);
+        router.push("/signup/step3");
       } else {
-        setError(data.error || "Code invalide ou expiré");
+        toast.error(data.error || "Code invalide ou expiré");
       }
     } catch (err: any) {
-      setError("Erreur de connexion. Veuillez réessayer.");
+      toast.error("Erreur de connexion. Veuillez réessayer.");
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [phoneNumber, code]);
+  }, [phoneNumber, code, router]);
 
   // Fonction principale qui appelle l'action appropriée selon le step
   const handleStepAction = useCallback(async () => {
-    if (currentStep === 2) {
+    if (currentStep === 0) {
+      setCurrentStep(1);
+      router.push("/signup/step1");
+    } else if (currentStep === 1) {
+      await handleStep1Action();
+    } else if (currentStep === 2) {
       await handleStep2Action();
     } else if (currentStep === 3) {
-      await handleStep3Action();
-    } else if (currentStep === 4) {
-      // Action pour step 4 si nécessaire
-      // router.push("/signup/step5");
+      // Action pour step 3 si nécessaire
+      // router.push("/signup/step4");
     }
-  }, [currentStep, handleStep2Action, handleStep3Action]);
+  }, [currentStep, handleStep1Action, handleStep2Action]);
 
   // Charger le numéro depuis sessionStorage au montage
   React.useEffect(() => {
