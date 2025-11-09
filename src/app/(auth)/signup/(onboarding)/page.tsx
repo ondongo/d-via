@@ -1,4 +1,5 @@
 import LeftSection from "@/components/molecules/auth/signup/LeftSection";
+import OnboardingRight from "@/components/molecules/auth/signup/OnboardingRight";
 import StepContentWrapper from "@/components/organisms/StepContentWrapper";
 import React from "react";
 
@@ -11,6 +12,7 @@ export default function page() {
           title={{ text: "Commencer sur D·VIA,", highlight: "c'est facile !" }}
         />
       }
+      rightSection={<OnboardingRight />}
     />
   );
 }
