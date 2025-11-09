@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createStripeCustomer } from "@/utils/stripe-customer";
+import { createStripeCustomer } from "@/services/database/stripe-customer";
 
 
 export async function POST(request: NextRequest) {

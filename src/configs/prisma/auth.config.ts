@@ -1,7 +1,7 @@
 import Google from "next-auth/providers/google";
 import type { NextAuthConfig } from "next-auth";
 import { prisma } from "./prisma";
-import { createStripeCustomer } from "@/utils/stripe-customer";
+import { createStripeCustomer } from "@/services/database/stripe-customer";
 
 interface Token {
   role?: string;
