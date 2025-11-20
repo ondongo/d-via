@@ -1,16 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useSignup } from "@/providers/SignupContext";
+import CodePinInput from "@/components/atoms/auth/CodePinInput";
 
 export default function Step1() {
-  const { phoneNumber, setPhoneNumber, setError } = useSignup();
+  const { phoneNumber, setPhoneNumber, setError, step1Part = 1, code, setCode } = useSignup();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  const handleCodeChange = useCallback(
+    (newCode: string) => {
+      setCode(newCode);
+      setError("");
+    },
+    [setCode, setError]
+  );
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -19,6 +28,28 @@ export default function Step1() {
     setError("");
   };
 
+  // Partie 2 : Saisie du code de vérification
+  if (step1Part === 2) {
+    return (
+      <div className="flex flex-col border-dvianeutral-50 border-1 rounded-8px p-8 max-w-[600px] min-h-[272px] gap-4">
+        <h1 className="whitespace-nowrap hidden md:block text-[54px] font-bold leading-display-large tracking-display-large text-dvianeutral-10">
+          Entrer le code
+        </h1>
+
+        <p className="font-normal text-body-small leading-body-small tracking-body-small gap-5 md:text-[16px] text-dvianeutral-10 md:leading-headline-small md:tracking-headline-small md:mb-10">
+          Nous avons envoyé un code de vérification à 6 chiffres à votre numéro de
+          téléphone{" "}
+          {phoneNumber && (
+            <span className="text-dvianeutral-10 font-bold">{phoneNumber}</span>
+          )}
+        </p>
+
+        <CodePinInput onChange={handleCodeChange} />
+      </div>
+    );
+  }
+
+  // Partie 1 : Formulaire d'inscription
   return (
     <div className="flex flex-col border-dvianeutral-50 p-8 max-w-[600px] min-h-[272px] gap-4">
       <div className="flex flex-col gap-4 w-full">

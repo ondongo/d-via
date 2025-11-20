@@ -13,6 +13,8 @@ import { toast } from "react-toastify";
 type SignupContextType = {
   currentStep: number;
   setCurrentStep: (step: number) => void;
+  step1Part: number; // 1 = formulaire, 2 = code de vérification
+  setStep1Part: (part: number) => void;
   phoneNumber: string;
   setPhoneNumber: (phone: string) => void;
   code: string;
@@ -31,6 +33,7 @@ const SignupContext = createContext<SignupContextType | undefined>(undefined);
 export const SignupProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
+  const [step1Part, setStep1Part] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
@@ -79,11 +82,9 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
       if (response.ok) {
         toast.success("Code envoyé avec succès !");
         sessionStorage.setItem("phoneNumber", phoneNumber);
-        // Rediriger vers Step2 après un court délai
-        setTimeout(() => {
-          setCurrentStep(2);
-          router.push("/signup/step2");
-        }, 1500);
+        sessionStorage.setItem("codeSent", "true"); // Flag pour indiquer que le code a été envoyé
+        // Passer à la partie 2 du Step1 (saisie du code)
+        setStep1Part(2);
       } else {
         toast.error(data.error || "Erreur lors de l'envoi du code");
       }
@@ -124,8 +125,10 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.ok && data.verified) {
         toast.success("Code vérifié avec succès !");
-        setCurrentStep(3);
-        router.push("/signup/step3");
+        // Nettoyer le flag car le code est vérifié
+        sessionStorage.removeItem("codeSent");
+        setCurrentStep(2); // Passer à Step2 : Situer le lieu de l'entreprise
+        router.push("/signup/step2");
       } else {
         toast.error(data.error || "Code invalide ou expiré");
       }
@@ -139,24 +142,50 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
 
   // Fonction principale qui appelle l'action appropriée selon le step
   const handleStepAction = useCallback(async () => {
+    // currentStep === 0 correspond à l'onboarding, qui n'est pas une étape
+    // On passe directement à l'étape 1 (Step1)
     if (currentStep === 0) {
       setCurrentStep(1);
+      setStep1Part(1);
       router.push("/signup/step1");
     } else if (currentStep === 1) {
-      await handleStep1Action();
+      if (step1Part === 1) {
+        // Partie 1 : Envoyer le code
+        await handleStep1Action();
+      } else if (step1Part === 2) {
+        // Partie 2 : Vérifier le code
+        await handleStep2Action();
+      }
     } else if (currentStep === 2) {
-      await handleStep2Action();
+      // Step2 : Situer le lieu de l'entreprise
+      // Valider l'adresse et passer à Step3
+      const storedAddress = sessionStorage.getItem("selectedAddress");
+      if (!storedAddress || !storedAddress.trim()) {
+        toast.error("Veuillez renseigner l'adresse de votre entreprise");
+        return;
+      }
+      setCurrentStep(3);
+      router.push("/signup/step3");
     } else if (currentStep === 3) {
-      // Action pour step 3 si nécessaire
+      // Step3 : Identifiez votre entreprise
+      // Après Step3, on peut passer à l'étape suivante si elle existe
       // router.push("/signup/step4");
+    } else if (currentStep === 4) {
+      // Étape 4 : Fournissez vos garanties professionnelles
+      // router.push("/signup/step5");
+    } else if (currentStep === 5) {
+      // Étape 5 : Présentez votre profil pro
+      // router.push("/dashboard");
     }
-  }, [currentStep, handleStep1Action, handleStep2Action]);
+  }, [currentStep, step1Part, handleStep1Action, handleStep2Action]);
 
   // Charger le numéro depuis sessionStorage au montage
   React.useEffect(() => {
     const storedPhone = sessionStorage.getItem("phoneNumber");
     if (storedPhone) {
       setPhoneNumber(storedPhone);
+      // Ne pas mettre step1Part à 2 automatiquement - cela sera fait par FooterAuth
+      // ou après l'envoi réussi du code
     }
   }, []);
 
@@ -165,6 +194,8 @@ export const SignupProvider = ({ children }: { children: ReactNode }) => {
       value={{
         currentStep,
         setCurrentStep,
+        step1Part,
+        setStep1Part,
         phoneNumber,
         setPhoneNumber,
         code,

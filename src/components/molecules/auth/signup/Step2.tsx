@@ -1,35 +1,59 @@
 "use client";
 
-import { useCallback } from "react";
-import CodePinInput from "@/components/atoms/auth/CodePinInput";
+import { useState, useEffect } from "react";
 import { useSignup } from "@/providers/SignupContext";
+import { useGlobalState } from "@/providers/globalState";
 
 export default function Step2() {
-  const { phoneNumber, code, setCode, setError } = useSignup();
+  const { setError } = useSignup();
+  const { selectedAddress, setSelectedAddress } = useGlobalState();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  const handleCodeChange = useCallback(
-    (newCode: string) => {
-      setCode(newCode);
-      setError("");
-    },
-    [setCode, setError]
-  );
+  // Charger l'adresse depuis sessionStorage au montage
+  useEffect(() => {
+    const storedAddress = sessionStorage.getItem("selectedAddress");
+    if (storedAddress) {
+      setSelectedAddress(storedAddress);
+    }
+  }, [setSelectedAddress]);
+
+  // Sauvegarder l'adresse dans sessionStorage quand elle change
+  useEffect(() => {
+    if (selectedAddress) {
+      sessionStorage.setItem("selectedAddress", selectedAddress);
+    }
+  }, [selectedAddress]);
 
   return (
     <div className="flex flex-col border-dvianeutral-50 border-1 rounded-8px p-8 max-w-[600px] min-h-[272px] gap-4">
-      <h1 className="whitespace-nowrap hidden md:block text-[54px] font-bold leading-display-large tracking-display-large text-dvianeutral-10">
-        Entrer le code
-      </h1>
-
-      <p className="font-normal text-body-small leading-body-small tracking-body-small gap-5 md:text-[16px] text-dvianeutral-10 md:leading-headline-small md:tracking-headline-small md:mb-10">
-        Nous avons envoyé un code de vérification à 6 chiffres à votre numéro de
-        téléphone{" "}
-        {phoneNumber && (
-          <span className="text-dvianeutral-10 font-bold">{phoneNumber}</span>
-        )}
-      </p>
-
-      <CodePinInput onChange={handleCodeChange} />
+      <div className="flex flex-col gap-4 w-full">
+        {/* Champ d'adresse */}
+        <div className="relative">
+          <input
+            id="address-input"
+            type="text"
+            placeholder="Entrez l'adresse de votre entreprise"
+            value={selectedAddress || ""}
+            onChange={(e) => {
+              setSelectedAddress(e.target.value);
+              setError("");
+            }}
+            onFocus={() => setFocusedField("address")}
+            onBlur={() => setFocusedField(null)}
+            className="w-full px-4 py-3 border-1 border-dvianeutral-50 rounded-md focus:border-dvianeutral-60 focus:outline-none"
+          />
+          <label
+            htmlFor="address-input"
+            className={`absolute left-4 -top-2.5 text-xs bg-[var(--background)] px-1 pointer-events-none z-10 transition-colors duration-200 ${
+              focusedField === "address"
+                ? "text-dvianeutral-60"
+                : "text-dvianeutral-50"
+            }`}
+          >
+            Adresse de l'entreprise
+          </label>
+        </div>
+      </div>
     </div>
   );
 }
