@@ -15,6 +15,9 @@ function page() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [ratingThreshold, setRatingThreshold] = useState(4.7);
   const [distanceThreshold, setDistanceThreshold] = useState(5);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const [totalCount, setTotalCount] = useState(0);
 
   interface ArtisanDB {
     id: string;
@@ -33,20 +36,26 @@ function page() {
   const [artisans, setArtisans] = useState<ArtisanDB[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>(["Tous les métiers"]);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(t);
   }, [search]);
 
-  // Liste catégories dynamique depuis les artisans chargés
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    artisans.forEach((a) => {
-      if (a.category) set.add(a.category);
-    });
-    return ["Tous les métiers", ...Array.from(set).sort()];
-  }, [artisans]);
+  useEffect(() => {
+    fetch("/api/artisans/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.categories)) {
+          setCategories([
+            "Tous les métiers",
+            ...data.categories.filter((c) => c !== "Tous les métiers"),
+          ]);
+        }
+      })
+      .catch(() => setCategories(["Tous les métiers"]));
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -61,6 +70,8 @@ function page() {
         if (filterRating) params.set("minRating", ratingThreshold.toString());
         if (filterDistance) params.set("maxDistance", distanceThreshold.toString());
         if (onlyVerified) params.set("verified", "true");
+        params.set("page", page.toString());
+        params.set("pageSize", pageSize.toString());
         const res = await fetch(
           `/api/artisans?${params.toString()}`,
           { signal: controller.signal }
@@ -68,6 +79,7 @@ function page() {
         if (!res.ok) throw new Error("Erreur réseau");
         const data = await res.json();
         setArtisans(data.artisans || []);
+        setTotalCount(data.totalCount || 0);
       } catch (e: any) {
         if (e.name !== "AbortError") setError(e.message || "Erreur");
       } finally {
@@ -76,7 +88,7 @@ function page() {
     }
     fetchArtisans();
     return () => controller.abort();
-  }, [debouncedSearch, category, filterRating, filterDistance, onlyVerified, ratingThreshold, distanceThreshold]);
+  }, [debouncedSearch, category, filterRating, filterDistance, onlyVerified, ratingThreshold, distanceThreshold, page, pageSize]);
 
   // Application des filtres côté client retirée (déjà côté serveur)
   const filteredArtisans = artisans.map((a) => ({
@@ -91,6 +103,9 @@ function page() {
       ? a.certifications.split(",").map((c) => c.trim())
       : [],
   }));
+
+  // Pagination UI
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <div className="min-h-screen p-4  md:p-6 w-full">
@@ -226,6 +241,33 @@ function page() {
             Aucun artisan trouvé.
           </p>
         )}
+      </div>
+      {/* Pagination Controls */}
+      <div className="flex justify-center items-center gap-2 mt-8">
+        <button
+          className="px-3 py-2 border rounded-8px bg-white text-sm disabled:opacity-50"
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Précédent
+        </button>
+        <span className="text-sm">Page {page} / {totalPages}</span>
+        <button
+          className="px-3 py-2 border rounded-8px bg-white text-sm disabled:opacity-50"
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          disabled={page === totalPages}
+        >
+          Suivant
+        </button>
+        <select
+          className="ml-4 px-2 py-1 border rounded-8px text-sm"
+          value={pageSize}
+          onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+        >
+          {[6, 12, 24, 48].map(size => (
+            <option key={size} value={size}>{size} / page</option>
+          ))}
+        </select>
       </div>
     </div>
   );
