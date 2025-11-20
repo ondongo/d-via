@@ -10,9 +10,13 @@ export async function GET(req: NextRequest) {
     const verified = searchParams.get('verified');
     const minRatingStr = searchParams.get('minRating');
     const maxDistanceStr = searchParams.get('maxDistance');
+    const pageStr = searchParams.get('page');
+    const pageSizeStr = searchParams.get('pageSize');
 
     const minRating = minRatingStr ? parseFloat(minRatingStr) : undefined;
     const maxDistance = maxDistanceStr ? parseFloat(maxDistanceStr) : undefined;
+    const page = pageStr ? Math.max(1, parseInt(pageStr, 10)) : 1;
+    const pageSize = pageSizeStr ? Math.max(1, parseInt(pageSizeStr, 10)) : 12;
 
     const where: any = {};
 
@@ -37,15 +41,17 @@ export async function GET(req: NextRequest) {
       ];
     }
 
+    const totalCount = await prisma.artisan.count({ where });
     const artisans = await prisma.artisan.findMany({
       where,
-      orderBy: { rating: 'desc' }
+      orderBy: { rating: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize
     });
 
-    return new Response(JSON.stringify({ artisans }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ artisans, totalCount }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (e: any) {
     console.error(e);
     return new Response(JSON.stringify({ error: 'Erreur serveur' }), { status: 500 });
   }
 }
-
