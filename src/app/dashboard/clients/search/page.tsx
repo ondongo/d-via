@@ -1,8 +1,8 @@
 "use client";
 
 import { ArtisanCard } from "@/components/molecules/dashboard/ArtisanCard";
-import InputAddress from "@/components/molecules/dashboard/InputAddress";
-import React, { useState, useEffect, useMemo } from "react";
+import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
+import React, { useState, useEffect } from "react";
 
 function page() {
   // États pour les filtres
@@ -34,8 +34,9 @@ function page() {
   }
 
   const [artisans, setArtisans] = useState<ArtisanDB[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [categories, setCategories] = useState<string[]>(["Tous les métiers"]);
 
   useEffect(() => {
@@ -68,27 +69,41 @@ function page() {
         if (category && category !== "Tous les métiers")
           params.set("category", category);
         if (filterRating) params.set("minRating", ratingThreshold.toString());
-        if (filterDistance) params.set("maxDistance", distanceThreshold.toString());
+        if (filterDistance)
+          params.set("maxDistance", distanceThreshold.toString());
         if (onlyVerified) params.set("verified", "true");
         params.set("page", page.toString());
         params.set("pageSize", pageSize.toString());
-        const res = await fetch(
-          `/api/artisans?${params.toString()}`,
-          { signal: controller.signal }
-        );
+        const res = await fetch(`/api/artisans?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!res.ok) throw new Error("Erreur réseau");
         const data = await res.json();
         setArtisans(data.artisans || []);
         setTotalCount(data.totalCount || 0);
+        setHasLoadedOnce(true);
       } catch (e: any) {
-        if (e.name !== "AbortError") setError(e.message || "Erreur");
+        if (e.name !== "AbortError") {
+          setError(e.message || "Erreur");
+          setHasLoadedOnce(true);
+        }
       } finally {
         setLoading(false);
       }
     }
     fetchArtisans();
     return () => controller.abort();
-  }, [debouncedSearch, category, filterRating, filterDistance, onlyVerified, ratingThreshold, distanceThreshold, page, pageSize]);
+  }, [
+    debouncedSearch,
+    category,
+    filterRating,
+    filterDistance,
+    onlyVerified,
+    ratingThreshold,
+    distanceThreshold,
+    page,
+    pageSize,
+  ]);
 
   // Application des filtres côté client retirée (déjà côté serveur)
   const filteredArtisans = artisans.map((a) => ({
@@ -106,22 +121,6 @@ function page() {
 
   // Pagination UI
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-
-  // Skeleton
-  function SkeletonArtisanCard() {
-    return (
-      <div className="animate-pulse bg-dviaprimary-94 border border-dviaprimary-80 rounded-8px p-4 flex flex-col gap-3">
-        <div className="bg-dviaprimary-80 h-32 w-full rounded-8px mb-2" />
-        <div className="h-4 bg-dviaprimary-80 rounded w-2/3 mb-1" />
-        <div className="h-3 bg-dvianeutral-90 rounded w-1/2 mb-1" />
-        <div className="h-3 bg-dvianeutral-90rounded w-1/3" />
-        <div className="flex gap-2 mt-2">
-          <div className="h-6 w-16 bg-dvianeutral-90 rounded" />
-          <div className="h-6 w-10 bg-dvianeutral-90 rounded" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen p-4  md:p-6 w-full">
@@ -159,7 +158,12 @@ function page() {
           </div>
         </div>
 
-        <button className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px cursor-pointer" onClick={() => setShowAdvanced(v => !v)} aria-expanded={showAdvanced} aria-controls="advanced-filters">
+        <button
+          className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px cursor-pointer"
+          onClick={() => setShowAdvanced((v) => !v)}
+          aria-expanded={showAdvanced}
+          aria-controls="advanced-filters"
+        >
           <img
             src="/dashboard/card/discover_tune.svg"
             alt="filtres avancés"
@@ -169,22 +173,77 @@ function page() {
       </div>
 
       {showAdvanced && (
-        <div id="advanced-filters" className="mb-6 border border-dvianeutral-50 bg-dvianeutral-94 rounded-8px p-4 flex flex-col gap-4">
+        <div
+          id="advanced-filters"
+          className="mb-6 border border-dvianeutral-50 bg-dvianeutral-94 rounded-8px p-4 flex flex-col gap-4"
+        >
           <div className="flex flex-col gap-2">
-            <label className="text-xs text-dvianeutralvariant-30">Note minimale</label>
-            <input type="number" min={0} max={5} step={0.1} value={ratingThreshold} onChange={e => { setRatingThreshold(parseFloat(e.target.value)||0); setFilterRating(true); }} className="px-3 py-2 text-sm border rounded-8px bg-white outline-none" />
+            <label className="text-xs text-dvianeutralvariant-30">
+              Note minimale
+            </label>
+            <input
+              type="number"
+              min={0}
+              max={5}
+              step={0.1}
+              value={ratingThreshold}
+              onChange={(e) => {
+                setRatingThreshold(parseFloat(e.target.value) || 0);
+                setFilterRating(true);
+              }}
+              className="px-3 py-2 text-sm border rounded-8px bg-white outline-none"
+            />
           </div>
           <div className="flex flex-col gap-2">
-            <label className="text-xs text-dvianeutralvariant-30">Distance maximale (km)</label>
-            <input type="number" min={0} step={1} value={distanceThreshold} onChange={e => { setDistanceThreshold(parseFloat(e.target.value)||0); setFilterDistance(true); }} className="px-3 py-2 text-sm border rounded-8px bg-white outline-none" />
+            <label className="text-xs text-dvianeutralvariant-30">
+              Distance maximale (km)
+            </label>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={distanceThreshold}
+              onChange={(e) => {
+                setDistanceThreshold(parseFloat(e.target.value) || 0);
+                setFilterDistance(true);
+              }}
+              className="px-3 py-2 text-sm border rounded-8px bg-white outline-none"
+            />
           </div>
           <div className="flex items-center gap-2">
-            <input id="verified" type="checkbox" checked={onlyVerified} onChange={() => setOnlyVerified(v => !v)} className="cursor-pointer" />
-            <label htmlFor="verified" className="text-xs text-dvianeutralvariant-30">Artisans vérifiés uniquement</label>
+            <input
+              id="verified"
+              type="checkbox"
+              checked={onlyVerified}
+              onChange={() => setOnlyVerified((v) => !v)}
+              className="cursor-pointer"
+            />
+            <label
+              htmlFor="verified"
+              className="text-xs text-dvianeutralvariant-30"
+            >
+              Artisans vérifiés uniquement
+            </label>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => { setFilterRating(false); setFilterDistance(false); setOnlyVerified(false); setRatingThreshold(4.7); setDistanceThreshold(5); }} className="text-xs px-3 py-2 border rounded-8px bg-white">Réinitialiser</button>
-            <button onClick={() => setShowAdvanced(false)} className="text-xs px-3 py-2 border rounded-8px bg-dviaprimary-40 text-white">Fermer</button>
+            <button
+              onClick={() => {
+                setFilterRating(false);
+                setFilterDistance(false);
+                setOnlyVerified(false);
+                setRatingThreshold(4.7);
+                setDistanceThreshold(5);
+              }}
+              className="text-xs px-3 py-2 border rounded-8px bg-white"
+            >
+              Réinitialiser
+            </button>
+            <button
+              onClick={() => setShowAdvanced(false)}
+              className="text-xs px-3 py-2 border rounded-8px bg-dviaprimary-40 text-white"
+            >
+              Fermer
+            </button>
           </div>
         </div>
       )}
@@ -253,7 +312,7 @@ function page() {
               onContactClick={() => alert("Contact " + artisan.location)}
             />
           ))}
-        {!loading && !error && filteredArtisans.length === 0 && (
+        {!loading && !error && hasLoadedOnce && filteredArtisans.length === 0 && (
           <p className="text-sm text-dvianeutralvariant-30">
             Aucun artisan trouvé.
           </p>
@@ -268,7 +327,9 @@ function page() {
         >
           Précédent
         </button>
-        <span className="text-sm">Page {page} / {totalPages}</span>
+        <span className="text-sm">
+          Page {page} / {totalPages}
+        </span>
         <button
           className="px-3 py-2 border rounded-8px bg-white text-sm disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -279,10 +340,15 @@ function page() {
         <select
           className="ml-4 px-2 py-1 border rounded-8px text-sm"
           value={pageSize}
-          onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+          onChange={(e) => {
+            setPageSize(Number(e.target.value));
+            setPage(1);
+          }}
         >
-          {[6, 12, 24, 48].map(size => (
-            <option key={size} value={size}>{size} / page</option>
+          {[6, 12, 24, 48].map((size) => (
+            <option key={size} value={size}>
+              {size} / page
+            </option>
           ))}
         </select>
       </div>
