@@ -22,7 +22,7 @@ export const ArtisanCard = ({
   onContactClick,
 }: ArtisanCardProps) => {
   return (
-    <div className="  border border-dvianeutral-50 rounded-2xl  px-4 w-full md:max-w-xs min-h-[450px]">
+    <div className="border border-dvianeutral-50 rounded-2xl  px-4 w-full md:max-w-xs min-h-[450px]">
       <div className="flex items-center justify-between py-4  rounded-xl">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-dviaprimary-90 flex items-center justify-center text-dviaprimary-10 font-semibold">
