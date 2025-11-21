@@ -3,11 +3,12 @@
 import Step1 from "@/components/molecules/auth/signup/Step1";
 import LeftSection from "@/components/molecules/auth/signup/LeftSection";
 import StepContentWrapper from "@/components/organisms/StepContentWrapper";
-import { useSignup } from "@/providers/SignupContext";
+import { useSignupStore } from "@/stores/signupStore";
 import React from "react";
 
 export default function page() {
-  const { step1Part = 1 } = useSignup();
+  const { getStepPart } = useSignupStore();
+  const step1Part = getStepPart(1);
 
   return (
     <StepContentWrapper

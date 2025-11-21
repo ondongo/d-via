@@ -74,7 +74,7 @@ export default function OnboardingRight() {
           </div>
 
           {index < steps.length - 1 && (
-            <div className="w-full h-[1px] bg-dvianeutral-50"></div>
+            <div className="max-w-[650px] h-[1px] bg-dvianeutral-50"></div>
           )}
         </React.Fragment>
       ))}

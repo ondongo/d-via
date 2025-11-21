@@ -1,17 +1,31 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useSignup } from "@/providers/SignupContext";
+import { useState, useCallback, useEffect } from "react";
+import { useSignupStore } from "@/stores/signupStore";
+import { useSignupForm } from "@/hooks/useSignupForm";
 import CodePinInput from "@/components/atoms/auth/CodePinInput";
 
 export default function Step1() {
-  const { phoneNumber, setPhoneNumber, setError, step1Part = 1, code, setCode } = useSignup();
+  const { phoneNumber, setPhoneNumber, setError, getStepPart, code, setCode } =
+    useSignupStore();
+  const { loadFormData } = useSignupForm();
+  const step1Part = getStepPart(1);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+
+  // Charger les données au montage
+  useEffect(() => {
+    const data = loadFormData();
+    if (data.firstName) setFirstName(data.firstName);
+    if (data.lastName) setLastName(data.lastName);
+    if (data.email) setEmail(data.email);
+    if (data.password) setPassword(data.password);
+  }, [loadFormData]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -37,14 +51,14 @@ export default function Step1() {
         </h1>
 
         <p className="font-normal text-body-small leading-body-small tracking-body-small gap-5 md:text-[16px] text-dvianeutral-10 md:leading-headline-small md:tracking-headline-small md:mb-10">
-          Nous avons envoyé un code de vérification à 6 chiffres à votre numéro de
-          téléphone{" "}
+          Nous avons envoyé un code de vérification à 6 chiffres à votre numéro
+          de téléphone{" "}
           {phoneNumber && (
             <span className="text-dvianeutral-10 font-bold">{phoneNumber}</span>
           )}
         </p>
 
-        <CodePinInput onChange={handleCodeChange} />
+        <CodePinInput onChange={handleCodeChange} value={code} />
       </div>
     );
   }
@@ -231,7 +245,6 @@ export default function Step1() {
             Téléphone
           </label>
         </div>
-
       </div>
     </div>
   );

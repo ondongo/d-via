@@ -5,13 +5,25 @@ import { useState, useRef, useEffect } from "react";
 export default function CodePinInput({
   length = 6,
   onChange,
+  value = "",
 }: {
   length?: number;
   onComplete?: (code: string) => void;
   onChange?: (code: string) => void;
+  value?: string;
 }) {
   const [code, setCode] = useState<string[]>(Array(length).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Synchroniser avec la prop value (pour auto-complétion)
+  useEffect(() => {
+    if (value && value.length === length) {
+      const newCode = value.split("").slice(0, length);
+      setCode(newCode);
+    } else if (!value) {
+      setCode(Array(length).fill(""));
+    }
+  }, [value, length]);
 
   const handleChange = (index: number, value: string) => {
     // Accepter seulement les chiffres
@@ -89,6 +101,7 @@ export default function CodePinInput({
           type="text"
           inputMode="numeric"
           maxLength={1}
+          autoComplete={index === 0 ? "one-time-code" : "off"}
           className="block w-10 h-14 text-center border-1 border-dvianeutral-50 rounded-md sm:text-sm focus:border-dvianeutral-60 focus:outline-none disabled:opacity-50 disabled:pointer-events-none"
           value={digit}
           autoFocus={index === 0}

@@ -1,21 +1,24 @@
 "use client";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import React from "react";
-import { NavItem } from "./NavItem";
+import React, { useState } from "react";
 import ResponsiveMenu from "./ResponsiveMenu";
 import AuthButton from "@/components/atoms/auth/AuthButton";
 import { useSession } from "next-auth/react";
+import SignupModeModal from "@/components/molecules/auth/signup/SignupModeModal";
+import AttestationUploadModal from "@/components/molecules/auth/signup/AttestationUploadModal";
 
 function Header() {
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const isOnArtisanPage = pathname === "/artisans";
+  const [isSignupModeModalOpen, setIsSignupModeModalOpen] = useState(false);
+  const [isAttestationModalOpen, setIsAttestationModalOpen] = useState(false);
 
   const handleClick = () => {
     if (isOnArtisanPage) {
-      router.push("/signup");
+      setIsSignupModeModalOpen(true);
     } else {
       router.push("/dashboard/clients");
     }
@@ -24,8 +27,13 @@ function Header() {
   const handleClickHome = () => {
     router.push("/");
   };
+
+  const handleSelectRapid = () => {
+    setIsSignupModeModalOpen(false);
+    setIsAttestationModalOpen(true);
+  };
   return (
-    <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 bg-dviaheader">
+    <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 ">
       <div onClick={handleClickHome} className="cursor-pointer flex items-center">
         <Image
           src="/logos/logo.png"
@@ -55,6 +63,7 @@ function Header() {
         ) : (
           <div className="hidden md:flex gap-4">
             <AuthButton
+              onClick={isOnArtisanPage ? handleClick : undefined}
               className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
                   isOnArtisanPage
@@ -69,6 +78,17 @@ function Header() {
           </div>
         )}
       </div>
+
+      <SignupModeModal
+        isOpen={isSignupModeModalOpen}
+        onClose={() => setIsSignupModeModalOpen(false)}
+        onSelectRapid={handleSelectRapid}
+      />
+
+      <AttestationUploadModal
+        isOpen={isAttestationModalOpen}
+        onClose={() => setIsAttestationModalOpen(false)}
+      />
     </div>
   );
 }

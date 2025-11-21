@@ -89,7 +89,7 @@
   --color-dviaprimary-95: #fdf0ed;
   --color-dviaprimary-96: #fdf3f0;
   --color-dviaprimary-98: #fef9f8;
-  --color-dviaprimary-99: #fffcfb;
+  --color-dviaprimary-99: #FDFCFC;/* Important */
   --color-dviaprimary-100: #ffffff;
 
   /* Couleurs secondaires */
@@ -201,19 +201,19 @@
   --color-dvianeutralvariant-4: #030509;
   --color-dvianeutralvariant-6: #04080e;
   --color-dvianeutralvariant-10: #060d18;
-  --color-dvianeutralvariant-12: #080f1c;
+  --color-dvianeutralvariant-12: #818181; /* Important */
   --color-dvianeutralvariant-17: #0b1528;
   --color-dvianeutralvariant-20: #0b1a30;
   --color-dvianeutralvariant-22: #0f1b34;
   --color-dvianeutralvariant-24: #101e38;
   --color-dvianeutralvariant-30: #112648;
-  --color-dvianeutralvariant-40: #163360;
+  --color-dvianeutralvariant-40: #4A5565; /* Important */
   --color-dvianeutralvariant-50: #3D352D;
-  --color-dvianeutralvariant-60: #647795;
+  --color-dvianeutralvariant-60: #6A7282; /* Important */
   --color-dvianeutralvariant-70: #8b99b0;
   --color-dvianeutralvariant-80: #b1bbca;
   --color-dvianeutralvariant-87: #cdd3dc;
-  --color-dvianeutralvariant-90: #555555;
+  --color-dvianeutralvariant-90: #555555; /* Important */
   --color-dvianeutralvariant-92: #e0e4e9;
   --color-dvianeutralvariant-94: #e8ebef;
   --color-dvianeutralvariant-95: #eceef2;

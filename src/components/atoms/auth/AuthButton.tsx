@@ -7,12 +7,14 @@ interface AuthButtonProps {
   children: React.ReactNode;
   className?: string;
   redirectTo?: string;
+  onClick?: () => void;
 }
 
 export default function AuthButton({
   children,
   className = "",
   redirectTo = "/dashboard",
+  onClick,
 }: AuthButtonProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -24,6 +26,12 @@ export default function AuthButton({
   }, [session, status, router, redirectTo]);
 
   const handleAuth = () => {
+    // Si un onClick personnalisé est fourni, l'utiliser
+    if (onClick) {
+      onClick();
+      return;
+    }
+
     const isOnArtisanPage = pathname === "/artisans";
     if (isOnArtisanPage) {
       router.push("/signup");

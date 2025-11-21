@@ -17,7 +17,6 @@ export default function StepContentWrapper({
   centered = false,
   className = "",
 }: StepContentWrapperProps) {
-  // Si centered est true, afficher seulement rightSection (ou children) au centre
   if (centered) {
     return (
       <div
@@ -27,12 +26,10 @@ export default function StepContentWrapper({
       </div>
     );
   }
-
-  // Si pas de leftSection ni rightSection, centrer children
   if (!leftSection && !rightSection) {
     return (
       <div
-        className={`flex flex-col items-center justify-center h-[calc(100vh-200px)] px-8 md:px-16  ${className}`}
+        className={`flex flex-col justify-center h-[calc(100vh-200px)] px-8 md:px-16  ${className}`}
       >
         {children}
       </div>
@@ -44,12 +41,12 @@ export default function StepContentWrapper({
       className={`flex flex-col md:flex-row gap-12 h-[calc(100vh-200px)] px-8 md:px-16 ${className}`}
     >
       {leftSection && (
-        <div className="w-full md:w-1/2 flex items-center justify-center">
+        <div className="w-full md:w-1/2 flex flex-1 items-center justify-center">
           {leftSection}
         </div>
       )}
       {rightSection && (
-        <div className="w-full md:w-1/2 flex items-center justify-center">
+        <div className="w-full md:w-1/2 flex flex-1 items-center justify-center">
           {rightSection}
         </div>
       )}

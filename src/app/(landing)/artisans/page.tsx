@@ -1,7 +1,7 @@
 import ArtisanGrid from "@/components/molecules/landing-artisan/ArtisanGrid";
 import { LeftSection } from "@/components/molecules/landing-artisan/LeftSection";
 import { StepsSection } from "@/components/molecules/StepsSection";
-import MapComponent from "@/components/molecules/landing-artisan/Maps";
+import MapComponent from "@/components/molecules/maps/Maps";
 import React from "react";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
 

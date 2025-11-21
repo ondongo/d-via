@@ -10,13 +10,12 @@ export default function Step3Page() {
       leftSection={
         <LeftSection
           stepName="Étape 3"
-          illustration="/illustrations/etape2.svg"
-          title="Identifiez votre entreprise"
-          description="Renseignez les infos légales : nom de l'entreprise, raison sociale, numéro SIRET, statut juridique, spécialité du métier, adresse du siège. La vérification du SIRET est automatique."
+          illustration="/illustrations/etape3.svg"
+          title="Fournissez vos garanties professionnelles"
+          description="Ajoutez vos justificatifs : attestation d’assurance décennale, documents d’assurance mentionnant le SIRET, les coordonnées, la compagnie, période de validité, et attestation de qualification si nécessaire."
         />
       }
       rightSection={<Step3 />}
     />
   );
 }
-
