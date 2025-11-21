@@ -40,7 +40,26 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Si on n'est pas sur une page de signup, rediriger vers la bonne page
+    // Pages autorisées où l'utilisateur peut rester même avec un formulaire sauvegardé
+    // Ces pages permettent à l'utilisateur de quitter le processus de signup
+    const allowedPaths = [
+      "/artisans",
+      "/",
+      "/blog",
+      "/dashboard",
+    ];
+    
+    // Vérifier si la page actuelle est une page autorisée
+    const isAllowedPath = allowedPaths.some(path => 
+      pathname === path || pathname.startsWith(path + "/")
+    );
+
+    // Si on est sur une page autorisée, laisser passer (l'utilisateur peut quitter)
+    if (isAllowedPath) {
+      return NextResponse.next();
+    }
+
+    // Si on n'est pas sur une page de signup ni sur une page autorisée, rediriger vers la bonne page
     if (targetPath) {
       const url = request.nextUrl.clone();
       url.pathname = targetPath;
