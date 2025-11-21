@@ -63,11 +63,10 @@ export default function FooterAuth() {
       if (savedData.legalStatus) setLegalStatus(savedData.legalStatus);
       if (savedData.siret) setSiret(savedData.siret);
       
-      // Nettoyer les cookies une fois qu'on a restauré l'état (pour éviter que le middleware redirige encore)
-      // On nettoie seulement si on est déjà sur une page de signup
-      if (pathname.startsWith("/signup")) {
-        signupCookies.clear();
-      }
+      // Ne pas supprimer les cookies ici - ils doivent rester pour permettre la redirection
+      // Les cookies seront supprimés uniquement quand :
+      // 1. L'utilisateur complète toutes les étapes (ligne 147)
+      // 2. L'utilisateur clique sur "Quitter" dans HeaderAuth (ligne 32)
     }
 
     // L'onboarding n'est pas une étape, donc on ne met pas à jour currentStep
