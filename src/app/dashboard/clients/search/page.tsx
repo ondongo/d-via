@@ -107,6 +107,22 @@ function page() {
   // Pagination UI
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
+  // Skeleton
+  function SkeletonArtisanCard() {
+    return (
+      <div className="animate-pulse bg-dviaprimary-94 border border-dviaprimary-80 rounded-8px p-4 flex flex-col gap-3">
+        <div className="bg-dviaprimary-80 h-32 w-full rounded-8px mb-2" />
+        <div className="h-4 bg-dviaprimary-80 rounded w-2/3 mb-1" />
+        <div className="h-3 bg-dvianeutral-90 rounded w-1/2 mb-1" />
+        <div className="h-3 bg-dvianeutral-90rounded w-1/3" />
+        <div className="flex gap-2 mt-2">
+          <div className="h-6 w-16 bg-dvianeutral-90 rounded" />
+          <div className="h-6 w-10 bg-dvianeutral-90 rounded" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen p-4  md:p-6 w-full">
       <div className="flex w-full items-center mb-6 gap-4">
@@ -223,9 +239,10 @@ function page() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {loading && (
-          <p className="text-sm text-dvianeutralvariant-30">Chargement...</p>
-        )}
+        {loading &&
+          Array.from({ length: pageSize }).map((_, i) => (
+            <SkeletonArtisanCard key={i} />
+          ))}
         {error && <p className="text-sm text-red-500">{error}</p>}
         {!loading &&
           !error &&
