@@ -143,6 +143,14 @@ export default function FooterAuth() {
     
     // Si on complète la dernière étape, nettoyer les cookies
     if (currentStep === 4 && getStepPart(4) === 3) {
+      try {
+        await fetch("/api/auth/signup/clear-cookies", {
+          method: "POST",
+        });
+      } catch (error) {
+        console.error("Erreur lors du nettoyage des cookies:", error);
+      }
+      // Fallback: nettoyer aussi côté client
       signupCookies.clear();
     }
     
