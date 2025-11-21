@@ -3,9 +3,10 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
-import OverviewStep from "./OverviewStep";
-import AddressStep from "./AddressStep";
+
 import { useGlobalState } from "@/providers/globalState";
+import { useSignupStore } from "@/stores/signupStore";
+import AddressInputWithSeparator from "@/components/atoms/ui/inputs/AddressInputWithSeparator";
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
   { ssr: false }
@@ -26,22 +27,7 @@ const Circle = dynamic(
   { ssr: false }
 );
 
-const MapComponent: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = () => setModalOpen(true);
-
-  const [modalStep, setModalStep] = useState<"overview" | "address">(
-    "overview"
-  );
-
-  const closeModal = () => {
-    if (modalStep === "overview") {
-      setModalOpen(false);
-    } else {
-      setModalStep("overview");
-    }
-  };
-
+const MapsSearch: React.FC = () => {
   const {
     selectedAddress,
     setSelectedAddress,
@@ -50,6 +36,8 @@ const MapComponent: React.FC = () => {
     map,
     setMap,
   } = useGlobalState();
+  
+  const { setAddress, setCoordinates: setStoreCoordinates } = useSignupStore();
 
   const handleSelectAddress = (
     address: string,
@@ -57,13 +45,27 @@ const MapComponent: React.FC = () => {
     long?: number
   ) => {
     setSelectedAddress(address);
+    
+    // Sauvegarder dans le store
+    setAddress(address);
+    
+    // Sauvegarder dans sessionStorage pour la persistance
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedAddress", address);
+    }
 
     if (typeof lat === "number" && typeof long === "number") {
-      setCoordinates([lat, long]);
+      const coords: [number, number] = [lat, long];
+      setCoordinates(coords);
+      // Sauvegarder les coordonnées dans le store
+      setStoreCoordinates(coords);
+      
+      // Sauvegarder les coordonnées dans sessionStorage
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("selectedCoordinates", JSON.stringify(coords));
+      }
     }
   };
-
-  const handleBack = () => setModalStep("overview");
 
   const [L, setL] = useState<any>(null);
 
@@ -71,7 +73,29 @@ const MapComponent: React.FC = () => {
     import("leaflet").then((leaflet) => setL(leaflet));
   }, []);
 
-
+  // Charger l'adresse depuis sessionStorage au montage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedAddress = sessionStorage.getItem("selectedAddress");
+      const storedCoords = sessionStorage.getItem("selectedCoordinates");
+      
+      if (storedAddress) {
+        setSelectedAddress(storedAddress);
+        setAddress(storedAddress);
+      }
+      
+      if (storedCoords) {
+        try {
+          const coords: [number, number] = JSON.parse(storedCoords);
+          setCoordinates(coords);
+          setStoreCoordinates(coords);
+        } catch (e) {
+          console.error("Erreur lors du parsing des coordonnées:", e);
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Quand coordinates changent, on recentre la carte
   useEffect(() => {
@@ -98,8 +122,6 @@ const MapComponent: React.FC = () => {
     if (map && coordinates) {
       map.setView(coordinates, 13);
     }
-
-    setModalOpen(false);
   };
 
   const zoomIn = () => {
@@ -112,7 +134,7 @@ const MapComponent: React.FC = () => {
 
   return (
     <>
-      <div className="relative h-[350px] w-full md:h-[650px] md:max-w-[879px] shadow-lg   border-2 border-dvianeutral-50 rounded-12px overflow-hidden">
+      <div className="relative h-[350px] w-full md:h-[550px] md:max-w-[879px] shadow-lg   border-2 border-dvianeutral-50 rounded-12px overflow-hidden">
         <MapContainer
           center={[latitude, longitude]}
           zoom={13}
@@ -136,7 +158,7 @@ const MapComponent: React.FC = () => {
           <Marker position={[latitude, longitude]} icon={locationIcon}>
             <Popup>
               <span className="font-medium">
-                35 clients trouvés dans cette zone
+                Votre entreprise est située dans cette zone
               </span>
             </Popup>
           </Marker>
@@ -162,40 +184,17 @@ const MapComponent: React.FC = () => {
 
         {/* Bouton (en haut à droite) */}
         <div className="absolute top-3 left-1/2 transform -translate-x-1/2 z-[2000] flex justify-center w-full px-4">
-          <button
-            onClick={() => openModal()}
-            className="w-full max-w-[280px] md:max-w-[306px] bg-dvianeutral-92 text-dvianeutral-10 px-4 py-2 shadow-lg border border-transparent rounded-[12px] text-xs md:text-sm font-medium tracking-label-large hover:shadow-sm transition-shadow duration-300 cursor-pointer whitespace-nowrap"
-          >
-            Découvrir zone autour de chez vous
-          </button>
+          <AddressInputWithSeparator 
+            onSelectAddress={handleSelectAddress}
+            selectedAddress={selectedAddress}
+            onBack={() => {
+              // Optionnel : action à effectuer quand on revient en arrière
+            }}
+          />
         </div>
       </div>
-      <Modal
-        onClose={closeModal}
-        title={
-          modalStep === "overview"
-            ? "Parlez-nous de votre situation"
-            : "Votre adresse ou votre zone"
-        }
-        isOpen={modalOpen}
-      >
-        <div className="flex flex-col gap-4 w-[450px] overflow-hidden items-center">
-          {modalStep === "overview" ? (
-            <OverviewStep
-              onAddressClick={() => setModalStep("address")}
-              city={selectedAddress}
-              handleUpdateEstimation={handleUpdateEstimation}
-            />
-          ) : (
-            <AddressStep
-              onSelectAddress={handleSelectAddress}
-              onBack={handleBack}
-            />
-          )}
-        </div>
-      </Modal>
     </>
   );
 };
 
-export default MapComponent;
+export default MapsSearch;

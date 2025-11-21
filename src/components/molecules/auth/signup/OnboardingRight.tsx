@@ -22,7 +22,7 @@ const steps: Step[] = [
     title: "Identifiez votre entreprise",
     description:
       "Renseignez les infos légales : nom de l’entreprise, raison sociale, numéro SIRET, statut juridique, spécialité du métier, adresse du siège. La vérification du SIRET est automatique.",
-    illustration: "/illustrations/etape3.svg",
+    illustration: "/illustrations/etape2.svg",
   },
 
   {
@@ -74,7 +74,7 @@ export default function OnboardingRight() {
           </div>
 
           {index < steps.length - 1 && (
-            <div className="w-full h-[1px] bg-dvianeutral-50"></div>
+            <div className="max-w-[650px] h-[1px] bg-dvianeutral-50"></div>
           )}
         </React.Fragment>
       ))}

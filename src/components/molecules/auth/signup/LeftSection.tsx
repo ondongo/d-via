@@ -72,7 +72,7 @@ export default function LeftSection({
   };
 
   return (
-    <div className={`flex flex-col gap-2 md:gap-4 w-full md:max-w-[547px] ${className}`}>
+    <div className={`flex flex-col gap-2 md:gap-4 w-full ${className} `}>
       {stepName && (
         <p className="text-headline-small md:text-headline-small text-dvianeutralvariant-50 font-normal tracking-wider">
           {stepName}
