@@ -19,7 +19,6 @@ export default function LandingLayout({
           <Footer />
         </div>
         <BottomActionButton />
-        <ChatbotScript />
         <ToastContainer
           position="top-center"
           autoClose={5000}
