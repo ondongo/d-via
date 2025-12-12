@@ -1,4 +1,3 @@
-// src/lib/vector.ts
 import { Pinecone } from '@pinecone-database/pinecone';
 
 const {
@@ -9,20 +8,27 @@ const {
     MISTRAL_EMBED_MODEL,
 } = process.env;
 
-// Vérifications déplacées dans les fonctions pour éviter les erreurs au build
-
-// Modèle d'embedding configurable; par défaut 'mistral-embed' (1024)
+/************************************************************************************
+ * Modèle d'embedding (Sert Transformer le texte en vecteurs mathématiques)
+ ************************************************************************************/
 const EMBED_MODEL = MISTRAL_EMBED_MODEL || 'mistral-embed';
-// S’assure que la baseURL inclut /v1
+//text-embedding-3-small"
+
 const BASE_URL = MISTRAL_BASE_URL && MISTRAL_BASE_URL.endsWith('/v1') ? MISTRAL_BASE_URL : MISTRAL_BASE_URL ? `${MISTRAL_BASE_URL}/v1` : '';
 
+/************************************************************************************
+ * Pinecone (Sert à stocker les vecteurs mathématiques dans une bd spécialisée)
+ ************************************************************************************/
 export const pinecone = PINECONE_API_KEY ? new Pinecone({
     apiKey: PINECONE_API_KEY,
 }) : null;
 
 export const pineconeIndex = pinecone && PINECONE_INDEX_NAME ? pinecone.Index(PINECONE_INDEX_NAME) : null;
 
-// Encapsule l’embedding avec Mistral via fetch direct
+
+/************************************************************************************
+ * Fonction pour transformer le texte en vecteurs mathématiques
+ ************************************************************************************/
 export async function embedTexts(inputs: string[]): Promise<number[][]> {
     if (!MISTRAL_API_KEY || !BASE_URL) {
         throw new Error('Missing MISTRAL_API_KEY or MISTRAL_BASE_URL');
@@ -41,7 +47,6 @@ export async function embedTexts(inputs: string[]): Promise<number[][]> {
             throw new Error(`status=${res.status} body=${text || 'empty'}`);
         }
         const json = await res.json();
-        // Mistral renvoie { data: [{ embedding: number[] }, ...] }
         return (json?.data ?? []).map((d: any) => d.embedding as number[]);
     } catch (err: any) {
         const message = err?.message ?? String(err);
