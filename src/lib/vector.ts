@@ -48,3 +48,40 @@ export async function embedTexts(inputs: string[]): Promise<number[][]> {
         throw new Error(`Mistral embeddings error: ${message}. baseURL=${BASE_URL}, model=${EMBED_MODEL}`);
     }
 }
+
+// Client Mistral pour les chat completions
+export const mistral = {
+    chat: {
+        completions: {
+            create: async (params: {
+                model: string;
+                temperature?: number;
+                messages: Array<{ role: string; content: string }>;
+            }) => {
+                try {
+                    const res = await fetch(`${BASE_URL}/chat/completions`, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${MISTRAL_API_KEY}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            model: params.model,
+                            temperature: params.temperature ?? 0.7,
+                            messages: params.messages,
+                        }),
+                    });
+                    if (!res.ok) {
+                        const text = await res.text();
+                        throw new Error(`status=${res.status} body=${text || 'empty'}`);
+                    }
+                    const json = await res.json();
+                    return json;
+                } catch (err: any) {
+                    const message = err?.message ?? String(err);
+                    throw new Error(`Mistral chat completions error: ${message}. baseURL=${BASE_URL}`);
+                }
+            },
+        },
+    },
+};
