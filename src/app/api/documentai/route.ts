@@ -2,7 +2,6 @@ import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
 import fs from "fs";
 import { NextResponse } from "next/server";
 import path from "path";
-import fetch from "node-fetch";
 
 export const config = {
   api: {
