@@ -15,7 +15,7 @@ export default function Step4() {
   const [description, setDescription] = useState("");
 
   // États pour partie 2
-  const [photos, setPhotos] = useState<
+  const [workPhotos, setWorkPhotos] = useState<
     Array<{ base64: string; name: string; type: string }>
   >([]);
 
@@ -23,15 +23,14 @@ export default function Step4() {
   useEffect(() => {
     const data = loadFormData();
     if (data.description) setDescription(data.description);
-    if (data.photos && Array.isArray(data.photos)) {
-      // Vérifier si les photos sont dans le nouveau format (avec base64)
-      const photosArray = data.photos as Array<{
+    if (data.workPhotos && Array.isArray(data.workPhotos)) {
+      const workPhotosArray = data.workPhotos as Array<{
         base64: string;
         name: string;
         type: string;
       }>;
-      if (photosArray.length > 0 && photosArray[0]?.base64) {
-        setPhotos(photosArray);
+      if (workPhotosArray.length > 0 && workPhotosArray[0]?.base64) {
+        setWorkPhotos(workPhotosArray);
       }
     }
   }, [loadFormData]);
@@ -39,12 +38,12 @@ export default function Step4() {
   const handleImagesChange = (
     images: Array<{ base64: string; name: string; type: string }>
   ) => {
-    setPhotos(images);
+    setWorkPhotos(images);
     // Sauvegarder dans localStorage via useSignupForm
-    saveFormData({ photos: images }, true);
+    saveFormData({ workPhotos: images }, true);
   };
 
-  // Partie 2 : Photos
+  // Partie 2 : Photos de travaux
   if (step4Part === 2) {
     return (
       <div className="flex flex-col p-8 max-w-[600px] min-h-[272px] gap-4">
@@ -58,7 +57,8 @@ export default function Step4() {
         <ImageUploadMultiple
           maxImages={3}
           onImagesChange={handleImagesChange}
-          initialImages={photos}
+          initialImages={workPhotos}
+          allowPdf={false}
         />
       </div>
     );
@@ -70,13 +70,19 @@ export default function Step4() {
       <h2 className="text-xl font-bold text-dvianeutral-10">
         Créez votre description
       </h2>
-      <p className="text-dvianeutral-10 mb-4"> Partagez ce qui rend unique.</p>
+      <p className="text-dvianeutral-10 mb-4"> Partagez ce qui rend unique.</p>
 
       <textarea
         id="description-input"
         placeholder="Décrivez votre entreprise, vos services, votre expérience..."
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={(e) => {
+          setDescription(e.target.value);
+          // Sauvegarder dans le store
+          useSignupStore.getState().setDescription(e.target.value);
+          // Sauvegarder dans localStorage
+          saveFormData({ description: e.target.value }, true);
+        }}
         onFocus={() => setFocusedField("description")}
         onBlur={() => setFocusedField(null)}
         rows={8}

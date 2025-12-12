@@ -7,12 +7,14 @@ interface ImageUploadMultipleProps {
   maxImages?: number;
   onImagesChange?: (images: Array<{ base64: string; name: string; type: string }>) => void;
   initialImages?: Array<{ base64: string; name: string; type: string }>;
+  allowPdf?: boolean; // Permet d'accepter les PDFs en plus des images
 }
 
 export default function ImageUploadMultiple({
   maxImages = 3,
   onImagesChange,
   initialImages = [],
+  allowPdf = false,
 }: ImageUploadMultipleProps) {
   const [images, setImages] = useState<Array<{ base64: string; name: string; type: string }>>(
     initialImages
@@ -32,7 +34,7 @@ export default function ImageUploadMultiple({
     (acceptedFiles: File[]) => {
       const remainingSlots = maxImages - images.length;
       if (remainingSlots <= 0) {
-        toast.error(`Vous ne pouvez ajouter que ${maxImages} photos maximum.`);
+        toast.error(`Vous ne pouvez ajouter que ${maxImages} ${allowPdf ? "fichiers" : "photos"} maximum.`);
         return;
       }
 
@@ -40,8 +42,12 @@ export default function ImageUploadMultiple({
       const newImages: Array<{ base64: string; name: string; type: string }> = [];
 
       filesToProcess.forEach((file) => {
-        if (!file.type.startsWith("image/")) {
-          toast.error(`${file.name} n'est pas une image valide.`);
+        // Valider le type de fichier
+        const isValidImage = file.type.startsWith("image/");
+        const isValidPdf = allowPdf && file.type === "application/pdf";
+        
+        if (!isValidImage && !isValidPdf) {
+          toast.error(`${file.name} n'est pas un fichier valide.${allowPdf ? " Formats acceptés : images (PNG, JPG) ou PDF." : " Format accepté : images (PNG, JPG)."}`);
           return;
         }
 
@@ -68,13 +74,21 @@ export default function ImageUploadMultiple({
     [images, maxImages, handleImagesUpdate]
   );
 
+  const acceptTypes = allowPdf
+    ? {
+        "image/png": [".png"],
+        "image/jpeg": [".jpg", ".jpeg"],
+        "application/pdf": [".pdf"],
+      }
+    : {
+        "image/png": [".png"],
+        "image/jpeg": [".jpg", ".jpeg"],
+      };
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxSize: 50 * 1024 * 1024, // 50MB
-    accept: {
-      "image/png": [".png"],
-      "image/jpeg": [".jpg", ".jpeg"],
-    },
+    accept: acceptTypes,
     disabled: images.length >= maxImages,
   });
 
@@ -93,12 +107,37 @@ export default function ImageUploadMultiple({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           {images.map((image, index) => (
             <div key={index} className="relative group">
-              <div className="w-full h-[250px] md:h-[300px] overflow-hidden rounded-12px border border-dvianeutral-50">
-                <img
-                  src={`data:${image.type};base64,${image.base64}`}
-                  alt={`Photo ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-full h-[250px] md:h-[300px] overflow-hidden rounded-12px border border-dvianeutral-50 flex items-center justify-center bg-dvianeutral-98">
+                {image.type === "application/pdf" ? (
+                  <div className="flex flex-col items-center justify-center p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="64"
+                      height="64"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-dviaprimary-40 mb-2"
+                    >
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                    <p className="text-sm text-dvianeutral-10 font-medium text-center break-words">
+                      {image.name}
+                    </p>
+                    <p className="text-xs text-dvianeutral-50 mt-1">PDF</p>
+                  </div>
+                ) : (
+                  <img
+                    src={`data:${image.type};base64,${image.base64}`}
+                    alt={`Photo ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <button
                 onClick={() => handleRemoveImage(index)}
@@ -154,7 +193,9 @@ export default function ImageUploadMultiple({
             </svg>
           </div>
           <h2 className="text-center text-gray-400 text-xs font-normal leading-4 mb-1">
-            Format PNG ou JPG, moins de 50MB
+            {allowPdf
+              ? "Format PNG, JPG ou PDF, moins de 50MB"
+              : "Format PNG ou JPG, moins de 50MB"}
           </h2>
           <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
             Glissez-déposez votre fichier ici ou{" "}
@@ -162,7 +203,7 @@ export default function ImageUploadMultiple({
           </h4>
           {remainingSlots > 0 && (
             <p className="text-center text-dvianeutral-50 text-xs mt-2">
-              {remainingSlots} {remainingSlots === 1 ? "photo restante" : "photos restantes"}
+              {remainingSlots} {remainingSlots === 1 ? (allowPdf ? "fichier restant" : "photo restante") : (allowPdf ? "fichiers restants" : "photos restantes")}
             </p>
           )}
           <input {...getInputProps()} className="hidden" />
@@ -171,7 +212,7 @@ export default function ImageUploadMultiple({
 
       {!canAddMore && (
         <div className="text-center text-dvianeutral-50 text-sm py-4">
-          Vous avez atteint la limite de {maxImages} photos.
+          Vous avez atteint la limite de {maxImages} {allowPdf ? "fichiers" : "photos"}.
         </div>
       )}
     </div>
