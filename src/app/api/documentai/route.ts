@@ -120,7 +120,7 @@ export async function POST(request: any) {
     // Parcours de tous les paragraphes et collecte du texte
     for (const paragraph of paragraphs) {
       const paragraphText = getText(paragraph.layout.textAnchor);
-      extractedText += `Texte du paragraphe :\n${paragraphText}\n\n`;
+      extractedText += `\n${paragraphText}\n\n`;
     }
 
     console.log("********* extractedText *********", extractedText);
