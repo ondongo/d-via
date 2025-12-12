@@ -43,6 +43,7 @@ interface SignupState {
    * UI state
    ******************************************************/
   loading: boolean;
+  isCreatingAccount: boolean; // État spécifique pour la création finale du compte
   error: string;
   success: string;
 
@@ -76,6 +77,7 @@ interface SignupState {
   setIsSave: (isSave: boolean) => void;
 
   setLoading: (loading: boolean) => void;
+  setIsCreatingAccount: (isCreating: boolean) => void;
   setError: (error: string) => void;
   setSuccess: (success: string) => void;
 
@@ -115,6 +117,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
   description: "",
   isSave: false,
   loading: false,
+  isCreatingAccount: false,
   error: "",
   success: "",
 
@@ -172,6 +175,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
    * UI state setters
    ******************************************************/
   setLoading: (loading) => set({ loading }),
+  setIsCreatingAccount: (isCreatingAccount) => set({ isCreatingAccount }),
   setError: (error) => set({ error }),
   setSuccess: (success) => set({ success }),
 
@@ -202,6 +206,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
     description: "",
     isSave: false,
     loading: false,
+    isCreatingAccount: false,
     error: "",
     success: "",
   }),
@@ -478,7 +483,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
    ******************************************************/
   handleFinalSubmit: async (router) => {
     const state = get();
-    set({ loading: true, error: "" });
+    set({ loading: true, isCreatingAccount: true, error: "" });
 
     try {
       // Récupérer toutes les données depuis localStorage
@@ -552,7 +557,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
           address: !!address?.trim(),
         });
         toast.error("Veuillez remplir tous les champs obligatoires");
-        set({ loading: false });
+        set({ loading: false, isCreatingAccount: false });
         return;
       }
 
@@ -579,7 +584,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
 
       if (!result.success || !result.userId) {
         toast.error(result.error || "Erreur lors de la création de l'artisan");
-        set({ loading: false, error: result.error || "Erreur lors de la création de l'artisan" });
+        set({ loading: false, isCreatingAccount: false, error: result.error || "Erreur lors de la création de l'artisan" });
         return;
       }
 
@@ -599,7 +604,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
         console.error("Email utilisé:", email);
         console.error("User ID créé:", result.userId);
         toast.error("Erreur lors de la connexion. Veuillez vous connecter manuellement.");
-        set({ loading: false, error: "Erreur lors de la connexion" });
+        set({ loading: false, isCreatingAccount: false, error: "Erreur lors de la connexion" });
         return;
       }
 
@@ -621,7 +626,7 @@ export const useSignupStore = create<SignupState>((set, get) => ({
     } catch (error: any) {
       console.error("Erreur lors de la soumission finale:", error);
       toast.error(error.message || "Une erreur est survenue");
-      set({ loading: false, error: error.message || "Une erreur est survenue" });
+      set({ loading: false, isCreatingAccount: false, error: error.message || "Une erreur est survenue" });
     }
   },
 }));
