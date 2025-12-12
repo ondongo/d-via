@@ -124,6 +124,8 @@ export async function POST(request: any) {
       extractedText += `Texte du paragraphe :\n${paragraphText}\n\n`;
     }
 
+    console.log("********* extractedText *********", extractedText);
+
     // Retourner la réponse avec tout le texte extrait
     return NextResponse.json({ status: 200, message: extractedText });
   } catch (error) {
