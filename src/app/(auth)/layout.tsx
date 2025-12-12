@@ -2,6 +2,7 @@ import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HeaderAuth from "@/components/organisms/HeaderAuth";
 import FooterAuth from "@/components/organisms/FooterAuth";
+import SignupLoadingModal from "@/components/organisms/SignupLoadingModal";
 
 export default function LandingLayout({
   children,
@@ -16,6 +17,7 @@ export default function LandingLayout({
           <div className="py-5">{children}</div>
           <FooterAuth />
         </div>
+        <SignupLoadingModal />
         <ToastContainer
           position="top-center"
           autoClose={5000}
