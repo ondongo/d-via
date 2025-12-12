@@ -1,17 +1,17 @@
 generator client {
-provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-provider = "postgresql"
-url = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 /// output   = "../app/generated/prisma"
 
 enum Role {
-USER
-ADMIN
+  USER
+  ADMIN
 }
 
 model User {
@@ -25,110 +25,132 @@ model User {
   sessions         Session[]
   role             Role            @default(USER)
   Authenticator    Authenticator[]
+  artisan          Artisan?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 }
 
 model Artisan {
-  id             String  @id @default(cuid())
-  image          String?
-  rating         Float?
-  reviews        Int?
-  verified       Boolean @default(false)
-  location       String?
-  distance       Float?
-  availability   String?
-  certifications String?
-  profession     String?
-  category       String?
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber     String
+  siret           String?
+  firstName       String
+  lastName        String
+  email           String
+  address         String
+  coordinates     String? // JSON string for [lat, lng]
+  companyName     String?
+  legalName       String?
+  legalStatus     String?
+  services        String?
+  experienceYears String?
+  specialties     String?
+  description     String?
+  image           String?
+  workPhotos      String[] // Array of image URLs (work photos)
+  professionalGuarantees String[] // Array of file URLs (garanties professionnelles: images or PDFs)
+  rating          Float?
+  reviews         Int?
+  verified        Boolean  @default(false)
+  location        String?
+  distance        Float?
+  availability    String?
+  certifications  String[] // Array of certification names (RGE, Qualibat, etc.)
+  certificationUrls String[] // Array of certification file URLs (images or PDFs)
+  profession      String?
+  category        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Account {
-id String @id @default(cuid())
-userId String
-type String
-provider String
-providerAccountId String
-refresh_token String?
-access_token String?
-expires_at Int?
-token_type String?
-scope String?
-id_token String?
-session_state String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
 
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-@@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-id String @id @default(cuid())
-sessionToken String @unique
-userId String
-expires DateTime
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VerificationToken {
-identifier String
-token String
-expires DateTime
+  identifier String
+  token      String
+  expires    DateTime
 
-@@unique([identifier, token])
+  @@unique([identifier, token])
 }
 
 // Optional for WebAuthn support
 model Authenticator {
-credentialID String @unique
-userId String
-providerAccountId String
-credentialPublicKey String
-counter Int
-credentialDeviceType String
-credentialBackedUp Boolean
-transports String?
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
 
-user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-@@id([userId, credentialID])
+  @@id([userId, credentialID])
 }
 
 model Blog {
-id String @id @default(cuid())
-title String
-slug String @unique
-content String
-excerpt String?
-featuredImage String?
-previewImage String?
-author String?
-tags String[]
-createdAt DateTime @default(now())
-updatedAt DateTime @updatedAt
-reactions Reaction[]
+  id            String     @id @default(cuid())
+  title         String
+  slug          String     @unique
+  content       String
+  excerpt       String?
+  featuredImage String?
+  previewImage  String?
+  author        String?
+  tags          String[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  reactions     Reaction[]
 }
 
 model Reaction {
-id String @id @default(cuid())
-count Int? @default(1)
-section String?
-type ReactionType @default(CLAPPING)
-createdAt DateTime @default(now())
-sessionId String
+  id        String       @id @default(cuid())
+  count     Int?         @default(1)
+  section   String?
+  type      ReactionType @default(CLAPPING)
+  createdAt DateTime     @default(now())
+  sessionId String
 
-contentId String
-content Blog @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  contentId String
+  content   Blog   @relation(fields: [contentId], references: [id], onDelete: Cascade)
 }
 
 enum ReactionType {
-CLAPPING
-THINKING
-AMAZED
+  CLAPPING
+  THINKING
+  AMAZED
 }

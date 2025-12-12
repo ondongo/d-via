@@ -7,24 +7,24 @@ import ImageUploadMultiple from "../../ImageUploadMultiple";
 
 export default function Step3() {
   const { loadFormData, saveFormData } = useSignupForm();
-  const [workPhotos, setWorkPhotos] = useState<
+  const [professionalGuarantees, setProfessionalGuarantees] = useState<
     Array<{ base64: string; name: string; type: string }>
   >([]);
 
   // Charger les données au montage
   useEffect(() => {
     const data = loadFormData();
-    if (data.workPhotos && Array.isArray(data.workPhotos)) {
-      setWorkPhotos(data.workPhotos);
+    if (data.professionalGuarantees && Array.isArray(data.professionalGuarantees)) {
+      setProfessionalGuarantees(data.professionalGuarantees);
     }
   }, [loadFormData]);
 
   const handleImagesChange = (
     images: Array<{ base64: string; name: string; type: string }>
   ) => {
-    setWorkPhotos(images);
+    setProfessionalGuarantees(images);
     // Sauvegarder dans localStorage via useSignupForm
-    saveFormData({ workPhotos: images }, true);
+    saveFormData({ professionalGuarantees: images }, true);
   };
 
   return (
@@ -32,7 +32,8 @@ export default function Step3() {
       <ImageUploadMultiple
         maxImages={3}
         onImagesChange={handleImagesChange}
-        initialImages={workPhotos}
+        initialImages={professionalGuarantees}
+        allowPdf={true}
       />
     </div>
   );

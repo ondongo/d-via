@@ -9,12 +9,14 @@ interface ImageUploadMultipleProps {
     images: Array<{ base64: string; name: string; type: string }>
   ) => void;
   initialImages?: Array<{ base64: string; name: string; type: string }>;
+  allowPdf?: boolean;
 }
 
 export default function ImageUploadMultiple({
   maxImages = 3,
   onImagesChange,
   initialImages = [],
+  allowPdf = false,
 }: ImageUploadMultipleProps) {
   const [images, setImages] =
     useState<Array<{ base64: string; name: string; type: string }>>(
@@ -55,8 +57,8 @@ export default function ImageUploadMultiple({
           name: string;
           type: string;
         } | null>((resolve) => {
-          if (!file.type.startsWith("image/")) {
-            toast.error(`${file.name} n'est pas une image valide.`);
+          if (!file.type.startsWith("image/") && !(allowPdf && file.type === "application/pdf")) {
+            toast.error(`${file.name} n'est pas un fichier valide.`);
             resolve(null);
             return;
           }
@@ -99,10 +101,16 @@ export default function ImageUploadMultiple({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     maxSize: 50 * 1024 * 1024, // 50MB
-    accept: {
-      "image/png": [".png"],
-      "image/jpeg": [".jpg", ".jpeg"],
-    },
+    accept: allowPdf
+      ? {
+          "image/png": [".png"],
+          "image/jpeg": [".jpg", ".jpeg"],
+          "application/pdf": [".pdf"],
+        }
+      : {
+          "image/png": [".png"],
+          "image/jpeg": [".jpg", ".jpeg"],
+        },
     disabled: images.length >= maxImages,
   });
 
@@ -117,17 +125,43 @@ export default function ImageUploadMultiple({
   const firstImage = images[0];
   const remainingImages = images.slice(1);
 
+  const isPdf = (file: { type: string }) => file.type === "application/pdf";
+
   return (
     <div className="w-full flex flex-col gap-4">
       {/* Première image en pleine largeur */}
       {firstImage && (
         <div className="relative group w-full">
-          <div className="h-[300px] md:h-[300px] overflow-hidden rounded-12px border border-dvianeutral-50">
-            <img
-              src={`data:${firstImage.type};base64,${firstImage.base64}`}
-              alt="Photo 1"
-              className="w-full h-full object-cover"
-            />
+          <div className="h-[300px] md:h-[300px] overflow-hidden rounded-12px border border-dvianeutral-50 flex items-center justify-center bg-dvianeutral-96">
+            {isPdf(firstImage) ? (
+              <div className="flex flex-col items-center justify-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="64"
+                  height="64"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-dvianeutral-40"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                  <polyline points="10 9 9 9 8 9" />
+                </svg>
+                <p className="text-sm text-dvianeutral-40">{firstImage.name}</p>
+              </div>
+            ) : (
+              <img
+                src={`data:${firstImage.type};base64,${firstImage.base64}`}
+                alt="Photo 1"
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <button
             onClick={() => handleRemoveImage(0)}
@@ -143,12 +177,36 @@ export default function ImageUploadMultiple({
         {/* Images restantes (2ème et 3ème) */}
         {remainingImages.map((image, index) => (
           <div key={index + 1} className="relative group">
-            <div className="min-w-[260px] h-[180px] overflow-hidden rounded-12px border border-dvianeutral-50">
-              <img
-                src={`data:${image.type};base64,${image.base64}`}
-                alt={`Photo ${index + 2}`}
-                className="w-full h-full object-cover"
-              />
+            <div className="min-w-[260px] h-[180px] overflow-hidden rounded-12px border border-dvianeutral-50 flex items-center justify-center bg-dvianeutral-96">
+              {isPdf(image) ? (
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-dvianeutral-40"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                  <p className="text-xs text-dvianeutral-40 truncate max-w-[200px]">{image.name}</p>
+                </div>
+              ) : (
+                <img
+                  src={`data:${image.type};base64,${image.base64}`}
+                  alt={`Photo ${index + 2}`}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             <button
               onClick={() => handleRemoveImage(index + 1)}
@@ -193,7 +251,7 @@ export default function ImageUploadMultiple({
               </svg>
             </div>
             <h2 className="text-center text-gray-400 text-xs font-normal leading-4 mb-1">
-              Format PNG ou JPG
+              {allowPdf ? "Format PNG, JPG ou PDF" : "Format PNG ou JPG"}
             </h2>
             <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
               Glissez-déposez votre fichier ici ou{" "}

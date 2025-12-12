@@ -22,7 +22,23 @@ CREATE TABLE "public"."User" (
 -- CreateTable
 CREATE TABLE "public"."Artisan" (
     "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "phoneNumber" TEXT NOT NULL,
+    "siret" TEXT,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "coordinates" TEXT,
+    "companyName" TEXT,
+    "legalName" TEXT,
+    "legalStatus" TEXT,
+    "services" TEXT,
+    "experienceYears" TEXT,
+    "specialties" TEXT,
+    "description" TEXT,
     "image" TEXT,
+    "photos" TEXT[],
     "rating" DOUBLE PRECISION,
     "reviews" INTEGER,
     "verified" BOOLEAN NOT NULL DEFAULT false,
@@ -32,6 +48,8 @@ CREATE TABLE "public"."Artisan" (
     "certifications" TEXT,
     "profession" TEXT,
     "category" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Artisan_pkey" PRIMARY KEY ("id")
 );
@@ -126,6 +144,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
 CREATE UNIQUE INDEX "User_stripeCustomerId_key" ON "public"."User"("stripeCustomerId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Artisan_userId_key" ON "public"."Artisan"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "public"."Account"("provider", "providerAccountId");
 
 -- CreateIndex
@@ -139,6 +160,9 @@ CREATE UNIQUE INDEX "Authenticator_credentialID_key" ON "public"."Authenticator"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Blog_slug_key" ON "public"."Blog"("slug");
+
+-- AddForeignKey
+ALTER TABLE "public"."Artisan" ADD CONSTRAINT "Artisan_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

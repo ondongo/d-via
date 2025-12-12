@@ -1,7 +1,9 @@
 import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
 import { prisma } from "./prisma";
 import { createStripeCustomer } from "@/services/database/stripe-customer";
+import bcrypt from "bcryptjs";
 
 interface Token {
   role?: string;
@@ -21,6 +23,62 @@ export default {
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+    Credentials({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          // Trouver l'utilisateur par email
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email as string },
+            include: {
+              accounts: {
+                where: { provider: "credentials" },
+              },
+            },
+          });
+
+          if (!user) {
+            return null;
+          }
+
+          // Trouver le compte credentials
+          const credentialsAccount = user.accounts.find(
+            (acc) => acc.provider === "credentials"
+          );
+
+          if (!credentialsAccount || !credentialsAccount.access_token) {
+            return null;
+          }
+
+          // Vérifier le mot de passe
+          const isValid = await bcrypt.compare(
+            credentials.password as string,
+            credentialsAccount.access_token
+          );
+
+          if (!isValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email!,
+            name: user.name || undefined,
+          };
+        } catch (error) {
+          console.error("Erreur lors de l'authentification:", error);
+          return null;
+        }
+      },
     }),
   ],
   session: { strategy: "jwt" },

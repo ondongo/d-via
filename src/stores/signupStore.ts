@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { toast } from "react-toastify";
+import { createArtisan } from "@/services/database/artisan";
+import { signIn } from "next-auth/react";
 
 interface SignupState {
 
@@ -83,6 +85,7 @@ interface SignupState {
   handleStep1Part1Action: (router: any) => Promise<void>;
   handleStep1Part2Action: (router: any) => Promise<void>;
   handleStepAction: (router: any) => Promise<void>;
+  handleFinalSubmit: (router: any) => Promise<void>;
 }
 
 export const useSignupStore = create<SignupState>((set, get) => ({
@@ -464,20 +467,161 @@ export const useSignupStore = create<SignupState>((set, get) => ({
           stepParts: { ...prev.stepParts, 4: 2 },
         }));
       } else if (step4Part === 2) {
-        // Partie 2 : Passer à partie 3
-        set((prev) => ({
-          stepParts: { ...prev.stepParts, 4: 3 },
-        }));
-      } else if (step4Part === 3) {
-        // Partie 3 : Compléter Step4
-        const newCompleted = new Set(state.completedSteps);
-        newCompleted.add(4);
-        set({
-          completedSteps: newCompleted,
-          currentStep: 5, // Ou dashboard selon votre flow
-        });
-        // router.push("/dashboard");
+        // Partie 2 :  Enregistrer les données dans la base de données et connecter l'utilisateur
+        await state.handleFinalSubmit(router);
+      } 
+    }
+  },
+
+  /******************************************************
+   * Final submit: Create artisan and sign in
+   ******************************************************/
+  handleFinalSubmit: async (router) => {
+    const state = get();
+    set({ loading: true, error: "" });
+
+    try {
+      // Récupérer toutes les données depuis localStorage
+      let savedData: any = {};
+      try {
+        const savedDataStr = localStorage.getItem("signupFormData");
+        if (savedDataStr) {
+          savedData = JSON.parse(savedDataStr);
+        }
+      } catch (e) {
+        console.error("Erreur lors de la récupération des données:", e);
       }
+
+      // Récupérer les garanties professionnelles (Step3) depuis localStorage
+      let professionalGuarantees: Array<{ base64: string; name: string; type: string }> = [];
+      // Récupérer les photos de travaux (Step4 partie 2) depuis localStorage
+      let workPhotos: Array<{ base64: string; name: string; type: string }> = [];
+      if (savedData.professionalGuarantees && Array.isArray(savedData.professionalGuarantees)) {
+        professionalGuarantees = savedData.professionalGuarantees;
+        console.log(`${professionalGuarantees.length} garantie(s) professionnelle(s) récupérée(s)`);
+      }
+      if (savedData.workPhotos && Array.isArray(savedData.workPhotos)) {
+        workPhotos = savedData.workPhotos;
+        console.log(`${workPhotos.length} photo(s) de travail(s) récupérée(s)`);
+      }
+
+      // Récupérer les données de base depuis localStorage si elles ne sont pas dans le state
+      const firstName = state.firstName || savedData.firstName || "";
+      const lastName = state.lastName || savedData.lastName || "";
+      const email = state.email || savedData.email || "";
+      const password = state.password || savedData.password || "";
+      const phoneNumber = state.phoneNumber || savedData.phoneNumber || "";
+
+      // Récupérer les coordonnées depuis sessionStorage ou localStorage si nécessaire
+      let coordinates: [number, number] | null = state.coordinates || savedData.coordinates || null;
+      if (!coordinates && typeof window !== "undefined") {
+        const storedCoords = sessionStorage.getItem("selectedCoordinates");
+        if (storedCoords) {
+          try {
+            coordinates = JSON.parse(storedCoords);
+          } catch (e) {
+            console.error("Erreur lors du parsing des coordonnées:", e);
+          }
+        }
+      }
+
+      // Récupérer l'adresse depuis sessionStorage ou localStorage si nécessaire
+      let address = state.address || savedData.address || "";
+      if (!address && typeof window !== "undefined") {
+        const storedAddress = sessionStorage.getItem("selectedAddress");
+        if (storedAddress) {
+          address = storedAddress;
+        }
+      }
+
+      // Vérifier que toutes les données requises sont présentes
+      if (
+        !firstName?.trim() || 
+        !lastName?.trim() || 
+        !email?.trim() || 
+        !password?.trim() || 
+        !phoneNumber?.trim() || 
+        !address?.trim()
+      ) {
+        console.error("Données manquantes:", {
+          firstName: !!firstName?.trim(),
+          lastName: !!lastName?.trim(),
+          email: !!email?.trim(),
+          password: !!password?.trim(),
+          phoneNumber: !!phoneNumber?.trim(),
+          address: !!address?.trim(),
+        });
+        toast.error("Veuillez remplir tous les champs obligatoires");
+        set({ loading: false });
+        return;
+      }
+
+      // Créer l'artisan
+      const result = await createArtisan({
+        email: email,
+        password: password,
+        firstName: firstName,
+        lastName: lastName,
+        phoneNumber: phoneNumber,
+        address: address,
+        coordinates: coordinates,
+        siret: state.siret || savedData.siret || undefined,
+        companyName: state.companyName || savedData.companyName || undefined,
+        legalName: state.legalName || savedData.legalName || undefined,
+        legalStatus: state.legalStatus || savedData.legalStatus || undefined,
+        services: state.services || savedData.services || undefined,
+        experienceYears: state.experienceYears || savedData.experienceYears || undefined,
+        specialties: state.specialties || savedData.specialties || undefined,
+        description: state.description || savedData.description || undefined,
+        professionalGuarantees: professionalGuarantees.length > 0 ? professionalGuarantees : undefined,
+        workPhotos: workPhotos.length > 0 ? workPhotos : undefined,
+      });
+
+      if (!result.success || !result.userId) {
+        toast.error(result.error || "Erreur lors de la création de l'artisan");
+        set({ loading: false, error: result.error || "Erreur lors de la création de l'artisan" });
+        return;
+      }
+
+      // Attendre un court délai pour s'assurer que l'Account est bien créé en base
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Connecter l'utilisateur avec NextAuth
+      // Utiliser les variables locales (email et password) récupérées depuis localStorage
+      const signInResult = await signIn("credentials", {
+        email: email,
+        password: password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        console.error("Erreur de connexion NextAuth:", signInResult.error);
+        console.error("Email utilisé:", email);
+        console.error("User ID créé:", result.userId);
+        toast.error("Erreur lors de la connexion. Veuillez vous connecter manuellement.");
+        set({ loading: false, error: "Erreur lors de la connexion" });
+        return;
+      }
+
+      // Nettoyer les données du formulaire
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("signupFormData");
+        sessionStorage.removeItem("phoneNumber");
+        sessionStorage.removeItem("selectedAddress");
+        sessionStorage.removeItem("selectedCoordinates");
+      }
+
+      // Réinitialiser le store
+      state.resetStore();
+
+      toast.success("Inscription réussie ! Bienvenue !");
+      
+      // Rediriger vers le dashboard
+      router.push("/dashboard");
+    } catch (error: any) {
+      console.error("Erreur lors de la soumission finale:", error);
+      toast.error(error.message || "Une erreur est survenue");
+      set({ loading: false, error: error.message || "Une erreur est survenue" });
     }
   },
 }));

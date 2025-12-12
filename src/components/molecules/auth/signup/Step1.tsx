@@ -6,9 +6,19 @@ import { useSignupForm } from "@/hooks/useSignupForm";
 import CodePinInput from "@/components/atoms/auth/CodePinInput";
 
 export default function Step1() {
-  const { phoneNumber, setPhoneNumber, setError, getStepPart, code, setCode } =
-    useSignupStore();
-  const { loadFormData } = useSignupForm();
+  const { 
+    phoneNumber, 
+    setPhoneNumber, 
+    setError, 
+    getStepPart, 
+    code, 
+    setCode,
+    setFirstName: setStoreFirstName,
+    setLastName: setStoreLastName,
+    setEmail: setStoreEmail,
+    setPassword: setStorePassword,
+  } = useSignupStore();
+  const { loadFormData, saveFormData } = useSignupForm();
   const step1Part = getStepPart(1);
 
   const [firstName, setFirstName] = useState("");
@@ -18,14 +28,28 @@ export default function Step1() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
-  // Charger les données au montage
+  // Charger les données au montage depuis localStorage et le store
   useEffect(() => {
     const data = loadFormData();
-    if (data.firstName) setFirstName(data.firstName);
-    if (data.lastName) setLastName(data.lastName);
-    if (data.email) setEmail(data.email);
-    if (data.password) setPassword(data.password);
-  }, [loadFormData]);
+    const store = useSignupStore.getState();
+    
+    // Priorité au store, puis localStorage
+    const finalFirstName = store.firstName || data.firstName || "";
+    const finalLastName = store.lastName || data.lastName || "";
+    const finalEmail = store.email || data.email || "";
+    const finalPassword = store.password || data.password || "";
+    
+    setFirstName(finalFirstName);
+    setLastName(finalLastName);
+    setEmail(finalEmail);
+    setPassword(finalPassword);
+    
+    // Synchroniser avec le store
+    if (finalFirstName) setStoreFirstName(finalFirstName);
+    if (finalLastName) setStoreLastName(finalLastName);
+    if (finalEmail) setStoreEmail(finalEmail);
+    if (finalPassword) setStorePassword(finalPassword);
+  }, [loadFormData, setStoreFirstName, setStoreLastName, setStoreEmail, setStorePassword]);
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -76,7 +100,10 @@ export default function Step1() {
               placeholder="Nom"
               value={lastName}
               onChange={(e) => {
-                setLastName(e.target.value);
+                const value = e.target.value;
+                setLastName(value);
+                setStoreLastName(value);
+                saveFormData({ lastName: value }, true);
                 setError("");
               }}
               onFocus={() => setFocusedField("lastName")}
@@ -101,7 +128,10 @@ export default function Step1() {
               placeholder="Prénom"
               value={firstName}
               onChange={(e) => {
-                setFirstName(e.target.value);
+                const value = e.target.value;
+                setFirstName(value);
+                setStoreFirstName(value);
+                saveFormData({ firstName: value }, true);
                 setError("");
               }}
               onFocus={() => setFocusedField("firstName")}
@@ -129,7 +159,10 @@ export default function Step1() {
             placeholder="email@exemple.com"
             value={email}
             onChange={(e) => {
-              setEmail(e.target.value);
+              const value = e.target.value;
+              setEmail(value);
+              setStoreEmail(value);
+              saveFormData({ email: value }, true);
               setError("");
             }}
             onFocus={() => setFocusedField("email")}
@@ -156,7 +189,10 @@ export default function Step1() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => {
-              setPassword(e.target.value);
+              const value = e.target.value;
+              setPassword(value);
+              setStorePassword(value);
+              saveFormData({ password: value }, true);
               setError("");
             }}
             onFocus={() => setFocusedField("password")}

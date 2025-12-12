@@ -21,13 +21,13 @@ export type SignupFormData = {
   siret?: string;
   legalStatus?: string;
   // Step3
-  workPhotos?: Array<{ base64: string; name: string; type: string }>;
+  professionalGuarantees?: Array<{ base64: string; name: string; type: string }>;
   // Step4
+  workPhotos?: Array<{ base64: string; name: string; type: string }>;
   services?: string;
   experienceYears?: string;
   specialties?: string;
   description?: string;
-  photos?: Array<{ base64: string; name: string; type: string }>;
   // Métadonnées
   completedSteps?: number[];
   currentStep?: number;
