@@ -9,24 +9,24 @@ const {
     MISTRAL_EMBED_MODEL,
 } = process.env;
 
-if (!PINECONE_API_KEY) throw new Error('Missing PINECONE_API_KEY');
-if (!PINECONE_INDEX_NAME) throw new Error('Missing PINECONE_INDEX_NAME');
-if (!MISTRAL_API_KEY) throw new Error('Missing MISTRAL_API_KEY');
-if (!MISTRAL_BASE_URL) throw new Error('Missing MISTRAL_BASE_URL');
+// Vérifications déplacées dans les fonctions pour éviter les erreurs au build
 
 // Modèle d'embedding configurable; par défaut 'mistral-embed' (1024)
 const EMBED_MODEL = MISTRAL_EMBED_MODEL || 'mistral-embed';
 // S’assure que la baseURL inclut /v1
-const BASE_URL = MISTRAL_BASE_URL.endsWith('/v1') ? MISTRAL_BASE_URL : `${MISTRAL_BASE_URL}/v1`;
+const BASE_URL = MISTRAL_BASE_URL && MISTRAL_BASE_URL.endsWith('/v1') ? MISTRAL_BASE_URL : MISTRAL_BASE_URL ? `${MISTRAL_BASE_URL}/v1` : '';
 
-export const pinecone = new Pinecone({
+export const pinecone = PINECONE_API_KEY ? new Pinecone({
     apiKey: PINECONE_API_KEY,
-});
+}) : null;
 
-export const pineconeIndex = pinecone.Index(PINECONE_INDEX_NAME);
+export const pineconeIndex = pinecone && PINECONE_INDEX_NAME ? pinecone.Index(PINECONE_INDEX_NAME) : null;
 
 // Encapsule l’embedding avec Mistral via fetch direct
 export async function embedTexts(inputs: string[]): Promise<number[][]> {
+    if (!MISTRAL_API_KEY || !BASE_URL) {
+        throw new Error('Missing MISTRAL_API_KEY or MISTRAL_BASE_URL');
+    }
     try {
         const res = await fetch(`${BASE_URL}/embeddings`, {
             method: 'POST',
@@ -58,6 +58,9 @@ export const mistral = {
                 temperature?: number;
                 messages: Array<{ role: string; content: string }>;
             }) => {
+                if (!MISTRAL_API_KEY || !BASE_URL) {
+                    throw new Error('Missing MISTRAL_API_KEY or MISTRAL_BASE_URL');
+                }
                 try {
                     const res = await fetch(`${BASE_URL}/chat/completions`, {
                         method: 'POST',
