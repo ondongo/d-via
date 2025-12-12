@@ -583,8 +583,8 @@ export const useSignupStore = create<SignupState>((set, get) => ({
         return;
       }
 
-      // Attendre un court délai pour s'assurer que l'Account est bien créé en base
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+      //await new Promise(resolve => setTimeout(resolve, 500));
 
       // Connecter l'utilisateur avec NextAuth
       // Utiliser les variables locales (email et password) récupérées depuis localStorage
