@@ -1,4 +1,8 @@
-// src/app/api/rag/index/route.ts
+/*****************************************************************************************************************
+ * Fonction pour indexer les chunks , faire l'embedding et stocker les vecteurs mathématiques dans Pinecone
+ * A modifier (Les chhucks sont pas bien découpés)
+ * Modifier le nom de la route api en route d'insertion de chunks dans Pinecone
+ *****************************************************************************************************************/
 import { NextRequest, NextResponse } from 'next/server';
 import { pineconeIndex, embedTexts } from '@/lib/vector';
 

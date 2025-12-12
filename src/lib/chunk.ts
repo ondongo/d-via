@@ -1,4 +1,6 @@
-// src/lib/chunk.ts
+/**************************************************************************************************************
+ * Fonction pour découper le texte en chunks (A modifier en fonction de la structure d'un devis standard)
+ **************************************************************************************************************/
 export function chunkText(text: string, maxLen = 500, overlap = 100): string[] {
     const words = text.split(/\s+/);
     const chunks: string[] = [];
