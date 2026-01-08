@@ -4,7 +4,7 @@
  * Modifier le nom de la route api en route d'insertion de chunks dans Pinecone
  *****************************************************************************************************************/
 import { NextRequest, NextResponse } from 'next/server';
-import { pineconeIndex, embedTexts } from '@/lib/vector';
+import { pineconeIndex, embedTexts } from '@/services/rag/vector';
 
 type ChunkInput = {
     id?: string;

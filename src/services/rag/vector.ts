@@ -54,7 +54,9 @@ export async function embedTexts(inputs: string[]): Promise<number[][]> {
     }
 }
 
-// Client Mistral pour les chat completions
+/************************************************************************************
+ * Client Mistral pour les chat completions
+ ************************************************************************************/
 export const mistral = {
     chat: {
         completions: {

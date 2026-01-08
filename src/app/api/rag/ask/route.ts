@@ -4,7 +4,7 @@
  * Ecrire un bon prompt plus précis pour la requête RAG
  *****************************************************************************************************************/
 import { NextRequest, NextResponse } from "next/server";
-import { pineconeIndex, embedTexts, mistral } from "@/lib/vector";
+import { pineconeIndex, embedTexts, mistral } from "@/services/rag/vector";
 
 type RagAskBody = {
   question: string;
