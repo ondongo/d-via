@@ -1,39 +1,5 @@
 import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
-import fs from "fs";
 import { NextResponse } from "next/server";
-import path from "path";
-
-export const config = {
-  api: {
-    bodyParser: false, // Disable body parser to handle file upload with formidable
-  },
-};
-
-const keyFilename = path.join(__dirname, "../../../../../key.json");
-
-const fetchFile = async (url: any) => {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch file from URL: ${url}`);
-  }
-  console.log(`Fetched ${res.arrayBuffer}`);
-  return res.arrayBuffer(); // Return the content as a buffer
-};
-
-const credentials = {
-  type: process.env.TYPE,
-  project_id: process.env.PROJECT_ID,
-  private_key_id: process.env.PRIVATE_KEY_ID,
-  //private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
-  private_key: process.env.PRIVATE_KEY,
-  client_email: process.env.CLIENT_EMAIL,
-  client_id: process.env.CLIENT_ID,
-  auth_uri: process.env.AUTH_URI,
-  token_uri: process.env.TOKEN_URI,
-  auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
-  client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
-  universe_domain: process.env.UNIVERSE_DOMAIN,
-};
 
 export async function POST(request: any) {
   const documentclient = new DocumentProcessorServiceClient({
