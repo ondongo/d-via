@@ -1,24 +1,56 @@
 import type { NextConfig } from "next";
-import createMDX from '@next/mdx';
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
-  // Configure `pageExtensions` to include MDX files
-  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
-  
-  // Optionally, add any other Next.js config below
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+  //use images.remotePatterns
   images: {
-    domains: [
-      "images.unsplash.com",
-      "example.com",
-      "localhost:3000",
-      "firebasestorage.googleapis.com",
-      "ko-zua.vercel.app",
-      "upload.wikimedia.org",
-      "cdnwp.dealerk.com",
-      "i.gaw.to",
-      "googleusercontent.com",
-      "lh3.googleusercontent.com",
-      "static.wixstatic.com"
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "example.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3000",
+      },
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "ko-zua.vercel.app",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+      },
+      {
+        protocol: "https",
+        hostname: "cdnwp.dealerk.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.gaw.to",
+      },
+      {
+        protocol: "https",
+        hostname: "googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+      {
+        protocol: "https",
+        hostname: "static.wixstatic.com",
+      },
     ],
   },
 };

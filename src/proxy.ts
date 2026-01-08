@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { SIGNUP_COOKIES } from "@/utils/cookies";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Lire les cookies pour vérifier si l'utilisateur a sauvegardé son formulaire
