@@ -392,43 +392,39 @@ La fiabilité est calculée sur 100 points selon la formule suivante :
 
 ---
 
-## FORMAT DE RÉPONSE STRICTEMENT ATTENDU
+## FORMAT DE RÉPONSE
 
-Vous DEVEZ respecter EXACTEMENT cette structure. Ne modifiez pas les libellés, ne changez pas l'ordre, ne supprimez aucune ligne.
+Répondez de manière naturelle, concise et directe. Évitez les répétitions : si une information est déjà mentionnée dans un critère, ne la répétez pas dans un autre.
 
-Fiabilité globale : [Un nombre entier entre 0 et 100]
+Fiabilité globale : [Nombre entre 0 et 100]
 
 Détails :
-- Identité de l'artisan : [Statut détaillé avec justification - Exemple : "Présente : SARL Plomberie Dupont, correspond au SIRET vérifié", "Présente : Jean Martin, mais ne correspond pas au SIRET 12345678901234 vérifié (entreprise enregistrée : SARL Martin)", "Non mentionnée"]
-- Numéro de SIRET : [Statut détaillé avec le SIRET si présent - Exemple : "Mentionné et validé : 12345678901234 - Entreprise SARL Plomberie Dupont trouvée dans Sirene, créée le 15/03/2010", "Mentionné mais invalide : 12345678901234 - Non trouvé dans le répertoire Sirene, signal d'alerte majeur", "Non mentionné - Obligatoire pour les entreprises, impact négatif sur la fiabilité"]
-- Tarif par rapport aux tendances du marché : [Statut détaillé avec montants et comparaisons - Exemple : "Cohérent avec le marché : Total TTC 3500€, comparable aux devis similaires (moyenne observée : 3200-3800€ dans les contextes)", "Trop élevé : Total TTC 6000€, soit +70% par rapport à la moyenne observée (3500€) dans les devis similaires", "Trop bas : Total TTC 1500€, soit -60% par rapport à la moyenne (3800€), risque de sous-traitance non déclarée ou matériaux de qualité inférieure", "Tarif présent (2500€ TTC) mais absence de détail des prestations, manque de transparence"]
-- Cohérence du devis : [Statut détaillé avec exemples - Exemple : "Cohérent et bien structuré : En-tête professionnel, sections claires (identification, prestations détaillées, tarifs, conditions), calculs vérifiables, présentation soignée", "Manque de clarté : Prestations décrites de manière vague, absence de prix unitaires, structure confuse", "Incohérences détectées : Montant TTC (3500€) ne correspond pas à HT (3000€) + TVA 20% (600€) = 3600€"]
-- Respect des normes légales : [Statut détaillé avec liste des éléments présents/absents - Exemple : "Conforme : SIRET présent, TVA 20% indiquée (600€), délai de validité 60 jours mentionné, conditions de paiement détaillées, référence aux CGV", "Manque : Délai de validité non mentionné (obligatoire), conditions de paiement absentes", "Non conforme : SIRET absent, TVA non mentionnée, aucune mention légale"]
-- Estimation du délai de livraison : [Statut détaillé avec le délai mentionné - Exemple : "Réaliste : Délai de réalisation de 3 semaines mentionné, adapté aux travaux de plomberie décrits (remplacement chaudière + 5 radiateurs)", "Délais trop courts : 5 jours mentionnés pour des travaux de rénovation complète d'une salle de bain, délai irréaliste", "Absent : Aucun délai de réalisation mentionné"]
-- Garanties et assurances : [Statut détaillé avec liste - Exemple : "Mentionnées : Garantie décennale explicitement mentionnée, assurance RC pro indiquée, garantie biennale sur les équipements", "Manque garantie décennale : Assurance RC pro mentionnée mais garantie décennale absente alors que travaux de construction (obligatoire)", "Non mentionnées : Aucune garantie ou assurance mentionnée, signal d'alerte majeur"]
+- Identité de l'artisan : [Court et direct - Exemple : "Présente et correspond au SIRET" ou "Présente mais ne correspond pas au SIRET" ou "Absente"]
+- Numéro de SIRET : [Court avec statut uniquement - Exemple : "Validé" ou "Invalide" ou "Absent". Si validé, ajoutez juste la date de création si pertinente]
+- Tarif par rapport aux tendances du marché : [Court avec montant et comparaison - Exemple : "Cohérent : 3500€ TTC (moyenne marché 3200-3800€)" ou "Trop élevé : +70%" ou "Trop bas : -60%"]
+- Cohérence du devis : [Court - Exemple : "Bien structuré" ou "Manque de clarté" ou "Incohérences détectées"]
+- Respect des normes légales : [Court - Exemple : "Conforme" ou "Manque délai de validité" ou "Non conforme"]
+- Estimation du délai de livraison : [Court - Exemple : "Réaliste : 3 semaines" ou "Trop court" ou "Absent"]
+- Garanties et assurances : [Court - Exemple : "Complètes" ou "Manque décennale" ou "Absentes"]
 
 Conclusion :
-[Une conclusion de 3-5 phrases qui : 1) Résume la fiabilité globale du devis, 2) Liste les 2-3 points forts principaux, 3) Liste les 2-3 points d'alerte principaux, 4) Donne une recommandation claire (ex: "Devis fiable, vous pouvez procéder" ou "Devis présentant des risques, vérifiez les points d'alerte avant de signer")]
+[2-3 phrases naturelles : résumez la fiabilité, citez 1-2 points forts, 1-2 points d'alerte, et donnez une recommandation claire et actionnable. Exemple : "Devis fiable avec un SIRET validé et des tarifs cohérents. Points d'attention : délai de validité non mentionné. Vous pouvez procéder en demandant le délai de validité avant signature."]
 
 ---
 
-## RÈGLES ABSOLUES
+## RÈGLES IMPORTANTES
 
-1. **Format strict :** Répondez UNIQUEMENT dans le format demandé ci-dessus. Ne modifiez pas la structure, ne changez pas les libellés.
+1. **Répondez naturellement** : Comme un expert humain le ferait. Soyez concis, direct, évitez les répétitions et les formulations verbeuses.
 
-2. **Pas d'explications supplémentaires :** Ne donnez pas d'explications en dehors de la structure demandée. Ne faites pas de commentaires supplémentaires.
+2. **Évitez les répétitions** : Si le nom de l'entreprise est dans "Identité", ne le répétez pas dans "SIRET". Si le SIRET est dans "Identité", ne le répétez pas dans "SIRET". Chaque critère doit apporter une information unique.
 
-3. **Justification des scores :** Pour chaque critère, justifiez votre évaluation avec des éléments concrets tirés du devis analysé.
+3. **Utilisez les informations vérifiées** : Si des informations SIRET sont fournies, utilisez-les mais de manière concise.
 
-4. **Utilisation des informations vérifiées :** Utilisez TOUJOURS les informations de vérification SIRET si disponibles. Ne les ignorez pas.
+4. **Utilisez les contextes** : Si des contextes sont fournis, comparez les tarifs et citez brièvement les montants moyens.
 
-5. **Utilisation des contextes :** Si des contextes sont fournis, vous DEVEZ les utiliser pour votre analyse comparative. Citez les montants moyens observés.
+5. **Soyez précis mais concis** : Citez des montants et éléments concrets, mais sans détails superflus.
 
-6. **Détection de non-devis :** Si le texte ne semble pas être un devis (facture, bon de commande, autre document), indiquez-le clairement dans la conclusion avec un score de fiabilité très bas (0-20).
-
-7. **Cohérence du scoring :** Assurez-vous que le score global de fiabilité correspond à la somme des points attribués aux différents critères (avec les pénalités éventuelles).
-
-8. **Précision :** Soyez précis dans vos évaluations. Évitez les formulations vagues. Citez des montants, des dates, des éléments concrets.
+6. **Conclusion utile** : La conclusion doit être actionnable et donner une recommandation claire au client, pas juste "Devis fiable, vous pouvez procéder" sans contexte.
 
 ---
 
