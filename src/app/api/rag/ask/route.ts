@@ -1,10 +1,21 @@
 /*****************************************************************************************************************
- * Fonction pour faire la requête RAG avec les données recupérer de pinecone recherche les plus pertinents
- * Ecrire un algorithme pour trouver les chunks les plus pertinents
- * Ecrire un bon prompt plus précis pour la requête RAG
+ * ROUTE : /api/rag/ask
+ * 
+ * Recherche RAG dans Pinecone : convertit la question en embedding et retourne les chunks pertinents
+ * S'utilise AVEC /api/rag/analyze : ask → récupère contextes, analyze → analyse avec contextes
+ * 
+ * PARAMÈTRES :
+ * - question (string, requis) : Question pour la recherche
+ * - namespace (string, optionnel) : Namespace Pinecone (défaut: "default")
+ * - topK (number, optionnel) : Nombre de chunks à retourner (défaut: 5)
+ * 
+ * RETOUR :
+ * { status: 200, contexts: string } // Format: "[CONTEXT 1] (score=0.923)\nTexte..."
+ * ou { status: 400|500, error: string }
  *****************************************************************************************************************/
 import { NextRequest, NextResponse } from "next/server";
-import { pineconeIndex, embedTexts, mistral } from "@/services/rag/vector";
+import { embedTexts } from "@/services/rag/vector";
+import { pineconeIndex } from "@/services/rag/pinecone";
 
 type RagAskBody = {
   question: string;
@@ -24,10 +35,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Embedding de la question
+    /*****************************************************************************************************************
+     * 1. Embedding de la question
+     *****************************************************************************************************************/
     const [queryEmbedding] = await embedTexts([question]);
 
-    // 2. Recherche des chunks les plus pertinents
+    /*****************************************************************************************************************
+     * 2. Recherche des chunks les plus pertinents
+     *****************************************************************************************************************/
     const queryResponse = await pineconeIndex.query({
       // @ts-ignore
       namespace: namespace ?? "default",
@@ -37,6 +52,9 @@ export async function POST(req: NextRequest) {
       vector: queryEmbedding,
     });
 
+    /*****************************************************************************************************************
+     * 3. Analyse des chunks les plus pertinents et retourner le contexte
+     *****************************************************************************************************************/
     const matches = queryResponse.matches ?? [];
 
     const contexts = matches
@@ -50,50 +68,11 @@ export async function POST(req: NextRequest) {
       .filter(Boolean)
       .join("\n\n");
 
-    const systemPrompt =
-      "Tu es un assistant spécialisé dans l’analyse de devis et de documents pour des artisans.";
-    const userPrompt = `
-Tu dois répondre uniquement à partir des CONTEXTES ci-dessous.
-Si l'information n'est pas présente dans le contexte, dis clairement que tu ne sais pas.
-
-CONTEXTE:
-${contexts || "(Aucun contexte pertinent trouvé)"}
-
-QUESTION:
-${question}
-
-Réponds en français, de manière structurée et claire.
-Si possible, liste les éléments importants sous forme de puces (•).
-`;
-
-    /*****************************************************************************************************************
-     * A retirer plus tard par un modèle d'analyse plus précis et qui comprend bien les vecteurs
-     *****************************************************************************************************************/
-
-    // 3. Appel au modèle Mistral (LLM)
-    const completion = await mistral.chat.completions.create({
-      model: "ministal 3b",
-      temperature: 0.1,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-    });
-
-    const answer = completion.choices[0]?.message?.content ?? "";
-
-    return NextResponse.json({
-      answer,
-      sources: matches.map((m) => ({
-        id: m.id,
-        score: m.score,
-        metadata: m.metadata,
-      })),
-    });
+    return NextResponse.json({ status: 200, contexts }, { status: 200 });
   } catch (error) {
     console.error("RAG ask error:", error);
     return NextResponse.json(
-      { error: "Erreur serveur lors de la génération RAG" },
+      { status: 500, error: "Erreur serveur lors de la génération RAG" },
       { status: 500 }
     );
   }

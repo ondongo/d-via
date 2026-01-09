@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chunkText } from '@/services/rag/chunk';
-import { embedTexts, pineconeIndex } from '@/services/rag/vector';
+import { embedTexts } from '@/services/rag/vector';
+import { pineconeIndex } from '@/services/rag/pinecone';
 
 export const dynamic = 'force-dynamic';
 

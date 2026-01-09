@@ -104,13 +104,41 @@ function DevisAnalyse() {
         setExtractedText(extractedText);
         console.log("Texte extrait :", extractedText);
 
-        // Étape 2 : Analyse via OpenAI
-        const analyzeResponse = await fetch("/api/openapi", {
+        // Étape 2 : Recherche RAG pour récupérer les contextes pertinents
+        let contexts = "";
+        try {
+          const askResponse = await fetch("/api/rag/ask", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question: extractedText.substring(0, 500), // Utiliser les 500 premiers caractères comme question
+              namespace: "devis",
+              topK: 5,
+            }),
+          });
+
+          const askData = await askResponse.json();
+          if (askData.status === 200 && askData.contexts) {
+            contexts = askData.contexts;
+            console.log("Contextes RAG récupérés :", contexts);
+          }
+        } catch (error) {
+          console.log("Erreur lors de la récupération des contextes RAG :", error);
+          // Continuer sans contextes si erreur
+        }
+
+        // Étape 3 : Analyse via Mistral avec contextes RAG
+        const analyzeResponse = await fetch("/api/rag/analyze", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: extractedText }),
+          body: JSON.stringify({
+            text: extractedText,
+            contexts: contexts, // Enrichir l'analyse avec les contextes
+          }),
         });
 
         const analyzeData = await analyzeResponse.json();
@@ -126,6 +154,7 @@ function DevisAnalyse() {
           console.log("Analyse réussie :", analyzeData);
         } else {
           console.log("Erreur d'analyse :", analyzeData.error);
+          toast.error("Erreur lors de l'analyse du devis");
         }
       } else {
         console.log("Erreur d'extraction :", extractData.message);
