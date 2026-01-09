@@ -48,22 +48,31 @@ export async function POST(req: NextRequest) {
     const [queryEmbedding] = await embedTexts([question]);
 
     /*****************************************************************************************************************
-     * 2. Recherche des chunks les plus pertinents
+     * 2. Recherche des chunks les plus pertinents dans Pinecone
+     * 
+     * NOTE IMPORTANTE : 
+     * - includeValues: false signifie qu'on ne récupère PAS les vecteurs (on n'en a pas besoin)
+     * - includeMetadata: true signifie qu'on récupère les métadonnées (le texte des chunks)
+     * - On passe les TEXTES des chunks à Mistral, PAS les vecteurs
+     * - Les vecteurs servent uniquement pour la recherche de similarité dans Pinecone
      *****************************************************************************************************************/
     const queryResponse = await pineconeIndex
       .namespace(namespace ?? "default")
       .query({
         topK,
-        includeMetadata: true,
-        includeValues: false,
-        vector: queryEmbedding,
+        includeMetadata: true, // On récupère les métadonnées (texte des chunks)
+        includeValues: false,   // On ne récupère PAS les vecteurs (inutile pour Mistral)
+        vector: queryEmbedding, // Le vecteur de la question pour la recherche
       });
 
     console.log("RAG ask - queryResponse>>>>>:", queryResponse);
 
 
     /*****************************************************************************************************************
-     * 3. Analyse des chunks les plus pertinents et retourner le contexte
+     * 3. Extraction des textes des chunks pertinents depuis les métadonnées
+     * 
+     * Ces textes seront passés à Mistral dans le prompt, pas les vecteurs.
+     * Les vecteurs ne sont utilisés que pour la recherche de similarité dans Pinecone.
      *****************************************************************************************************************/
     const matches = queryResponse.matches ?? [];
 
