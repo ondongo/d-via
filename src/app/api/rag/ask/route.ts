@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       vector: queryEmbedding,
     });
 
-    console.log("RAG ask - queryResponse:", queryResponse);
+    console.log("RAG ask - queryResponse>>>>>:", queryResponse);
 
 
     /*****************************************************************************************************************
