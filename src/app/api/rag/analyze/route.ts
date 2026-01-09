@@ -16,16 +16,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { mistral } from "@/services/rag/chatcompletion";
 import { prompt } from "@/constants";
 
-// Fonction pour extraire le SIRET du texte
+/*****************************************************************************************************************
+ * Fonction pour extraire le SIRET du texte
+ *****************************************************************************************************************/
 function extractSiret(text: string): string | undefined {
   const m = text.match(/SIRET\s*:?\s*(\d{14})/i);
+  console.log("extractSiret>>>>>:", m );
+  console.log("extractSiret>>>>>:", m ? m[1] : undefined);
   return m ? m[1] : undefined;
 }
 
-// Fonction pour vérifier le SIRET via l'API Sirene
+/*****************************************************************************************************************
+ * Fonction pour vérifier le SIRET via l'API Sirene
+ *****************************************************************************************************************/
 async function verifySiret(siret: string, request: NextRequest) {
   try {
-    // Construire l'URL de base depuis la requête
     const url = new URL(request.url);
     const baseUrl = `${url.protocol}//${url.host}`;
     
@@ -42,6 +47,8 @@ async function verifySiret(siret: string, request: NextRequest) {
     }
 
     const data = await response.json();
+
+    console.log("verifySiret>>>>>:", data);
     return {
       siret,
       isValid: data.isExist === true,
@@ -64,8 +71,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Extraire et vérifier le SIRET si présent
     let siretInfo: {
       siret?: string;
       isValid?: boolean;
@@ -78,7 +83,6 @@ export async function POST(req: NextRequest) {
     if (extractedSiret) {
       siretInfo = await verifySiret(extractedSiret, req);
       if (!siretInfo) {
-        // Si la vérification a échoué, on indique quand même qu'un SIRET a été trouvé
         siretInfo = {
           siret: extractedSiret,
           isValid: false,
@@ -86,7 +90,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Construire le prompt avec contextes RAG et informations SIRET
+    /*****************************************************************************************************************
+     * Construire le prompt avec contextes RAG et informations SIRET
+    *****************************************************************************************************************/
     const promptText = prompt(text, contexts, siretInfo);
 
     const completion = await mistral.chat.completions.create({
@@ -97,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     const rawText = completion.choices[0]?.message?.content?.trim() || "";
 
-    // Parser la réponse pour extraire reliability, details et conclusion
+    
     const lines = rawText.split("\n").map((line:any) => line.trim());
     let reliability = null;
     const details: Record<string, string> = {};
@@ -146,7 +152,9 @@ export async function POST(req: NextRequest) {
       }
     });
 
-    // Si conclusion n'a pas été trouvée, chercher dans les dernières lignes
+    /*****************************************************************************************************************
+     * Si conclusion n'a pas été trouvée, chercher dans les dernières lignes
+    *****************************************************************************************************************/
     if (!conclusion) {
       const conclusionIndex = lines.findIndex((line:any) =>
         line.toLowerCase().includes("conclusion")
