@@ -35,6 +35,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (!pineconeIndex) {
+      return NextResponse.json(
+        { error: "Pinecone n'est pas configuré" },
+        { status: 500 }
+      );
+    }
+
     /*****************************************************************************************************************
      * 1. Embedding de la question
      *****************************************************************************************************************/
@@ -43,14 +50,14 @@ export async function POST(req: NextRequest) {
     /*****************************************************************************************************************
      * 2. Recherche des chunks les plus pertinents
      *****************************************************************************************************************/
-    const queryResponse = await pineconeIndex.query({
-      // @ts-ignore
-      namespace: namespace ?? "default",
-      topK,
-      includeMetadata: true,
-      includeValues: false,
-      vector: queryEmbedding,
-    });
+    const queryResponse = await pineconeIndex
+      .namespace(namespace ?? "default")
+      .query({
+        topK,
+        includeMetadata: true,
+        includeValues: false,
+        vector: queryEmbedding,
+      });
 
     console.log("RAG ask - queryResponse>>>>>:", queryResponse);
 
