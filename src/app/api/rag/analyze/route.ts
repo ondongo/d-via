@@ -16,6 +16,45 @@ import { NextRequest, NextResponse } from "next/server";
 import { mistral } from "@/services/rag/chatcompletion";
 import { prompt } from "@/constants";
 
+// Fonction pour extraire le SIRET du texte
+function extractSiret(text: string): string | undefined {
+  const m = text.match(/SIRET\s*:?\s*(\d{14})/i);
+  return m ? m[1] : undefined;
+}
+
+// Fonction pour vérifier le SIRET via l'API Sirene
+async function verifySiret(siret: string, request: NextRequest) {
+  try {
+    // Construire l'URL de base depuis la requête
+    const url = new URL(request.url);
+    const baseUrl = `${url.protocol}//${url.host}`;
+    
+    const response = await fetch(`${baseUrl}/api/verify_siret`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ siret }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return {
+      siret,
+      isValid: data.isExist === true,
+      nomEntreprise: data.nomEntreprise || undefined,
+      dateCreation: data.dateCreation || undefined,
+      adresse: data.adresse || undefined,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la vérification SIRET:", error);
+    return null;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { text, contexts } = await req.json();
@@ -26,16 +65,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Construire le prompt avec ou sans contextes RAG
-    let promptText = prompt(text);
-    if (contexts && contexts.trim().length > 0) {
-      promptText = `${promptText}
+    // Extraire et vérifier le SIRET si présent
+    let siretInfo: {
+      siret?: string;
+      isValid?: boolean;
+      nomEntreprise?: string;
+      dateCreation?: string;
+      adresse?: string;
+    } | undefined = undefined;
 
-**Contextes de référence (devis similaires) :**
-${contexts}
-
-Utilisez ces contextes pour enrichir votre analyse et comparer avec des devis similaires.`;
+    const extractedSiret = extractSiret(text);
+    if (extractedSiret) {
+      siretInfo = await verifySiret(extractedSiret, req);
+      if (!siretInfo) {
+        // Si la vérification a échoué, on indique quand même qu'un SIRET a été trouvé
+        siretInfo = {
+          siret: extractedSiret,
+          isValid: false,
+        };
+      }
     }
+
+    // Construire le prompt avec contextes RAG et informations SIRET
+    const promptText = prompt(text, contexts, siretInfo);
 
     const completion = await mistral.chat.completions.create({
       model: "mistral-tiny",
