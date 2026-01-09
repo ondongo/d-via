@@ -1,11 +1,8 @@
 "use client";
-import { LeftSection } from "@/components/molecules/landing-artisan/LeftSection";
 import { StepsSection } from "@/components/molecules/StepsSection";
 import ClientGrid from "@/components/molecules/landing-client/ClientGrid";
-import MapComponent from "@/components/molecules/maps/Maps";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
 import FileMarquee from "@/components/molecules/landing-client/FileMarquee";
-import { useState } from "react";
 import DevisAnalyse from "@/components/molecules/landing-client/DevisAnalyse";
 
 export default function Home() {
