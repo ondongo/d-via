@@ -52,6 +52,9 @@ export async function POST(req: NextRequest) {
       vector: queryEmbedding,
     });
 
+    console.log("RAG ask - queryResponse:", queryResponse);
+
+
     /*****************************************************************************************************************
      * 3. Analyse des chunks les plus pertinents et retourner le contexte
      *****************************************************************************************************************/
