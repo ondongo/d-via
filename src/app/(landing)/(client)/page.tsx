@@ -3,7 +3,7 @@ import { StepsSection } from "@/components/molecules/StepsSection";
 import ClientGrid from "@/components/molecules/landing-client/ClientGrid";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
 import FileMarquee from "@/components/molecules/landing-client/FileMarquee";
-import DevisAnalyse from "@/components/molecules/landing-client/DevisAnalyse";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -28,7 +28,11 @@ export default function Home() {
           devis et D-VIA peut vous aider pour la vérification des prix, la
           validation des artisans, la détection d'arnaques et bien plus encore.
         </p>
-        <DevisAnalyse />
+        <Link href={"/devis-analyse"}>
+            <button className="bg-dviaprimary-40 hover:bg-dviaprimary-50 text-dvianeutral-96 font-semibold py-3 px-6 rounded-lg transition-colors duration-300">
+                Analyser mon devis gratuitement
+            </button>
+        </Link>
 
         <div className=" overflow-hidden">
           <FileMarquee />
