@@ -28,7 +28,7 @@ function page() {
     location: string | null;
     distance: number | null;
     availability: string | null;
-    certifications: string | null;
+    certifications: string[] | null;
     profession: string | null;
     category: string | null;
   }
@@ -114,9 +114,7 @@ function page() {
     location: a.location || "",
     distance: a.distance != null ? `${a.distance}km` : "",
     availability: a.availability || "",
-    certifications: a.certifications
-      ? a.certifications.split(",").map((c) => c.trim())
-      : [],
+    certifications: a.certifications || [],
   }));
 
   // Pagination UI
