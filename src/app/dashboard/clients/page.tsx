@@ -226,8 +226,6 @@ function page() {
                       title="Ajout de devis"
                       onClose={closeModal}
                       onCapture={() => {
-                        // TODO: ouvrir caméra (getUserMedia) puis fermer la modal
-                        // closeModal();
                       }}
                       onImport={(file: File) => {
                         const reader = new FileReader();
