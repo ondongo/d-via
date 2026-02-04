@@ -49,7 +49,7 @@ export default function Modal({
       />
 
       {/* Card */}
-      <div className="relative w-full md:w-[560px] max-w-[560px] mx-auto rounded-16px bg-dvianeutral-96 shadow-lg border border-dvianeutral-60">
+      <div className="relative w-full md:w-[560px] max-w-[560px] mx-auto rounded-12px bg-dvianeutral-96 shadow-lg border border-dvianeutral-60">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-dvianeutral-60">
           <h3 className="text-dvianeutral-10 text-[18px] font-semibold">{title}</h3>
@@ -67,30 +67,32 @@ export default function Modal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Action: Prendre une photo */}
             <button
-              onClick={onCapture}
-              className="flex items-center gap-3 p-4 rounded-12px border border-dvianeutral-50 bg-dvianeutral-94 hover:bg-dvianeutral-92 transition-colors cursor-pointer"
+                onClick={onCapture}
+                className="flex flex-col items-center gap-2 p-4 rounded-12px border border-dvianeutral-50 bg-dvianeutral-94 hover:bg-dvianeutral-92 transition-colors cursor-pointer"
             >
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dvianeutral-90 border border-dvianeutral-60 text-dvianeutral-10">
-                {/* Icône appareil photo */}
-                <img src="/icons/photo.svg" alt="" className="w-5 h-5" />
-              </span>
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dvianeutral-90 border border-dvianeutral-60 text-dvianeutral-10">
+            {/* Icône appareil photo */}
+            <img src="/icons/photo.svg" alt="" className="w-5 h-5" />
+            </span>
               <span className="text-dvianeutral-20 text-sm font-medium">Prendre une photo</span>
             </button>
 
             {/* Action: Importer fichier */}
-            <label className="flex items-center gap-3 p-4 rounded-12px border border-dviaprimary-40 bg-dviaprimary-94 hover:bg-dviaprimary-92 transition-colors cursor-pointer">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dviaprimary-90 border border-dviaprimary-50">
-                {/* Icône document */}
-                <img src="/icons/document.svg" alt="camera" className="w-5 h-5" />
-              </span>
-              <span className="text-dviaprimary-40 text-sm font-medium">Importer fichier</span>
+
+            <label className="flex flex-col items-center gap-2 p-4 rounded-12px border border-dviaprimary-40 bg-dviaprimary-94 hover:bg-dviaprimary-92 transition-colors cursor-pointer">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dviaprimary-90 border border-dviaprimary-50">
+            {/* Icône document */}
+            <img src="/icons/document.svg" alt="camera" className="w-5 h-5" />
+            </span>
+              <span className="text-dviaprimary-40 text-sm font-medium mt-2">Importer fichier</span>
               <input
-                type="file"
-                accept="application/pdf,image/*"
-                className="hidden"
-                onChange={handleFileChange}
+                  type="file"
+                  accept="application/pdf,image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
               />
             </label>
+
           </div>
 
           {/* Slot optionnel */}
