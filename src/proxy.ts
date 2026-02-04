@@ -5,6 +5,35 @@ import { SIGNUP_COOKIES } from "@/utils/cookies";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ============================================
+  // PHASE DE TEST - Vérification en premier
+  // ============================================
+  const isTestPhaseAccepted = request.cookies.get("dvia_test_phase_accepted")?.value === "true";
+
+  // Liste des chemins publics qui ne nécessitent pas d'acceptation de la phase de test
+  const publicPaths = [
+    "/_next",
+    "/api",
+    "/favicon.ico",
+    "/icons",
+    "/illustrations",
+    "/logos",
+    "/emojis",
+    "/phasetest",
+  ];
+
+  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+
+  // Si pas de phase de test acceptée et pas sur une page publique, rediriger vers /phasetest
+  if (!isTestPhaseAccepted && !isPublicPath) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/phasetest";
+    return NextResponse.redirect(url);
+  }
+
+  // ============================================
+  // LOGIQUE SIGNUP - Après vérification phase test
+  // ============================================
   // Lire les cookies pour vérifier si l'utilisateur a sauvegardé son formulaire
   const isSave = request.cookies.get(SIGNUP_COOKIES.IS_SAVE)?.value === "true";
   const savedStep = request.cookies.get(SIGNUP_COOKIES.SAVED_STEP)?.value;
