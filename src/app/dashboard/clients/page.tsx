@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
 import { toast } from "react-toastify";
 import AnalysisResults from "@/components/molecules/landing-client/AnalysisResults";
+import Modal from "@/components/organisms/Modal";
 
 function page() {
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -171,7 +172,7 @@ function page() {
       {/* Header comme sur le visuel */}
       <div className="mb-6">
         <h1 className="text-[24px] md:text-[32px] font-bold text-dvianeutral-10 ml-16">
-          Analyse votre devis en quelque secondes
+          Analyser votre devis en quelque secondes
         </h1>
         <p className="text-dvianeutral-20 text-sm md:text-base ml-16">
           Importez votre document. Notre IA vérifie les prix, les assurances et
@@ -186,11 +187,7 @@ function page() {
             <div className="w-full md:w-[720px] rounded-16px border border-dvianeutral-50 bg-white md:bg-dvianeutral-96 p-4 md:p-6 shadow-sm">
               {/* Illustration centrée */}
               <div className="flex items-center justify-center py-4">
-                <img
-                  src="/illustrations/DevisUpload.svg"
-                  alt="Upload illustration"
-                  className="w-[140px] h-[140px]"
-                />
+
               </div>
 
               {/* Zone Drop + bouton */}
@@ -200,23 +197,14 @@ function page() {
                   className="flex flex-col items-center justify-center py-6 w-full border border-dvianeutral-50 border-dashed rounded-2xl bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40 px-4"
                 >
                   <div className="mb-3 flex items-center justify-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="40"
-                      height="40"
-                      viewBox="0 0 40 40"
-                      fill="none"
-                    >
-                      <g id="Upload 02">
-                        <path
-                          id="icon"
-                          d="M16.296 25.3935L19.9997 21.6667L23.7034 25.3935M19.9997 35V21.759M10.7404 27.3611H9.855C6.253 27.3611 3.33301 24.4411 3.33301 20.8391C3.33301 17.2371 6.253 14.3171 9.855 14.3171V14.3171C10.344 14.3171 10.736 13.9195 10.7816 13.4326C11.2243 8.70174 15.1824 5 19.9997 5C25.1134 5 29.2589 9.1714 29.2589 14.3171H30.1444C33.7463 14.3171 36.6663 17.2371 36.6663 20.8391C36.6663 24.4411 33.7463 27.3611 30.1444 27.3611H29.2589"
-                          stroke="#E16A26"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
+
+
+                        <img
+                            src="/illustrations/DevisUpload.svg"
+                            alt="Upload illustration"
+                            className="w-[240px] h-[240px]"
                         />
-                      </g>
-                    </svg>
+
                   </div>
                   <h2 className="text-center text-gray-400 text-xs font-normal leading-4 mb-1">
                     Formats acceptés: PDF, JPG, PNG
@@ -228,11 +216,34 @@ function page() {
                 <div className="flex justify-center mt-4">
                   <button
                     type="button"
-                    onClick={open}
+                    onClick={openModal}
                     className="border border-dvianeutral-50 bg-dviaprimary-40 text-sm px-4 py-3 rounded-8px cursor-pointer w-full md:w-[560px] text-white text-col"
                   >
                     + Ajouter un document
                   </button>
+                  <Modal
+                      open={modalOpen}
+                      title="Ajout de devis"
+                      onClose={closeModal}
+                      onCapture={() => {
+                        // TODO: ouvrir caméra (getUserMedia) puis fermer la modal
+                        // closeModal();
+                      }}
+                      onImport={(file: File) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setFileData({
+                            base64: reader.result?.toString().split(",")[1] || null,
+                            name: file.name,
+                            type: file.type,
+                          });
+                          setModalOpen(false); // fermer la modal après sélection
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                  >
+                    {/* Optionnel: contenu supplémentaire si nécessaire */}
+                  </Modal>
                 </div>
 
                 <p className="text-center text-dvianeutral-20 text-xs mt-3">
