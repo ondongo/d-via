@@ -79,7 +79,13 @@ function Header() {
           // Afficher à la fois Connexion et Inscription quand l'utilisateur n'est pas connecté
           <div className="flex gap-4 items-center">
             <button
-              onClick={() => router.push("/auth/signin")}
+              onClick={() => {
+                if (isOnArtisanPage) {
+                  router.push('/auth/signin');
+                } else {
+                  router.push('/login-client');
+                }
+              }}
               className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[140px] h-[40px] text-dviaprimary-40 bg-transparent border-dvianeutral-50`}
             >
