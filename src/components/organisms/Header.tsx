@@ -15,7 +15,6 @@ function Header() {
   const isOnArtisanPage = pathname === "/artisans";
   const [isSignupModeModalOpen, setIsSignupModeModalOpen] = useState(false);
   const [isAttestationModalOpen, setIsAttestationModalOpen] = useState(false);
-  const [roleMode, setRoleMode] = useState<'search' | 'client'>('search');
 
   const handleClick = () => {
     if (isOnArtisanPage) {
@@ -34,11 +33,6 @@ function Header() {
     setIsAttestationModalOpen(true);
   };
 
-  // Bascule le libellé entre 'je cherche un artisan' et 'je suis un client'
-  const toggleRoleMode = () => {
-    setRoleMode((prev) => (prev === 'search' ? 'client' : 'search'));
-  };
-
   return (
     <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 ">
       <div     onClick={handleClickHome} className="cursor-pointer flex items-center">
@@ -53,14 +47,7 @@ function Header() {
 
       <div className="flex flex-row gap-8 justify-center items-center">
         <ResponsiveMenu />
-        {/* Toggle rôle simple */}
-        <button
-          aria-pressed={roleMode === 'client'}
-          onClick={toggleRoleMode}
-          className="text-sm px-3 py-2 rounded-8px border border-dvianeutral-50 bg-transparent text-dviaprimary-40 hover:bg-dvianeutral-94 transition-colors"
-        >
-          {roleMode === 'search' ? 'Je cherche un artisan' : 'Je suis un client'}
-        </button>
+
         {session ? (
           <button
             onClick={handleClick}
