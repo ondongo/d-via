@@ -15,6 +15,7 @@ function Header() {
   const isOnArtisanPage = pathname === "/artisans";
   const [isSignupModeModalOpen, setIsSignupModeModalOpen] = useState(false);
   const [isAttestationModalOpen, setIsAttestationModalOpen] = useState(false);
+  const [roleMode, setRoleMode] = useState<'search' | 'client'>('search');
 
   const handleClick = () => {
     if (isOnArtisanPage) {
@@ -32,9 +33,15 @@ function Header() {
     setIsSignupModeModalOpen(false);
     setIsAttestationModalOpen(true);
   };
+
+  // Bascule le libellé entre 'je cherche un artisan' et 'je suis un client'
+  const toggleRoleMode = () => {
+    setRoleMode((prev) => (prev === 'search' ? 'client' : 'search'));
+  };
+
   return (
     <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 ">
-      <div onClick={handleClickHome} className="cursor-pointer flex items-center">
+      <div     onClick={handleClickHome} className="cursor-pointer flex items-center">
         <Image
           src="/logos/logo.png"
           alt="Logo"
@@ -46,6 +53,14 @@ function Header() {
 
       <div className="flex flex-row gap-8 justify-center items-center">
         <ResponsiveMenu />
+        {/* Toggle rôle simple */}
+        <button
+          aria-pressed={roleMode === 'client'}
+          onClick={toggleRoleMode}
+          className="text-sm px-3 py-2 rounded-8px border border-dvianeutral-50 bg-transparent text-dviaprimary-40 hover:bg-dvianeutral-94 transition-colors"
+        >
+          {roleMode === 'search' ? 'Je cherche un artisan' : 'Je suis un client'}
+        </button>
         {session ? (
           <button
             onClick={handleClick}
@@ -56,14 +71,29 @@ function Header() {
                   : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
               }`}
           >
-            {isOnArtisanPage
-              ? "Commencer en tant qu'artisan "
+            {roleMode === 'search'
+              ? "Commencer en tant que chercheur"
               : "Commencer en tant que client"}
           </button>
         ) : (
-          <div className="hidden md:flex gap-4">
+          // Afficher à la fois Connexion et Inscription quand l'utilisateur n'est pas connecté
+          <div className="flex gap-4 items-center">
+            <button
+              onClick={() => router.push("/auth/signin")}
+              className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
+                hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[140px] h-[40px] text-dviaprimary-40 bg-transparent border-dvianeutral-50`}
+            >
+              Connexion
+            </button>
+
             <AuthButton
-              onClick={isOnArtisanPage ? handleClick : undefined}
+              onClick={() => {
+                if (isOnArtisanPage) {
+                  handleClick();
+                } else {
+                  router.push("/signup-client/step1");
+                }
+              }}
               className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
                   isOnArtisanPage
@@ -71,9 +101,7 @@ function Header() {
                     : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
                 }`}
             >
-              {isOnArtisanPage
-                ? "Commencer en tant qu'artisan "
-                : "Commencer en tant que client"}
+              Inscription
             </AuthButton>
           </div>
         )}
