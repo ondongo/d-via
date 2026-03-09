@@ -1,98 +1,170 @@
-/*****************************************************************************************************************
- * ROUTE : /api/rag/ask
- * 
- * Recherche RAG dans Pinecone : convertit la question en embedding et retourne les chunks pertinents
- * S'utilise AVEC /api/rag/analyze : ask → récupère contextes, analyze → analyse avec contextes
- * 
- * PARAMÈTRES :
- * - question (string, requis) : Question pour la recherche
- * - namespace (string, optionnel) : Namespace Pinecone (défaut: "default")
- * - topK (number, optionnel) : Nombre de chunks à retourner (défaut: 5)
- * 
- * RETOUR :
- * { status: 200, contexts: string } // Format: "[CONTEXT 1] (score=0.923)\nTexte..."
- * ou { status: 400|500, error: string }
- *****************************************************************************************************************/
-import { NextRequest, NextResponse } from "next/server";
-import { embedTexts } from "@/services/rag/vector";
-import { pineconeIndex } from "@/services/rag/pinecone";
+// src/app/api/rag/ask/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { pineconeIndex, embedTexts, mistral } from '@/lib/vector';
 
 type RagAskBody = {
-  question: string;
-  namespace?: string;
-  topK?: number;
+    question: string;
+    namespace?: string;
+    topK?: number;
+    docId?: string; // <- nouveau: identifiant du devis à cibler
 };
 
+const MIN_CONTEXT_CHARS = 120;
+const MIN_SCORE = 0.15;
+
 export async function POST(req: NextRequest) {
-  try {
-    const body = (await req.json()) as RagAskBody;
-    const { question, namespace, topK = 5 } = body;
+    try {
+        let body: RagAskBody;
+        try {
+            body = (await req.json()) as RagAskBody;
+        } catch {
+            return NextResponse.json({ error: 'Body JSON invalide' }, { status: 400 });
+        }
+        const { question, namespace, topK = 5, docId } = body;
 
-    if (!question || question.trim().length === 0) {
-      return NextResponse.json(
-        { error: "question est requise" },
-        { status: 400 }
-      );
+        if (!question || question.trim().length === 0) {
+            return NextResponse.json({ error: 'question est requise' }, { status: 400 });
+        }
+
+        // 1. Embedding de la question
+        const [queryEmbedding] = await embedTexts([question]);
+
+        // 2. Recherche des chunks les plus pertinents, limité au docId si fourni
+        const ns = pineconeIndex.namespace(namespace ?? 'devis');
+        const queryResponse = await ns.query({
+            topK,
+            includeMetadata: true,
+            includeValues: false,
+            vector: queryEmbedding,
+            filter: docId ? { docId: { $eq: docId } } : undefined,
+        } as any);
+
+        const rawMatches = queryResponse.matches ?? [];
+
+        // Nettoyage + tri: on garde les chunks avec un score suffisant
+        const matches = rawMatches
+            .filter((m) => typeof m.score === 'number' && (m.score as number) >= MIN_SCORE)
+            .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+        // Shortcut: si la question cible explicitement un chunk (ex: "CHUNK2"), on renvoie directement son texte
+        const chunkRefMatch = question.match(/\bCHUNK\s*(\d+)\b/i);
+        if (chunkRefMatch) {
+            const chunkLabel = `CHUNK${chunkRefMatch[1]}`.toUpperCase();
+            const direct = matches.find((m) => {
+                const md = (m.metadata || {}) as Record<string, unknown>;
+                return String(md.section ?? '').toUpperCase() === chunkLabel;
+            });
+
+            if (direct) {
+                const md = (direct.metadata || {}) as Record<string, unknown>;
+                const text = String(md.text ?? '').trim();
+                return NextResponse.json({
+                    answer: text || 'Information insuffisante dans le document.',
+                    sources: [
+                        {
+                            id: direct.id,
+                            score: direct.score,
+                            metadata: direct.metadata,
+                        },
+                    ],
+                    usedTopK: 1,
+                    contextCharCount: text.replace(/\s+/g, ' ').length,
+                    minScoreApplied: MIN_SCORE,
+                    directChunk: chunkLabel,
+                });
+            }
+        }
+
+        const contexts = matches
+            .map((m, idx) => {
+                const metadata = (m.metadata || {}) as Record<string, unknown>;
+                const text = (metadata.text as string) ?? '';
+                const section = (metadata.section as string) ?? '';
+                const chunkIndex = (metadata.index as number | string | undefined) ?? '';
+                const score = typeof m.score === 'number' ? m.score.toFixed(3) : 'n/a';
+
+                if (!text) return '';
+
+                return [
+                    `[CONTEXT ${idx + 1}] id=${m.id} score=${score} section=${section} index=${chunkIndex}`,
+                    text,
+                ].join('\n');
+            })
+            .filter(Boolean)
+            .join('\n\n');
+
+        const totalContextChars = contexts.replace(/\s+/g, ' ').trim().length;
+
+        const systemPrompt =
+            "Tu es un assistant d'analyse de devis. Tu dois répondre STRICTEMENT à partir du CONTEXTE fourni. Interdiction d'inventer, de supposer ou de compléter. Si le CONTEXTE ne contient pas l'information demandée, réponds exactement: \"Information insuffisante dans le document.\". Quand tu affirmes quelque chose, décris les chunks utilisés sous la forme [id=...].";
+        const userPrompt = `
+RÈGLES IMPORTANTES:
+- Tu réponds UNIQUEMENT avec des informations présentes dans CONTEXTE.
+- Si tu ne peux pas répondre à partir du CONTEXTE: réponds EXACTEMENT et UNIQUEMENT la phrase suivante (sans rien ajouter): Information insuffisante dans le document.
+- N'invente rien. Ne fais aucune supposition.
+- Si tu réponds, termine par UNE SEULE ligne: SOURCES: [id=...], [id=...]. Ne mets rien après cette ligne.
+
+CONTEXTE:
+${contexts || '(Aucun contexte pertinent trouvé)'}
+
+QUESTION:
+${question}
+
+FORMAT DE RÉPONSE (si possible):
+- Réponse en 1-4 phrases max.
+- Puis 3 puces maximum (•) uniquement si c'est dans le contexte.
+`;
+
+        // Si aucun contexte (ou contexte trop pauvre), répondre court et éviter un appel LLM inutile
+        if (!contexts || totalContextChars < MIN_CONTEXT_CHARS) {
+            return NextResponse.json({
+                answer: 'Information insuffisante dans le document.',
+                sources: [],
+                usedTopK: 0,
+                debug: {
+                    hadMatches: matches.length,
+                    totalContextChars,
+                },
+            });
+        }
+
+        // 3. Appel au modèle Mistral (LLM)
+        const completion = await mistral.chat.completions.create({
+            model: 'ministral-3b-latest',
+            temperature: 0.1,
+            // @ts-ignore
+            max_tokens: 350,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+        });
+
+        const answer = completion.choices[0]?.message?.content ?? '';
+
+        let finalAnswer = (answer || '').trim() || 'Information insuffisante dans le document.';
+
+        // Sanitize: si le modèle commence par "Information insuffisante...", on force la phrase EXACTE (sans ajout)
+        if (/^Information insuffisante dans le document\./i.test(finalAnswer)) {
+            finalAnswer = 'Information insuffisante dans le document.';
+        }
+
+        return NextResponse.json({
+            answer: finalAnswer,
+            sources: matches.map((m) => ({
+                id: m.id,
+                score: m.score,
+                metadata: m.metadata,
+            })),
+            usedTopK: matches.length,
+            contextCharCount: totalContextChars,
+            minScoreApplied: MIN_SCORE,
+        });
+    } catch (error) {
+        console.error('RAG ask error:', error);
+        return NextResponse.json(
+            { error: 'Erreur serveur lors de la génération RAG' },
+            { status: 500 },
+        );
     }
-
-    if (!pineconeIndex) {
-      return NextResponse.json(
-        { error: "Pinecone n'est pas configuré" },
-        { status: 500 }
-      );
-    }
-
-    /*****************************************************************************************************************
-     * 1. Embedding de la question
-     *****************************************************************************************************************/
-    const [queryEmbedding] = await embedTexts([question]);
-
-    /*****************************************************************************************************************
-     * 2. Recherche des chunks les plus pertinents dans Pinecone
-     * 
-     * NOTE IMPORTANTE : 
-     * - includeValues: false signifie qu'on ne récupère PAS les vecteurs (on n'en a pas besoin)
-     * - includeMetadata: true signifie qu'on récupère les métadonnées (le texte des chunks)
-     * - On passe les TEXTES des chunks à Mistral, PAS les vecteurs
-     * - Les vecteurs servent uniquement pour la recherche de similarité dans Pinecone
-     *****************************************************************************************************************/
-    const queryResponse = await pineconeIndex
-      .namespace(namespace ?? "default")
-      .query({
-        topK,
-        includeMetadata: true, // On récupère les métadonnées (texte des chunks)
-        includeValues: false,   // On ne récupère PAS les vecteurs (inutile pour Mistral)
-        vector: queryEmbedding, // Le vecteur de la question pour la recherche
-      });
-
-    console.log("RAG ask - queryResponse>>>>>:", queryResponse);
-
-
-    /*****************************************************************************************************************
-     * 3. Extraction des textes des chunks pertinents depuis les métadonnées
-     * 
-     * Ces textes seront passés à Mistral dans le prompt, pas les vecteurs.
-     * Les vecteurs ne sont utilisés que pour la recherche de similarité dans Pinecone.
-     *****************************************************************************************************************/
-    const matches = queryResponse.matches ?? [];
-
-    const contexts = matches
-      .map((m, idx) => {
-        const metadata = (m.metadata || {}) as Record<string, unknown>;
-        const text = (metadata.text as string) ?? "";
-        return text
-          ? `[CONTEXT ${idx + 1}] (score=${m.score?.toFixed(3)})\n${text}`
-          : "";
-      })
-      .filter(Boolean)
-      .join("\n\n");
-
-    return NextResponse.json({ status: 200, contexts }, { status: 200 });
-  } catch (error) {
-    console.error("RAG ask error:", error);
-    return NextResponse.json(
-      { status: 500, error: "Erreur serveur lors de la génération RAG" },
-      { status: 500 }
-    );
-  }
 }
