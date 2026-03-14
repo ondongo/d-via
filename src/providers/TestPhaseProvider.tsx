@@ -42,7 +42,6 @@ export function TestPhaseProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Hook personnalisé pour utiliser le contexte
 export function useTestPhase() {
   const context = useContext(TestPhaseContext);
   if (context === undefined) {

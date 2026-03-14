@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { useRouter } from "next/navigation";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { useEffect, useState } from "react";
 
 export default function AnalysisResults({
   isLoading,
@@ -10,43 +11,60 @@ export default function AnalysisResults({
   resultsRef,
 }: any) {
   const router = useRouter();
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    if (isLoading) {
+      setProgress(0);
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 95) return 95;
+          return prev + 1;
+        });
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setProgress(100);
+    }
+  }, [isLoading]);
   return (
     <div
       ref={resultsRef}
       className="bg-white rounded-xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-sm"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
-          Résultats de l’analyse
-        </h2>
-
-        {isLoading && (
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 border-4 border-dviaprimary-40 border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-gray-500">Analyse en cours...</p>
-          </div>
-        )}
-      </div>
-
-      {!isAnalyzed && !isLoading && (
-        <p className="text-sm text-gray-500 mb-6">
-          Les résultats de votre analyse apparaîtront ici une fois le devis
-          analysé.
-        </p>
-      )}
-
       {isLoading ? (
-        <div className="w-full max-w-md space-y-4">
-          <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
-          <div className="space-y-2">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="h-2 bg-gray-200 rounded w-full animate-pulse"
-              />
-            ))}
+        <>
+          <div className="flex flex-col items-center gap-4">
+            <img
+              src="/icons/quick_reference_all.svg"
+              alt="Quick reference"
+              className="w-16 h-16"
+            />
+
+            <p className="text-md text-dvianeutral-10 text-center font-medium">
+              Analyse en cours
+            </p>
+
+            <p className="text-sm text-gray-500 text-center">
+              Notre IA analyse en détail votre devis. Cela prendra quelques
+              instants.
+            </p>
           </div>
-        </div>
+
+          <div className="relative  w-full h-2.5  overflow-hidden rounded-3xl bg-white">
+            <div
+              role="progressbar"
+              aria-valuenow={progress}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              style={{
+                width: `${progress}%`,
+                transition: "width 0.1s ease-out",
+              }}
+              className="flex h-full items-center justify-center bg-dviaprimary-60  text-white rounded-3xl"
+            ></div>
+          </div>
+        </>
       ) : (
         isAnalyzed &&
         analysis && (

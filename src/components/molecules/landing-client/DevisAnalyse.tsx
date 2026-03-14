@@ -1,10 +1,8 @@
 "use client";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import AnalysisResults from "./AnalysisResults";
 import { toast } from "react-toastify";
 
@@ -24,6 +22,25 @@ function DevisAnalyse() {
   const [extractedText, setExtractedText] = useState("");
   const [isAnalyzed, setIsAnalyzed] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  useEffect(() => {
+    if (fileData.base64) {
+      setUploadProgress(0);
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 20);
+      return () => clearInterval(interval);
+    } else {
+      setUploadProgress(0);
+    }
+  }, [fileData.base64]);
   const openModal = () => {
     setModalOpen(true);
   };
@@ -43,15 +60,78 @@ function DevisAnalyse() {
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFileData({
-          base64: reader.result?.toString().split(",")[1] || null,
-          name: file.name,
-          type: file.type,
-        });
-      };
-      reader.readAsDataURL(file);
+      const supportedTypes = [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+      ];
+
+      if (!supportedTypes.includes(file.type)) {
+        toast.error(`Format non supporté : ${file.type}. Utilisez PDF, PNG, JPEG ou JPG.`);
+        return;
+      }
+
+      if (file.type === "application/pdf") {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result?.toString().split(",")[1] || null;
+          setFileData({
+            base64: base64String,
+            name: file.name,
+            type: file.type,
+          });
+        };
+        reader.onerror = () => {
+          toast.error("Erreur lors de la lecture du fichier.");
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith("image/")) {
+        const img = new Image();
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          img.src = reader.result as string;
+        };
+        
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            toast.error("Erreur lors de la conversion de l'image.");
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0);
+          
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              toast.error("Erreur lors de la conversion de l'image.");
+              return;
+            }
+            
+            const convertedReader = new FileReader();
+            convertedReader.onloadend = () => {
+              const base64String = convertedReader.result?.toString().split(",")[1] || null;
+              setFileData({
+                base64: base64String,
+                name: file.name.replace(/\.(png|gif|bmp|webp|tiff)$/i, ".jpg"),
+                type: "image/jpeg",
+              });
+            };
+            convertedReader.readAsDataURL(blob);
+          }, "image/jpeg", 0.95);
+        };
+        
+        img.onerror = () => {
+          toast.error("Erreur lors du chargement de l'image.");
+        };
+        
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -68,6 +148,21 @@ function DevisAnalyse() {
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     maxSize: 5 * 1024 * 1024,
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+    },
+    onDropRejected: (fileRejections) => {
+      const rejection = fileRejections[0];
+      if (rejection.errors[0].code === "file-too-large") {
+        toast.error("Le fichier est trop volumineux. Taille maximale : 5 MB");
+      } else if (rejection.errors[0].code === "file-invalid-type") {
+        toast.error("Format de fichier non supporté. Utilisez PDF, PNG, JPEG ou JPG.");
+      } else {
+        toast.error("Le fichier ne peut pas être téléchargé.");
+      }
+    },
   });
 
   const handleExtractAndAnalyze = async () => {
@@ -78,7 +173,9 @@ function DevisAnalyse() {
         return;
       }
 
-      // Étape 1 : Extraction du texte via DocumentAI
+      /*
+       Étape 1 : Extraction du texte via DocumentAI
+      */
       const extractPayload = {
         files: [
           {
@@ -97,6 +194,12 @@ function DevisAnalyse() {
         body: JSON.stringify(extractPayload),
       });
 
+      if (!extractResponse.ok) {
+        const errorData = await extractResponse.json();
+        toast.error(errorData.message || "Erreur lors de l'extraction du document");
+        return;
+      }
+
       const extractData = await extractResponse.json();
 
       if (extractData.status === 200) {
@@ -104,7 +207,9 @@ function DevisAnalyse() {
         setExtractedText(extractedText);
         console.log("Texte extrait :", extractedText);
 
-        // Étape 2 : Recherche RAG pour récupérer les contextes pertinents
+        /*
+         Étape 2 : Recherche RAG pour récupérer les contextes pertinents
+        */
         let contexts = "";
         try {
           const askResponse = await fetch("/api/rag/ask", {
@@ -126,10 +231,11 @@ function DevisAnalyse() {
           }
         } catch (error) {
           console.log("Erreur lors de la récupération des contextes RAG :", error);
-          // Continuer sans contextes si erreur
         }
 
-        // Étape 3 : Analyse via Mistral avec contextes RAG
+        /*
+         Étape 3 : Analyse via Mistral avec contextes RAG
+        */
         const analyzeResponse = await fetch("/api/rag/analyze", {
           method: "POST",
           headers: {
@@ -340,15 +446,15 @@ function DevisAnalyse() {
                       <div className="relative  w-full h-2.5  overflow-hidden rounded-3xl bg-white">
                         <div
                           role="progressbar"
-                          aria-valuenow={80}
+                          aria-valuenow={uploadProgress}
                           aria-valuemin={0}
-                          aria-valuemax={80}
-                          style={{ width: "100%" }}
+                          aria-valuemax={100}
+                          style={{ width: `${uploadProgress}%`, transition: "width 0.02s ease-out" }}
                           className="flex h-full items-center justify-center bg-dviaprimary-60  text-white rounded-3xl"
                         ></div>
                       </div>
                       <span className="ml-2 bg-white p-1 px-2  rounded-full  text-gray-800 text-xs font-medium flex justify-center items-center ">
-                        100%
+                        {uploadProgress}%
                       </span>
                     </div>
                   </div>
