@@ -2,8 +2,7 @@
 
 import { ArtisanCard } from "@/components/molecules/dashboard/ArtisanCard";
 import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
-import { searchArtisans } from "@/services/database/artisan";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function page() {
   // États pour les filtres
@@ -60,43 +59,41 @@ function page() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-
+    // Permet d'annuler la requête si l'utilisateur navigue vers une autre page
+    const controller = new AbortController();
     async function fetchArtisans() {
       setLoading(true);
       setError(null);
       try {
-        const data = await searchArtisans({
-          search: debouncedSearch || undefined,
-          category: category !== "Tous les métiers" ? category : undefined,
-          minRating: filterRating ? ratingThreshold : undefined,
-          maxDistance: filterDistance ? distanceThreshold : undefined,
-          verified: onlyVerified,
-          page,
-          pageSize,
+        const params = new URLSearchParams();
+        if (debouncedSearch) params.set("search", debouncedSearch);
+        if (category && category !== "Tous les métiers")
+          params.set("category", category);
+        if (filterRating) params.set("minRating", ratingThreshold.toString());
+        if (filterDistance)
+          params.set("maxDistance", distanceThreshold.toString());
+        if (onlyVerified) params.set("verified", "true");
+        params.set("page", page.toString());
+        params.set("pageSize", pageSize.toString());
+        const res = await fetch(`/api/artisans?${params.toString()}`, {
+          signal: controller.signal,
         });
-
-        if (!cancelled) {
-          setArtisans(data.artisans || []);
-          setTotalCount(data.totalCount || 0);
-          setHasLoadedOnce(true);
-        }
+        if (!res.ok) throw new Error("Erreur réseau");
+        const data = await res.json();
+        setArtisans(data.artisans || []);
+        setTotalCount(data.totalCount || 0);
+        setHasLoadedOnce(true);
       } catch (e: any) {
-        if (!cancelled) {
+        if (e.name !== "AbortError") {
           setError(e.message || "Erreur");
           setHasLoadedOnce(true);
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     }
-
     fetchArtisans();
-    return () => {
-      cancelled = true;
-    };
+    return () => controller.abort();
   }, [
     debouncedSearch,
     category,
