@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
 import AnalysisResults from "./AnalysisResults";
 import { toast } from "react-toastify";
+import { ComplexModal } from "@/components/atoms/ui/modals/ComplexModal";
 
 function DevisAnalyse() {
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -315,13 +316,13 @@ function DevisAnalyse() {
         </button>
       </div>
 
-      <Modal
+      <ComplexModal
         onClose={closeModal}
         title={"Analyser votre devis"}
         isOpen={modalOpen}
         className="md:w-[750px] md:max-h-[90vh]"
       >
-        <div className=" w-[750px] max-w-[375px] md:max-w-[750px] max-h-[calc(90vh-100px)] px-6 md:px-8 ">
+        <div className=" w-[750px] max-w-full md:max-w-[750px] max-h-[calc(90vh-100px)] px-6 md:px-8 ">
           {!isAnalyzed && !isLoading ? (
             <>
               {!fileData.base64 ? (
@@ -508,7 +509,7 @@ function DevisAnalyse() {
             </div>
           )}
         </div>
-      </Modal>
+      </ComplexModal>
     </>
   );
 }
