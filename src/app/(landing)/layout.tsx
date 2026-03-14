@@ -3,7 +3,6 @@ import Footer from "@/components/organisms/Footer";
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BottomActionButton from "@/components/organisms/BottomActionButton";
-import ChatbotScript from "@/components/organisms/ChatbotScript";
 
 export default function LandingLayout({
   children,
