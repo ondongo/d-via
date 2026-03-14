@@ -3,10 +3,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(request: any) {
   const documentclient = new DocumentProcessorServiceClient({
-    /*  credentials: {
-      private_key: process.env.PRIVATE_KEY, // Your private key from the service account
-      client_email: process.env.CLIENT_EMAIL, // Your client email from the service account
-    }, */
 
     credentials: {
       type: process.env.TYPE,
@@ -16,10 +12,6 @@ export async function POST(request: any) {
       //private_key: process.env.PRIVATE_KEY,
       client_email: process.env.CLIENT_EMAIL,
       client_id: process.env.CLIENT_ID,
-      //auth_uri: process.env.AUTH_URI,
-      //token_uri: process.env.TOKEN_URI,
-      //auth_provider_x509_cert_url: process.env.AUTH_PROVIDER_X509_CERT_URL,
-      //client_x509_cert_url: process.env.CLIENT_X509_CERT_URL,
       universe_domain: process.env.UNIVERSE_DOMAIN,
     },
     apiEndpoint: `${process.env.REGION_ID}-documentai.googleapis.com`,
@@ -27,42 +19,53 @@ export async function POST(request: any) {
 
   const files = await request.json();
 
-  const fileData = files?.files?.[0]?.file ?? "aucun"; // Récupère le premier fichier
-  console.log(files?.files?.[0]?.mimetype);
+  const fileData = files?.files?.[0]?.file ?? "aucun";
+  const mimeType = files?.files?.[0]?.mimetype;
+  
+  console.log("MimeType reçu :", mimeType);
+
+  if (!fileData || fileData === "aucun") {
+    return NextResponse.json({
+      status: 400,
+      message: "Aucun fichier fourni",
+    });
+  }
+
+  const supportedMimeTypes = [
+    "application/pdf",
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+  ];
+
+  if (mimeType && !supportedMimeTypes.includes(mimeType)) {
+    return NextResponse.json({
+      status: 400,
+      message: `Format de fichier non supporté : ${mimeType}. Formats acceptés : PDF, PNG, JPEG ou JPG`,
+    });
+  }
 
   const projectId = process.env.PROJECT_ID;
   const location = process.env.REGION_ID;
   const processorId = process.env.PROCESSOR_ID;
-
-  /* const fileUrl =
-    "https://storage.googleapis.com/cloud-samples-data/documentai/codelabs/ocr/Winnie_the_Pooh_3_Pages.pdf";
- */
-  // Fetch the file from the URL and convert it to a buffer
-  //const arrayBuffer = await fetchFile(fileUrl);
-
-  // Convert the buffer to a base64 encoded string
-  // const encodedImage = Buffer.from(arrayBuffer).toString("base64");
-
-  //console.log(encodedImage);
   const name = `projects/${projectId}/locations/${location}/processors/${processorId}`;
 
-  //const filepath2 = path.resolve("facture.pdf");
-
-  //const encod = fs.readFileSync(filepath2);
-  //const encodedImage = Buffer.from(encod).toString("base64");
-  // Créer un document RawDocument à partir du contenu binaire
+  let cleanedFileData = fileData;
+  if (typeof fileData === "string" && fileData.includes(",")) {
+    cleanedFileData = fileData.split(",")[1];
+  }
 
   const req = {
     name: name,
     rawDocument: {
-      content: fileData,
-      mimeType: files?.files?.[0]?.mimetype ?? "application/pdf",
+      content: cleanedFileData,
+      mimeType: mimeType ?? "application/pdf",
     },
   };
 
   try {
     const [response] = await documentclient.processDocument(req);
-    const document:any = response.document;
+    const document: any = response.document;
 
     const { text } = document;
 
@@ -91,19 +94,28 @@ export async function POST(request: any) {
 
     console.log("********* extractedText *********", extractedText);
 
-    // Retourner la réponse avec tout le texte extrait
+    /* 
+    Retourne la réponse avec tout le texte extrait dans la variable extractedText
+    */
     return NextResponse.json({ status: 200, message: extractedText });
-  } catch (error) {
+  } catch (error: any) {
+    console.error("Erreur DocumentAI :", error);
+    
+    let errorMessage = "Erreur lors du traitement du document";
+    if (error.message) {
+      if (error.message.includes("DECODER")) {
+        errorMessage = "Le fichier ne peut pas être décodé. Veuillez vérifier que le fichier n'est pas corrompu et qu'il est dans un format supporté (PDF, PNG, JPEG).";
+      } else if (error.message.includes("INVALID_ARGUMENT")) {
+        errorMessage = "Le format du fichier n'est pas valide ou n'est pas supporté.";
+      } else {
+        errorMessage = error.message;
+      }
+    }
+    
     return NextResponse.json({
       status: 500,
-      message: error,
+      message: errorMessage,
+      error: error.message || error.toString(),
     });
   }
-
-  //} catch (error) {
-  /* return NextResponse.json({
-      status: 500,
-      error: "Erreur lors du traitement du document",
-    }); */
-  //}
 }

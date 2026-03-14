@@ -37,17 +37,17 @@ export const uploadBase64FilesToFirebase = async (
 
   for (const file of files) {
     try {
-      // Convert base64 to Uint8Array (compatible client et serveur)
+
       const buffer = Buffer.from(file.base64, "base64");
       const uint8Array = new Uint8Array(buffer);
 
-      // Generate unique filename with timestamp
+
       const timestamp = Date.now();
       const fileExtension = file.name.split(".").pop() || "";
       const fileName = `${timestamp}_${file.name}`;
       const filePath = `${category}/${userId}/${fileName}`;
 
-      // Determine content type based on file type or extension
+
       let contentType = file.type;
       if (!contentType) {
         const ext = fileExtension.toLowerCase();
@@ -62,14 +62,12 @@ export const uploadBase64FilesToFirebase = async (
         }
       }
 
-      // Upload to Firebase Storage using client SDK (comme uploadImagesToFirebase)
-      // uploadBytes accepte Uint8Array, Blob ou File
       const storageRef = ref(storage, filePath);
       const snapshot = await uploadBytes(storageRef, uint8Array, {
         contentType: contentType,
       });
       const downloadURL = await getDownloadURL(snapshot.ref);
-      
+
       uploadedUrls.push(downloadURL);
     } catch (error) {
       console.error(`Erreur lors de l'upload du fichier ${file.name}:`, error);
@@ -80,10 +78,7 @@ export const uploadBase64FilesToFirebase = async (
   return uploadedUrls;
 };
 
-/**
- * @deprecated Use uploadBase64FilesToFirebase instead
- * Upload base64 images to Firebase Storage using Admin SDK (server-side)
- */
+
 export const uploadBase64ImagesToFirebase = uploadBase64FilesToFirebase;
 
 export const deleteImageFromFirebase = async (imageUrl: string) => {
