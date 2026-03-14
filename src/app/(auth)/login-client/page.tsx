@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Eye, EyeOff } from "lucide-react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 
 const LoginClientPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -52,7 +53,7 @@ const LoginClientPage = () => {
                     onClick={togglePasswordVisibility}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-dvianeutral-30 hover:text-dviaprimary-40"
                 >
-                  {passwordVisible ? <EyeOff size={24} /> : <Eye size={24} />}
+                  {passwordVisible ? <FaEyeSlash size={24} /> : <FaEye size={24} />}
                 </button>
               </div>
             </div>
