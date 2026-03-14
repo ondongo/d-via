@@ -59,6 +59,7 @@ function page() {
   }, []);
 
   useEffect(() => {
+    // Permet d'annuler la requête si l'utilisateur navigue vers une autre page
     const controller = new AbortController();
     async function fetchArtisans() {
       setLoading(true);

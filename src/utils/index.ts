@@ -7,7 +7,7 @@ export const sanitizeColors = (element: HTMLElement) => {
     const el = treeWalker.currentNode as HTMLElement;
     const style = el.getAttribute("style");
     if (style && style.includes("oklch")) {
-      // Remplacer toutes les occurrences oklch(...) par une couleur de fallback (#000 ici)
+      // Remplacement toutes les occurrences oklch(...) par une couleur de fallback (#000 ici)
       const newStyle = style.replace(/oklch\([^)]*\)/g, "#000");
       el.setAttribute("style", newStyle);
     }

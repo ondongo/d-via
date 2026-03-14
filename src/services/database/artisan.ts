@@ -1,5 +1,6 @@
 "use server";
 
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/configs/prisma/prisma";
 import { uploadBase64FilesToFirebase } from "@/utils/functions";
 import bcrypt from "bcryptjs";
@@ -199,4 +200,5 @@ export async function createArtisan(
     };
   }
 }
+
 
