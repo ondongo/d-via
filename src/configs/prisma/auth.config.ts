@@ -24,6 +24,12 @@ export default {
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
+    Google({
+      id: "google-artisan",
+      name: "Google Artisan",
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
     Credentials({
       name: "Credentials",
       credentials: {
@@ -89,7 +95,19 @@ export default {
         // Vérifier si l'utilisateur existe déjà dans la base de données
         const existingUser = await prisma.user.findUnique({
           where: { email: user.email! },
+          include: {
+            artisan: true,
+          },
         });
+
+        // Connexion Google côté artisan:
+        // autoriser uniquement les comptes déjà artisans, sinon forcer parcours signup artisan
+        if (account?.provider === "google-artisan") {
+          if (!existingUser?.artisan) {
+            return "/signup?authError=artisan-google-signup-required";
+          }
+          return true;
+        }
 
         // Si l'utilisateur n'existe pas encore, créer un client Stripe
         if (!existingUser) {
@@ -112,24 +130,19 @@ export default {
       
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         console.log("User data:", user);
         (token as Token).userId = user.id;
-
-        // Définir le rôle de l'utilisateur
-        if (user.email === "gloireondongo1205@gmail.com") {
-          (token as Token).role = "admin";
-        } else if (user.email === "prince.ondongo@ism.edu.sn") {
-          (token as Token).role = "admin";
-        } else {
-          (token as Token).role = "user";
-        }
+        (token as Token).role = "user";
 
         // Créer un client Stripe pour les nouveaux utilisateurs
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: user.id },
+            include: {
+              artisan: true,
+            },
           });
 
           if (dbUser && !dbUser.stripeCustomerId) {
@@ -139,6 +152,32 @@ export default {
               name: user.name || undefined,
               userId: user.id,
             });
+          }
+
+          // Si connexion Google d'un particulier sans rôle spécifique, on le bascule en CLIENT
+          if (
+            account?.provider === "google" &&
+            dbUser &&
+            !dbUser.artisan &&
+            String(dbUser.role) === "USER"
+          ) {
+            await prisma.user.update({
+              where: { id: dbUser.id },
+              data: { role: "CLIENT" as any },
+            });
+          }
+
+          // Définir le rôle exposé dans la session
+          if (
+            user.email === "gloireondongo1205@gmail.com" ||
+            user.email === "prince.ondongo@ism.edu.sn"
+          ) {
+            (token as Token).role = "admin";
+          } else if (dbUser?.artisan) {
+            (token as Token).role = "artisan";
+          } else {
+            const normalizedRole = String(dbUser?.role || "USER").toLowerCase();
+            (token as Token).role = normalizedRole;
           }
         } catch (error) {
           console.error("Erreur lors de la création du client Stripe dans jwt:", error);

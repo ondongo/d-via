@@ -56,13 +56,13 @@ export const ComplexModal: React.FC<ComplexModalProps> = ({
             animate={isMobile ? { y: 0, opacity: 1 } : { scale: 1, opacity: 1 }}
             exit={isMobile ? { y: "100%", opacity: 1 } : { scale: 0.8, opacity: 0 }}
             transition={isMobile ? { duration: 0.3, ease: "easeInOut" } : { type: "spring", stiffness: 120 }}
-            className={`relative flex flex-col items-center overflow-hidden bg-dviaheader shadow-lg ${
+            className={`relative flex flex-col items-start overflow-hidden bg-dvianeutral-90 shadow-lg ${
               isMobile ? mobileClassName : `rounded-2xl ${className}`
             }`}
             onClick={(event) => event.stopPropagation()}
           >
             {isCloseButton && (
-              <div className="border-dvianeutral-50 flex w-full flex-row items-center gap-4 border-b-1 p-4">
+              <div className="flex w-full justify-end p-4 pb-0">
                 <button
                   onClick={onClose}
                   className="flex h-9.5 w-9.5 cursor-pointer items-center justify-center bg-transparent"
@@ -77,14 +77,14 @@ export const ComplexModal: React.FC<ComplexModalProps> = ({
                     />
                   </svg>
                 </button>
-
-                <p className="text-dvianeutral-10 text-title-medium-size leading-headline-medium tracking-headline-medium">
-                  {title}
-                </p>
               </div>
             )}
-
-            <div className="w-full overflow-auto py-4">{children}</div>
+            <div className="flex w-full flex-col gap-2 px-4 md:px-6">
+              <p className="text-dvianeutral-10 font-bold text-headline-small leading-headline-medium tracking-headline-medium">
+                {title}
+              </p>
+            </div>
+            <div className="w-full overflow-auto px-4 md:px-6 pb-3 md:pb-6 pt-3">{children}</div>
           </motion.div>
         </motion.div>
       )}
