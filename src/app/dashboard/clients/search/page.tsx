@@ -60,8 +60,8 @@ function page() {
   }, []);
 
   useEffect(() => {
-    // Permet d'eviter les updates d'etat apres navigation
     let cancelled = false;
+
     async function fetchArtisans() {
       setLoading(true);
       setError(null);
