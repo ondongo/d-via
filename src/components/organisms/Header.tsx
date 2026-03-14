@@ -32,9 +32,10 @@ function Header() {
     setIsSignupModeModalOpen(false);
     setIsAttestationModalOpen(true);
   };
+
   return (
     <div className="flex flex-row justify-between p-4  border-b-1 border-dvianeutral-50 ">
-      <div onClick={handleClickHome} className="cursor-pointer flex items-center">
+      <div     onClick={handleClickHome} className="cursor-pointer flex items-center">
         <Image
           src="/logos/logo.png"
           alt="Logo"
@@ -46,6 +47,7 @@ function Header() {
 
       <div className="flex flex-row gap-8 justify-center items-center">
         <ResponsiveMenu />
+
         {session ? (
           <button
             onClick={handleClick}
@@ -56,14 +58,35 @@ function Header() {
                   : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
               }`}
           >
-            {isOnArtisanPage
-              ? "Commencer en tant qu'artisan "
+            {roleMode === 'search'
+              ? "Commencer en tant que chercheur"
               : "Commencer en tant que client"}
           </button>
         ) : (
-          <div className="hidden md:flex gap-4">
+          // Afficher à la fois Connexion et Inscription quand l'utilisateur n'est pas connecté
+          <div className="flex gap-4 items-center">
+            <button
+              onClick={() => {
+                if (isOnArtisanPage) {
+                  router.push('/auth/signin');
+                } else {
+                  router.push('/login-client');
+                }
+              }}
+              className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
+                hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[140px] h-[40px] text-dviaprimary-40 bg-transparent border-dvianeutral-50`}
+            >
+              Connexion
+            </button>
+
             <AuthButton
-              onClick={isOnArtisanPage ? handleClick : undefined}
+              onClick={() => {
+                if (isOnArtisanPage) {
+                  handleClick();
+                } else {
+                  router.push("/signup-client/step1");
+                }
+              }}
               className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
                 hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[260px] h-[40px] ${
                   isOnArtisanPage
@@ -71,9 +94,7 @@ function Header() {
                     : "text-white bg-dviaprimary-40 shadow-lg border-transparent"
                 }`}
             >
-              {isOnArtisanPage
-                ? "Commencer en tant qu'artisan "
-                : "Commencer en tant que client"}
+              Inscription
             </AuthButton>
           </div>
         )}

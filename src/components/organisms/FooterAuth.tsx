@@ -9,6 +9,11 @@ import { signupCookies } from "@/utils/cookies";
 
 export default function FooterAuth() {
   const pathname = usePathname();
+
+  if (!pathname || pathname.includes("/login") || pathname.includes("/signup-client")) {
+    return null;
+  }
+
   const router = useRouter();
   const {
     currentStep,
