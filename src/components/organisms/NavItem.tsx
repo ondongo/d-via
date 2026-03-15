@@ -5,7 +5,7 @@ type NavItemProps = {
   title: string;
   path: string;
   isActive?: boolean;
-  onClick?: () => void;
+  onClick?: () => void | boolean | Promise<void | boolean>;
   icon?: React.ReactNode;
   className?: string;
 };
@@ -22,9 +22,11 @@ export function NavItem({
 
   return (
     <div
-      onClick={() => {
-        router.push(path);
-        if (onClick) onClick(); 
+      onClick={async () => {
+        const clickResult = onClick ? await onClick() : true;
+        if (clickResult !== false) {
+          router.push(path);
+        }
       }}
       className={`
         flex flex-row items-center gap-2 relative 

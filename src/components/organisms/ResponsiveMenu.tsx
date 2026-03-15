@@ -1,13 +1,21 @@
 "use client";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavItem } from "./NavItem";
 import Image from "next/image";
+import { signOut, useSession } from "next-auth/react";
 
 export default function ResponsiveMenu() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   //const [isOpen, setIsOpen] = useState(false);
   const isOnArtisanPage = pathname === "/artisans";
+
+  const handleSwitchAudience = async () => {
+    if (!session) return true;
+
+    await signOut({ redirect: false });
+    return true;
+  };
 
   return (
     <nav className="relative">
@@ -18,6 +26,7 @@ export default function ResponsiveMenu() {
             title="Je suis un artisan"
             path="/artisans"
             isActive={pathname === "/"}
+            onClick={handleSwitchAudience}
             icon={
               <Image
                 src="/icons/artisans.svg"
@@ -34,6 +43,7 @@ export default function ResponsiveMenu() {
             title="Je cherche un artisan"
             path="/"
             isActive={pathname === "/artisans"}
+            onClick={handleSwitchAudience}
             icon={
               <Image
                 src="/icons/particulars.svg"

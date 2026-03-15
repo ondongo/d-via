@@ -25,11 +25,13 @@ interface BlogPost {
 interface BlogPageClientProps {
   posts: BlogPost[];
   categories: string[];
+  basePath?: string;
 }
 
 export default function BlogPageClient({
   posts,
   categories,
+  basePath,
 }: BlogPageClientProps) {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
 
@@ -69,9 +71,9 @@ export default function BlogPageClient({
             </p>
           </div>
         ) : (
-          <div className="flex flex-wrap gap-8 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 w-full">
             {filteredPosts.map((post) => (
-              <BlogCard key={post.id} post={post} />
+              <BlogCard key={post.id} post={post} basePath={basePath} />
             ))}
           </div>
         )}

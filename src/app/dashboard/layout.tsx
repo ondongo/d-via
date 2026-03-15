@@ -1,4 +1,5 @@
 import Breadcumb from "@/components/molecules/dashboard/Breadcumb";
+import DashboardClientCreditsHeader from "@/components/molecules/dashboard/DashboardClientCreditsHeader";
 import NavigationRail from "@/components/molecules/dashboard/NavigationRail";
 import BottomHeaderDashboard from "@/components/organisms/BottonHeaderDashboard";
 
@@ -16,7 +17,12 @@ export default function DashboardLayout({
 
         <div className="mb-[100px] md:mb-[0px] md:ml-[100px] transition-all duration-300">
           <div className="mt-5">
-            <Breadcumb />
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <Breadcumb />
+              <div className="px-6 md:px-0">
+                <DashboardClientCreditsHeader />
+              </div>
+            </div>
             <div className="w-full flex justify-center items-center mt-4">
               {children}
             </div>
