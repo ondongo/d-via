@@ -127,13 +127,33 @@ function extractPercentages(text: string) {
     .filter((value) => !Number.isNaN(value));
 }
 
+function getAcompteLevel(value: string): "positive" | "warning" | "negative" {
+  const sourceForParsing = stripMarkdown(value).split("(")[0].trim();
+  const percentages = extractPercentages(sourceForParsing);
+  const total = percentages.reduce((sum, current) => sum + current, 0);
+
+  if (total <= 0) return "warning";
+  if (total <= 30) return "positive";
+  if (total <= 40) return "warning";
+  return "negative";
+}
+
 function formatAcompteMessage(rawValue?: string) {
   if (!rawValue || !stripMarkdown(rawValue)) {
     return DEFAULT_ACOMPTE_MESSAGE;
   }
 
   const cleanValue = stripMarkdown(rawValue);
-  const percentages = extractPercentages(cleanValue);
+
+  // Evite le double formatage quand le message est deja enrichi.
+  if (/recommand[ée]?\s*:\s*30%/i.test(cleanValue)) {
+    return cleanValue;
+  }
+
+  // Ignore la partie entre parentheses pour ne pas recompter
+  // des valeurs deja calculees (ex: "50% avant solde").
+  const sourceForParsing = cleanValue.split("(")[0].trim();
+  const percentages = extractPercentages(sourceForParsing);
 
   if (percentages.length === 0) {
     return `${cleanValue} (Recommandé: 30%)`;
@@ -158,7 +178,10 @@ function normalizeDetails(details: Record<string, string>) {
     const canonicalKey = normalizeKey(key);
     const cleanValue = stripMarkdown(String(value));
     if (cleanValue) {
-      if (normalized[canonicalKey]) {
+      if (canonicalKey === "Acompte") {
+        // On garde la derniere valeur d'acompte (normalement celle fiabilisee par l'API)
+        normalized[canonicalKey] = cleanValue;
+      } else if (normalized[canonicalKey]) {
         normalized[canonicalKey] = `${normalized[canonicalKey]} ${cleanValue}`;
       } else {
         normalized[canonicalKey] = cleanValue;
@@ -187,6 +210,17 @@ function classifyDetail(value: string): "positive" | "warning" | "negative" {
   }
 
   return "warning";
+}
+
+function classifyDetailByKey(
+  key: string,
+  value: string,
+): "positive" | "warning" | "negative" {
+  const normalizedKey = normalizeKey(key);
+  if (normalizedKey === "Acompte") {
+    return getAcompteLevel(value);
+  }
+  return classifyDetail(value);
 }
 
 function buildAiOpinion(
@@ -243,7 +277,7 @@ function getGradeTheme(score: number): GradeTheme {
     return {
       letter: "A",
       title: "Excellent",
-      subtitle: "Prix et garanties validés",
+      subtitle: "Identité, prix et garanties validés",
       badgeBg: "#00DD9E",
       badgeText: "#043327",
       scoreBg: "#009B6F",
@@ -267,7 +301,7 @@ function getGradeTheme(score: number): GradeTheme {
     return {
       letter: "C",
       title: "Moyen",
-      subtitle: "Points de vigilance à corriger",
+      subtitle: "Points de vigilance à vérifier",
       badgeBg: "#F4C6C4",
       badgeText: "#5A1D1A",
       scoreBg: "#D69492",
@@ -420,7 +454,7 @@ export default function AnalysisResults({
                 )}
 
                 {detailEntries.map(([key, value], index) => {
-                  const sentiment = classifyDetail(String(value));
+                  const sentiment = classifyDetailByKey(String(key), String(value));
 
                   const icon =
                     sentiment === "negative" ? (
