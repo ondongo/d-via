@@ -16,6 +16,34 @@ import { NextRequest, NextResponse } from "next/server";
 import { mistral } from "@/services/rag/chatcompletion";
 import { prompt } from "@/constants";
 
+function clampScore(value: number) {
+  if (Number.isNaN(value)) return 0;
+  return Math.min(100, Math.max(0, value));
+}
+
+function extractReliability(rawText: string): number | null {
+  const directPatterns = [
+    /fiabilit[eé]\s*globale\s*[:\-]?\s*(\d{1,3})\s*\/\s*100/i,
+    /fiabilit[eé]\s*globale\s*[:\-]?\s*(\d{1,3})/i,
+    /score\s*global\s*[:\-]?\s*(\d{1,3})\s*\/\s*100/i,
+    /score\s*global\s*[:\-]?\s*(\d{1,3})/i,
+  ];
+
+  for (const pattern of directPatterns) {
+    const match = rawText.match(pattern);
+    if (match?.[1]) {
+      return clampScore(parseInt(match[1], 10));
+    }
+  }
+
+  const fractionMatch = rawText.match(/(\d{1,3})\s*\/\s*100/);
+  if (fractionMatch?.[1]) {
+    return clampScore(parseInt(fractionMatch[1], 10));
+  }
+
+  return null;
+}
+
 /*****************************************************************************************************************
  * Fonction pour extraire le SIRET du texte
  *****************************************************************************************************************/
@@ -97,7 +125,7 @@ export async function POST(req: NextRequest) {
 
     const completion = await mistral.chat.completions.create({
       model: "mistral-tiny",
-      temperature: 0.7,
+      temperature: 0.2,
       messages: [{ role: "user", content: promptText }],
     });
 
@@ -105,7 +133,7 @@ export async function POST(req: NextRequest) {
 
     
     const lines = rawText.split("\n").map((line:any) => line.trim());
-    let reliability = null;
+    let reliability: number | null = extractReliability(rawText);
     const details: Record<string, string> = {};
     let conclusion = "";
     let inDetailsSection = false;
@@ -114,11 +142,12 @@ export async function POST(req: NextRequest) {
     lines.forEach((line:any) => {
       if (
         line.toLowerCase().includes("fiabilité globale") ||
-        line.toLowerCase().includes("fiabilite globale")
+        line.toLowerCase().includes("fiabilite globale") ||
+        line.toLowerCase().includes("score global")
       ) {
-        const match = line.match(/(\d+)/);
-        if (match) {
-          reliability = parseInt(match[1], 10);
+        const lineReliability = extractReliability(line);
+        if (lineReliability !== null) {
+          reliability = lineReliability;
         }
       } else if (
         line.toLowerCase().includes("détails") ||
@@ -135,7 +164,10 @@ export async function POST(req: NextRequest) {
         if (conclusionText) {
           conclusion = conclusionText;
         }
-      } else if (inDetailsSection && line.startsWith("-")) {
+      } else if (
+        inDetailsSection &&
+        (line.startsWith("-") || line.startsWith("*") || line.startsWith("•"))
+      ) {
         const match = line
           .substring(1)
           .split(":")
@@ -166,6 +198,10 @@ export async function POST(req: NextRequest) {
           .join(" ")
           .trim();
       }
+    }
+
+    if (reliability === null) {
+      reliability = 60;
     }
 
     return NextResponse.json({

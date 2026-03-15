@@ -26,8 +26,8 @@ export default function DashboardClientCreditsHeader() {
   return (
     <div className="w-full md:w-auto p-4 rounded-2xl border border-dvianeutral-50 bg-dvianeutral-96 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div>
-        <p className="text-dvianeutral-10 text-base md:text-lg font-semibold">
-          Crédits disponibles : {analysisCredits}
+        <p className="text-dvianeutral-10 text-base md:text-lg font-medium">
+          Crédits restants : <span className="font-bold ">{analysisCredits}</span>
         </p>
       </div>
       <a
