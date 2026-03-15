@@ -50,6 +50,14 @@ const WARNING_KEYWORDS = [
   "à vérifier",
   "a verifier",
   "partiel",
+  "incomplet",
+  "incomplète",
+  "different",
+  "différent",
+  "différente",
+  "non credible",
+  "non crédible",
+  "ambigu",
   "modéré",
   "modere",
   "moyen",
@@ -202,6 +210,11 @@ function classifyDetail(value: string): "positive" | "warning" | "negative" {
   }
 
   if (WARNING_KEYWORDS.some((keyword) => normalized.includes(keyword))) {
+    return "warning";
+  }
+
+  // Formulation mixte: "ok ... mais ..." => warning
+  if (normalized.includes("mais")) {
     return "warning";
   }
 
