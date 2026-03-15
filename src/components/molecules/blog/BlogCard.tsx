@@ -21,6 +21,7 @@ interface BlogCardProps {
       count: number;
     }>;
   };
+  basePath?: string;
 }
 
 // Composant de réaction plus petit pour les cartes
@@ -63,7 +64,7 @@ const SmallEmojiReaction = ({
   );
 };
 
-export default function BlogCard({ post }: BlogCardProps) {
+export default function BlogCard({ post, basePath = "/blog" }: BlogCardProps) {
   const totalReactions = post.reactions.reduce(
     (sum, reaction) => sum + (reaction.count || 0),
     0
@@ -133,8 +134,8 @@ export default function BlogCard({ post }: BlogCardProps) {
   };
 
   return (
-    <Link href={`/blog/${post.slug}`} className="group">
-      <article className="border border-dvianeutral-50 rounded-2xl px-4 w-full md:max-w-xs min-h-[480px] bg-dvianeutral-90 hover:hover:border-dvianeutral-50 transition-all duration-300">
+    <Link href={`${basePath}/${post.slug}`} className="group w-full">
+      <article className="border border-dvianeutral-50 rounded-2xl px-4 w-full min-h-[480px] bg-dvianeutral-90 hover:hover:border-dvianeutral-50 transition-all duration-300">
         {/* Header avec auteur */}
         <div className="flex items-center justify-between py-4 rounded-xl">
           <div className="flex items-center gap-3">

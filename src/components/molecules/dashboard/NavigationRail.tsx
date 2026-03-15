@@ -78,14 +78,16 @@ function NavigationRail() {
 
           <div className="flex flex-col justify-center items-center gap-2 text-dvianeutralvariant-30 leading-label-medium text-label-medium tracking-label-medium">
             <button
-              onClick={() => router.push("/coming")}
+              onClick={() => router.push("/dashboard/clients/blog")}
               className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
-                pathname === "/dashboard/articles" ? "bg-dviasecondary-90" : ""
+                pathname.startsWith("/dashboard/clients/blog")
+                  ? "bg-dviasecondary-90"
+                  : ""
               }`}
             >
               <img
                 src={
-                  pathname === "/dashboard/articles"
+                  pathname.startsWith("/dashboard/clients/blog")
                     ? "/dashboard/active/articles.svg"
                     : "/dashboard/articles.svg"
                 }

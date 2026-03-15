@@ -33,12 +33,14 @@ export default function LoginModal({
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setStep("signin");
       setShowPassword(false);
       setFocusedField(null);
+      setGoogleLoading(false);
     }
   }, [isOpen]);
 
@@ -97,10 +99,31 @@ export default function LoginModal({
     setStep("signin");
   };
 
-  const handleGoogleClick = () => {
-    signIn(mode === "artisan" ? "google-artisan" : "google", {
-      callbackUrl: mode === "artisan" ? "/dashboard" : "/dashboard/clients",
-    });
+  const handleGoogleClick = async () => {
+    if (googleLoading) return;
+
+    setGoogleLoading(true);
+    try {
+      const callbackUrl = mode === "artisan" ? "/dashboard" : "/dashboard/clients";
+      const provider = mode === "artisan" ? "google-artisan" : "google";
+
+      const result = await signIn(provider, {
+        callbackUrl,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        toast.error("Impossible de se connecter avec Google.");
+        setGoogleLoading(false);
+        return;
+      }
+
+      onClose();
+      router.replace(result?.url ?? callbackUrl);
+    } catch {
+      toast.error("Erreur pendant la connexion Google.");
+      setGoogleLoading(false);
+    }
   };
 
   return (
@@ -227,10 +250,13 @@ export default function LoginModal({
             <button
               type="button"
               onClick={handleGoogleClick}
-              className="flex w-full items-center justify-center gap-2 rounded-md text-dviaprimary-40 font-medium border border-dvianeutral-50 py-2.5 text-body-small hover:bg-dvianeutral-94"
+              disabled={googleLoading}
+              className={`flex w-full items-center justify-center gap-2 rounded-md text-dviaprimary-40 font-medium border border-dvianeutral-50 py-2.5 text-body-small hover:bg-dvianeutral-94 ${
+                googleLoading ? "cursor-not-allowed opacity-70" : ""
+              }`}
             >
               <Image src="/google.svg" alt="Google" width={18} height={18} />
-              Google
+              {googleLoading ? "Redirection..." : "Google"}
             </button>
 
             <div className="mt-1 flex flex-col gap-1 text-center text-body-small">

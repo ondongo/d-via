@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
 import { toast } from "react-toastify";
@@ -22,23 +22,25 @@ function page() {
 
   const [extractedText, setExtractedText] = useState("");
   const [isAnalyzed, setIsAnalyzed] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const openModal = () => {
-    setModalOpen(true);
-  };
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setFileData({
-      base64: null,
-      name: null,
-      type: null,
-    });
-
-    setIsLoading(false);
-    setIsAnalyzed(false);
-  };
-
+  useEffect(() => {
+    if (fileData.base64) {
+      setUploadProgress(0);
+      const interval = setInterval(() => {
+        setUploadProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 20);
+      return () => clearInterval(interval);
+    } else {
+      setUploadProgress(0);
+    }
+  }, [fileData.base64]);
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
@@ -162,7 +164,7 @@ function page() {
       }
     } else {
       alert(
-        "Le partage n'est pas pris en charge sur votre navigateur. Copiez manuellement le contenu."
+        "Le partage n'est pas pris en charge sur votre navigateur. Copiez manuellement le contenu.",
       );
     }
   };
@@ -171,9 +173,6 @@ function page() {
     <div className="min-w-[320px] md:min-w-[838px] mb-8">
       {/* Header comme sur le visuel */}
       <div className="mb-6">
-        <h1 className="text-[24px] md:text-[32px] font-bold text-dvianeutral-10 ml-16">
-          Analyser votre devis en quelque secondes
-        </h1>
         <p className="text-dvianeutral-20 text-sm md:text-base ml-16">
           Importez votre document. Notre IA vérifie les prix, les assurances et
           détecte les anomalies.
@@ -182,77 +181,34 @@ function page() {
 
       {!isAnalyzed && !isLoading ? (
         <>
-          {/* Carte d'upload */}
-          <div className="w-full mb-5 flex justify-center">
-            <div className="w-full md:w-[720px] rounded-16px border border-dvianeutral-50 bg-white md:bg-dvianeutral-96 p-4 md:p-6 shadow-sm">
-              {/* Illustration centrée */}
-              <div className="flex items-center justify-center py-4">
-
-              </div>
-
-              {/* Zone Drop + bouton */}
-              <div className="w-full">
+          {!fileData.base64 ? (
+            <>
+              <div className="w-full mb-5">
                 <div
                   {...getRootProps()}
-                  className="flex flex-col items-center justify-center py-6 w-full border border-dvianeutral-50 border-dashed rounded-2xl bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40 px-4"
+                  className="flex flex-col items-center justify-center py-24 w-full border border-gray-300 border-dashed rounded-2xl cursor-pointer bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40"
                 >
                   <div className="mb-3 flex items-center justify-center">
-
-
-                        <img
-                            src="/illustrations/DevisUpload.svg"
-                            alt="Upload illustration"
-                            className="w-[240px] h-[240px]"
-                        />
-
+                    <img
+                      src="/illustrations/DevisUpload.svg"
+                      alt="Upload illustration"
+                      className="w-[240px] h-[240px]"
+                    />
                   </div>
-                  <h2 className="text-center text-gray-400 text-xs font-normal leading-4 mb-1">
-                    Formats acceptés: PDF, JPG, PNG
+                  <h2 className="text-center text-gray-400   text-xs font-normal leading-4 mb-1">
+                    Format PDF, PNG ou JPG, moins de 50MB
                   </h2>
+                  <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
+                    Glissez votre devis ici ou{" "}
+                    <span className="text-dviaprimary-40">
+                      choisissez un fichier
+                    </span>
+                  </h4>
                   <input {...getInputProps()} className="hidden" />
                 </div>
-
-                {/* Bouton Ajouter un document */}
-                <div className="flex justify-center mt-4">
-                  <button
-                    type="button"
-                    onClick={openModal}
-                    className="border border-dvianeutral-50 bg-dviaprimary-40 text-sm px-4 py-3 rounded-8px cursor-pointer w-full md:w-[560px] text-white text-col"
-                  >
-                    + Ajouter un document
-                  </button>
-                  <Modal
-                      open={modalOpen}
-                      title="Ajout de devis"
-                      onClose={closeModal}
-                      onCapture={() => {
-                      }}
-                      onImport={(file: File) => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setFileData({
-                            base64: reader.result?.toString().split(",")[1] || null,
-                            name: file.name,
-                            type: file.type,
-                          });
-                          setModalOpen(false); // fermer la modal après sélection
-                        };
-                        reader.readAsDataURL(file);
-                      }}
-                  >
-                    {/* Optionnel: contenu supplémentaire si nécessaire */}
-                  </Modal>
-                </div>
-
-                <p className="text-center text-dvianeutral-20 text-xs mt-3">
-                  Formats acceptés: PDF, JPG, PNG.
-                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Aperçu & actions lorsque le fichier est chargé */}
-          {fileData.base64 && (
+            </>
+          ) : (
             <>
               <div className="w-full grid gap-1 p-4">
                 {fileData.type?.startsWith("image/") ? (
@@ -294,7 +250,7 @@ function page() {
                       </g>
                     </svg>
                     <div className="grid gap-1">
-                      <h4 className="text-gray-900 text-sm font-normal leading-snug max-w-[120px] md:max-w-full truncate overflow-hidden whitespace-nowrap ">
+                      <h4 className="text-gray-900 text-sm font-normal leading-snug max-w-[120px] md:max-w-full truncate overflow-hidden whitespace-nowrap">
                         {fileData.name}
                       </h4>
                       <h5 className="text-gray-400   text-xs font-normal leading-4">
@@ -335,26 +291,28 @@ function page() {
                   <div className="relative  w-full h-2.5  overflow-hidden rounded-3xl bg-white">
                     <div
                       role="progressbar"
-                      aria-valuenow={80}
+                      aria-valuenow={uploadProgress}
                       aria-valuemin={0}
-                      aria-valuemax={80}
-                      style={{ width: "100%" }}
+                      aria-valuemax={100}
+                      style={{
+                        width: `${uploadProgress}%`,
+                        transition: "width 0.02s ease-out",
+                      }}
                       className="flex h-full items-center justify-center bg-dviaprimary-60  text-white rounded-3xl"
                     ></div>
                   </div>
                   <span className="ml-2 bg-white p-1 px-2  rounded-full  text-gray-800 text-xs font-medium flex justify-center items-center ">
-                    100%
+                    {uploadProgress}%
                   </span>
                 </div>
               </div>
             </>
           )}
-          {/* Bouton d'analyse */}
-          <div className="w-full flex justify-center mt-2 mb-5 px-4 md:px-0">
+          <div className="w-full flex justify-end mt-2 mb-5">
             <button
               onClick={handleExtractAndAnalyze}
               disabled={isLoading}
-              className={`text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center justify-center gap-2${
+              className={`text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center justify-center gap-2 ${
                 isLoading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >

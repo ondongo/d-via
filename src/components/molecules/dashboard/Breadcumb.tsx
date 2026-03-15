@@ -10,13 +10,15 @@ function Breadcumb({ title }: BreadcumbProps) {
   const pathname = usePathname();
 
   const getBreadcrumbTitle = () => {
+    if (pathname.startsWith("/dashboard/clients/blog")) {
+      return "Articles et Blog";
+    }
+
     switch (pathname) {
       case "/dashboard/clients":
         return "Analyse de devis";
       case "/dashboard/clients/search":
         return "Trouver des artisans";
-      case "/dashboard/clients/blog":
-        return "Articles et Blog";
       default:
         return "Analyse de devis";
     }
