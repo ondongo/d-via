@@ -2,33 +2,49 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NavItem } from "./NavItem";
+import Image from "next/image";
 
 export default function ResponsiveMenu() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  //const [isOpen, setIsOpen] = useState(false);
+  const isOnArtisanPage = pathname === "/artisans";
 
   return (
     <nav className="relative">
       {/* Menu desktop */}
-      <div className="hidden md:flex flex-row gap-2 justify-center items-center">
-        <NavItem
-          title="Vous êtes un particulier"
-          path="/"
-          isActive={pathname === "/"}
-        />
-        <NavItem
-          title="Vous êtes un artisan"
-          path="/artisans"
-          isActive={pathname === "/artisans"}
-        />
+      <div className="flex flex-row gap-2 justify-center items-center">
+        {!isOnArtisanPage && (
+          <NavItem
+            title="Je suis un artisan"
+            path="/artisans"
+            isActive={pathname === "/"}
+            icon={
+              <Image
+                src="/icons/artisans.svg"
+                alt="Artisans"
+                width={18}
+                height={18}
+              />
+            }
+          />
+        )}
 
-        <NavItem
-          title="Blog"
-          path="/blog"
-          isActive={pathname === "/blog"}
-        />
-
-{/*         {pathname !== "/artisans" && (
+        {isOnArtisanPage && (
+          <NavItem
+            title="Je cherche un artisan"
+            path="/"
+            isActive={pathname === "/artisans"}
+            icon={
+              <Image
+                src="/icons/particulars.svg"
+                alt="Particulars"
+                width={18}
+                height={18}
+              />
+            }
+          />
+        )}
+        {/*         {pathname !== "/artisans" && (
           <NavItem
             title="Tarifs"
             path="/pricing"
@@ -46,7 +62,7 @@ export default function ResponsiveMenu() {
       </div>
 
       {/* Bouton hamburger mobile */}
-      <div className="flex md:hidden items-center">
+      {/*  <div className="flex md:hidden items-center">
         <button
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle menu"
@@ -78,9 +94,9 @@ export default function ResponsiveMenu() {
           </svg>
         </button>
       </div>
-
-      {/* Menu mobile slide depuis la gauche */}
-      <div
+ */}
+      {/*       {/* Menu mobile slide depuis la gauche */}
+      {/*   <div
         className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-[9999999] transform transition-transform duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full"} md:hidden pt-16 px-4`}
       >
@@ -113,14 +129,14 @@ export default function ResponsiveMenu() {
           />
         )}
       </div>
-
+ */}
       {/* Overlay semi-transparent */}
-      {isOpen && (
+      {/* {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
           className="fixed inset-0  bg-opacity-20 z-[9999998] md:hidden"
         />
-      )}
+      )}  */}
     </nav>
   );
 }

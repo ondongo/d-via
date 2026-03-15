@@ -6,6 +6,8 @@ type NavItemProps = {
   path: string;
   isActive?: boolean;
   onClick?: () => void;
+  icon?: React.ReactNode;
+  className?: string;
 };
 
 export function NavItem({
@@ -13,6 +15,8 @@ export function NavItem({
   path,
   isActive = false,
   onClick,
+  icon,
+  className,
 }: NavItemProps) {
   const router = useRouter();
 
@@ -23,15 +27,17 @@ export function NavItem({
         if (onClick) onClick(); 
       }}
       className={`
-        relative cursor-pointer
-        group px-2 py-1
-        text-sm font-medium
+        flex flex-row items-center gap-2 relative 
+        group cursor-pointer px-2 py-1
+        text-sm font-normal
         ${
-          isActive ? "text-dviaprimary-40 font-semibold" : "text-dvianeutral-10"
+          isActive ? "text-dviaprimary-40" : "text-dvianeutral-10"
         }
+        ${className}
         hover:text-dviaprimary-50
       `}
     >
+      {icon && <span>{icon}</span>}
       <span>{title}</span>
     </div>
   );

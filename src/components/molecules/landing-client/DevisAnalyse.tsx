@@ -320,9 +320,9 @@ function DevisAnalyse() {
         onClose={closeModal}
         title={"Analyser votre devis"}
         isOpen={modalOpen}
-        className="md:w-[750px] md:max-h-[90vh]"
+        className="md:w-[750px] md:max-h-[90vh] overflow-hidden"
       >
-        <div className=" w-[750px] max-w-full md:max-w-[750px] max-h-[calc(90vh-100px)] px-6 md:px-8 ">
+        <div className="max-h-[calc(90vh-100px)]">
           {!isAnalyzed && !isLoading ? (
             <>
               {!fileData.base64 ? (
