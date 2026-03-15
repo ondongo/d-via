@@ -1,6 +1,8 @@
 // src/app/api/rag/ask/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { pineconeIndex, embedTexts, mistral } from '@/lib/vector';
+import { embedTexts } from '@/services/rag/vector';
+import { pineconeIndex } from '@/services/rag/pinecone';
+import { mistral } from '@/services/rag/chatcompletion';
 
 type RagAskBody = {
     question: string;
