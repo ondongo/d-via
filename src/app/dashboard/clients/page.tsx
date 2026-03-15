@@ -123,7 +123,7 @@ function page() {
         };
 
         reader.readAsDataURL(file);
-      };
+      }
     }
   };
 
@@ -219,7 +219,10 @@ function page() {
             contexts = askData.contexts;
           }
         } catch (error) {
-          console.log("Erreur lors de la recuperation des contextes RAG :", error);
+          console.log(
+            "Erreur lors de la recuperation des contextes RAG :",
+            error,
+          );
         }
 
         // Étape 3 : Analyse avec RAG
@@ -293,10 +296,17 @@ function page() {
     <div className="min-w-[320px] md:min-w-[838px] mb-8">
       {/* Header comme sur le visuel */}
       <div className="mb-6">
-        <p className="text-dvianeutral-20 text-sm md:text-base ml-16">
-          Importez votre document. Notre IA vérifie les prix, les assurances et
-          détecte les anomalies.
-        </p>
+        {!isAnalyzed && !isLoading ? (
+          <p className="text-dvianeutral-20 text-sm md:text-base ml-16">
+            Importez votre document. Notre IA vérifie les prix, les assurances
+            et détecte les anomalies.
+          </p>
+        ) : (
+          <p className="text-dvianeutral-20 text-md md:text-lg ml-16">
+            Résultats de l'analyse (Notre IA vérifie les prix, les assurances et
+            détecte les anomalies.)
+          </p>
+        )}
       </div>
 
       {!isAnalyzed && !isLoading ? (

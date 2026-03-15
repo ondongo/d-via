@@ -27,7 +27,7 @@ type GradeTheme = {
   scoreText: string;
 };
 
-const DEFAULT_ACOMPTE_MESSAGE = "50% demandé (Recommandé: 30%)";
+const DEFAULT_ACOMPTE_MESSAGE = "Acompte non précisé (Recommandé: 30%)";
 
 const POSITIVE_KEYWORDS = [
   "valid",
@@ -105,11 +105,50 @@ function normalizeKey(rawKey: string) {
   if (normalized.includes("garantie") || normalized.includes("assurance")) {
     return "Garanties legales";
   }
-  if (normalized.includes("acompte") || normalized.includes("avance")) {
+  if (
+    normalized.includes("acompte") ||
+    normalized.includes("accompte") ||
+    normalized.includes("avance")
+  ) {
     return "Acompte";
   }
 
   return cleaned || "Critere";
+}
+
+function formatPercent(value: number) {
+  return Number.isInteger(value) ? `${value}` : value.toString().replace(".", ",");
+}
+
+function extractPercentages(text: string) {
+  const matches = stripMarkdown(text).match(/(\d+(?:[.,]\d+)?)\s*%/g) || [];
+  return matches
+    .map((item) => parseFloat(item.replace("%", "").replace(",", ".")))
+    .filter((value) => !Number.isNaN(value));
+}
+
+function formatAcompteMessage(rawValue?: string) {
+  if (!rawValue || !stripMarkdown(rawValue)) {
+    return DEFAULT_ACOMPTE_MESSAGE;
+  }
+
+  const cleanValue = stripMarkdown(rawValue);
+  const percentages = extractPercentages(cleanValue);
+
+  if (percentages.length === 0) {
+    return `${cleanValue} (Recommandé: 30%)`;
+  }
+
+  if (percentages.length === 1) {
+    return `${formatPercent(percentages[0])}% demandé (Recommandé: 30%)`;
+  }
+
+  const first = percentages[0];
+  const others = percentages.slice(1);
+  const total = percentages.reduce((sum, current) => sum + current, 0);
+  const othersText = others.map((value) => `${formatPercent(value)}%`).join(" puis ");
+
+  return `${formatPercent(first)}% à la commande puis ${othersText} (${formatPercent(total)}% avant solde, Recommandé: 30%)`;
 }
 
 function normalizeDetails(details: Record<string, string>) {
@@ -119,12 +158,15 @@ function normalizeDetails(details: Record<string, string>) {
     const canonicalKey = normalizeKey(key);
     const cleanValue = stripMarkdown(String(value));
     if (cleanValue) {
-      normalized[canonicalKey] = cleanValue;
+      if (normalized[canonicalKey]) {
+        normalized[canonicalKey] = `${normalized[canonicalKey]} ${cleanValue}`;
+      } else {
+        normalized[canonicalKey] = cleanValue;
+      }
     }
   });
 
-  // Regle metier demandee: message d'acompte par defaut toujours a 30%
-  normalized.Acompte = DEFAULT_ACOMPTE_MESSAGE;
+  normalized.Acompte = formatAcompteMessage(normalized.Acompte);
 
   return normalized;
 }
@@ -175,7 +217,7 @@ function buildAiOpinion(
     lines.push(`Garanties légales: ${details["Garanties legales"]}.`);
   }
 
-  lines.push(`Acompte: ${DEFAULT_ACOMPTE_MESSAGE}.`);
+  lines.push(`Acompte: ${details.Acompte || DEFAULT_ACOMPTE_MESSAGE}.`);
 
   // Maximum 10 lignes comme demande
   return lines.slice(0, 10).join("\n");
@@ -321,7 +363,7 @@ export default function AnalysisResults({
       ) : (
         isAnalyzed &&
         analysis && (
-          <div className="space-y-6 mt-4">
+          <div className="flex flex-col gap-6 mt-4">
             <div className="rounded-[28px] bg-white p-6 md:p-8">
               <div className="flex items-center justify-between gap-4">
                 <div>
