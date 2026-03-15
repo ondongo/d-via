@@ -65,14 +65,20 @@ function extractPercentages(text: string) {
     .filter((value) => !Number.isNaN(value));
 }
 
-function buildAcompteMessage(source: string) {
+function buildAcompteSummary(source: string) {
   const percentages = extractPercentages(source);
   if (percentages.length === 0) {
-    return "Acompte mentionné sans pourcentage précis (Recommandé: 30%)";
+    return {
+      message: "Acompte mentionné sans pourcentage précis (Recommandé: 30%)",
+      total: null as number | null,
+    };
   }
 
   if (percentages.length === 1) {
-    return `${formatPercent(percentages[0])}% demandé (Recommandé: 30%)`;
+    return {
+      message: `${formatPercent(percentages[0])}% demandé (Recommandé: 30%)`,
+      total: percentages[0],
+    };
   }
 
   const first = percentages[0];
@@ -80,7 +86,10 @@ function buildAcompteMessage(source: string) {
   const total = percentages.reduce((sum, current) => sum + current, 0);
   const othersText = others.map((value) => `${formatPercent(value)}%`).join(" puis ");
 
-  return `${formatPercent(first)}% à la commande puis ${othersText} (${formatPercent(total)}% avant solde, Recommandé: 30%)`;
+  return {
+    message: `${formatPercent(first)}% à la commande puis ${othersText} (${formatPercent(total)}% avant solde, Recommandé: 30%)`,
+    total,
+  };
 }
 
 function extractAcompteFromSource(text: string) {
@@ -101,17 +110,95 @@ function extractAcompteFromSource(text: string) {
     return undefined;
   }
 
-  return buildAcompteMessage(acompteLines.join(" "));
+  return buildAcompteSummary(acompteLines.join(" "));
+}
+
+function normalizeForCompare(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function countAlertSignals(details: Record<string, string>) {
+  const alertKeywords = [
+    "invalide",
+    "absent",
+    "manque",
+    "non conforme",
+    "risque",
+    "suspect",
+    "ambigu",
+    "alerte",
+    "incoherent",
+    "trop eleve",
+    "trop bas",
+  ];
+
+  let count = 0;
+  Object.values(details).forEach((value) => {
+    const normalized = normalizeForCompare(cleanMarkdownText(value));
+    if (alertKeywords.some((keyword) => normalized.includes(keyword))) {
+      count += 1;
+    }
+  });
+
+  return count;
+}
+
+function adjustReliabilityScore(
+  inputScore: number,
+  details: Record<string, string>,
+  siretInfo?: { isValid?: boolean },
+  acompteTotal?: number | null,
+) {
+  let score = inputScore;
+
+  const alertCount = countAlertSignals(details);
+  score -= Math.min(22, alertCount * 5);
+
+  if (siretInfo?.isValid === false) {
+    score -= 28;
+  }
+
+  if (typeof acompteTotal === "number") {
+    if (acompteTotal > 40) {
+      score -= 16;
+    } else if (acompteTotal > 30) {
+      score -= 10;
+    }
+  }
+
+  // Evite un score trop haut quand les alertes sont nombreuses.
+  if (alertCount >= 3 && score > 58) {
+    score = 58;
+  }
+
+  return clampScore(score);
 }
 
 /*****************************************************************************************************************
  * Fonction pour extraire le SIRET du texte
  *****************************************************************************************************************/
 function extractSiret(text: string): string | undefined {
-  const m = text.match(/SIRET\s*:?\s*(\d{14})/i);
-  console.log("extractSiret>>>>>:", m );
-  console.log("extractSiret>>>>>:", m ? m[1] : undefined);
-  return m ? m[1] : undefined;
+  const withLabel = text.match(/SIRET\s*:?\s*([0-9][0-9\s]{10,25})/i);
+  if (withLabel?.[1]) {
+    const digits = withLabel[1].replace(/\D/g, "");
+    if (digits.length >= 14) {
+      return digits.slice(0, 14);
+    }
+  }
+
+  // Fallback: premier bloc de 14 chiffres trouvé, même avec espaces.
+  const generic = text.match(/(?:\d[\s.]*){14}/);
+  if (generic?.[0]) {
+    const digits = generic[0].replace(/\D/g, "");
+    if (digits.length === 14) {
+      return digits;
+    }
+  }
+
+  return undefined;
 }
 
 /*****************************************************************************************************************
@@ -266,10 +353,7 @@ export async function POST(req: NextRequest) {
     }
 
     const hasAcompteDetail = Object.keys(details).some((key) => {
-      const normalizedKey = key
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
+      const normalizedKey = normalizeForCompare(key);
       return (
         normalizedKey.includes("acompte") ||
         normalizedKey.includes("accompte") ||
@@ -277,12 +361,29 @@ export async function POST(req: NextRequest) {
       );
     });
 
-    if (!hasAcompteDetail) {
-      const acompteFromSource = extractAcompteFromSource(text);
-      if (acompteFromSource) {
-        details.Acompte = acompteFromSource;
-      }
+    // Toujours privilégier le texte source pour éviter les hallucinations
+    // du modèle sur l'acompte.
+    const acompteFromSource = extractAcompteFromSource(text);
+    if (acompteFromSource) {
+      details.Acompte = acompteFromSource.message;
+    } else if (!hasAcompteDetail) {
+      details.Acompte = "Acompte non précisé (Recommandé: 30%)";
     }
+
+    // SIRET: on force la réalité de la vérification API.
+    if (siretInfo?.isValid === false) {
+      details["Numéro de SIRET"] = `Invalide ou introuvable (SIRET ${siretInfo.siret || "non lisible"}, vérification Sirene échouée)`;
+      conclusion = "Le devis présente des risques notables: le SIRET est invalide ou introuvable. Vérifiez impérativement l'entreprise avant signature.";
+    } else if (siretInfo?.isValid === true && siretInfo.siret) {
+      details["Numéro de SIRET"] = `Validé (${siretInfo.siret})`;
+    }
+
+    reliability = adjustReliabilityScore(
+      reliability,
+      details,
+      siretInfo,
+      acompteFromSource?.total,
+    );
 
     return NextResponse.json({
       status: 200,
