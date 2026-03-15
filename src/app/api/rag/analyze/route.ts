@@ -54,6 +54,56 @@ function cleanMarkdownText(value: string) {
     .trim();
 }
 
+function formatPercent(value: number) {
+  return Number.isInteger(value) ? `${value}` : value.toString().replace(".", ",");
+}
+
+function extractPercentages(text: string) {
+  const matches = cleanMarkdownText(text).match(/(\d+(?:[.,]\d+)?)\s*%/g) || [];
+  return matches
+    .map((item) => parseFloat(item.replace("%", "").replace(",", ".")))
+    .filter((value) => !Number.isNaN(value));
+}
+
+function buildAcompteMessage(source: string) {
+  const percentages = extractPercentages(source);
+  if (percentages.length === 0) {
+    return "Acompte mentionné sans pourcentage précis (Recommandé: 30%)";
+  }
+
+  if (percentages.length === 1) {
+    return `${formatPercent(percentages[0])}% demandé (Recommandé: 30%)`;
+  }
+
+  const first = percentages[0];
+  const others = percentages.slice(1);
+  const total = percentages.reduce((sum, current) => sum + current, 0);
+  const othersText = others.map((value) => `${formatPercent(value)}%`).join(" puis ");
+
+  return `${formatPercent(first)}% à la commande puis ${othersText} (${formatPercent(total)}% avant solde, Recommandé: 30%)`;
+}
+
+function extractAcompteFromSource(text: string) {
+  const normalizedLines = text.split("\n").map((line) => cleanMarkdownText(line));
+  const acompteLines = normalizedLines.filter((line) => {
+    const lower = line
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+    return (
+      lower.includes("acompte") ||
+      lower.includes("accompte") ||
+      lower.includes("avance")
+    );
+  });
+
+  if (acompteLines.length === 0) {
+    return undefined;
+  }
+
+  return buildAcompteMessage(acompteLines.join(" "));
+}
+
 /*****************************************************************************************************************
  * Fonction pour extraire le SIRET du texte
  *****************************************************************************************************************/
@@ -213,6 +263,25 @@ export async function POST(req: NextRequest) {
 
     if (reliability === null) {
       reliability = 60;
+    }
+
+    const hasAcompteDetail = Object.keys(details).some((key) => {
+      const normalizedKey = key
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      return (
+        normalizedKey.includes("acompte") ||
+        normalizedKey.includes("accompte") ||
+        normalizedKey.includes("avance")
+      );
+    });
+
+    if (!hasAcompteDetail) {
+      const acompteFromSource = extractAcompteFromSource(text);
+      if (acompteFromSource) {
+        details.Acompte = acompteFromSource;
+      }
     }
 
     return NextResponse.json({
