@@ -3,6 +3,7 @@ import Footer from "@/components/organisms/Footer";
 import { ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BottomActionButton from "@/components/organisms/BottomActionButton";
+import { Suspense } from "react";
 
 export default function LandingLayout({
   children,
@@ -13,7 +14,9 @@ export default function LandingLayout({
     <html lang="en">
       <body>
         <div className="pb-20 md:pb-0">
-          <Header />
+          <Suspense fallback={null}>
+            <Header />
+          </Suspense>
           {children}
           <Footer />
         </div>
