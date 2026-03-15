@@ -5,7 +5,6 @@ import { useDropzone } from "react-dropzone";
 import { useRef } from "react";
 import { toast } from "react-toastify";
 import AnalysisResults from "@/components/molecules/landing-client/AnalysisResults";
-import Modal from "@/components/organisms/Modal";
 
 function page() {
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -20,7 +19,6 @@ function page() {
     type: null,
   });
 
-  const [extractedText, setExtractedText] = useState("");
   const [isAnalyzed, setIsAnalyzed] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -44,15 +42,88 @@ function page() {
   const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFileData({
-          base64: reader.result?.toString().split(",")[1] || null,
-          name: file.name,
-          type: file.type,
-        });
+      const supportedTypes = [
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+      ];
+
+      if (!supportedTypes.includes(file.type)) {
+        toast.error(
+          `Format non supporte : ${file.type}. Utilisez PDF, PNG, JPEG ou JPG.`,
+        );
+        return;
+      }
+
+      if (file.type === "application/pdf") {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result?.toString().split(",")[1] || null;
+          setFileData({
+            base64: base64String,
+            name: file.name,
+            type: file.type,
+          });
+        };
+        reader.onerror = () => {
+          toast.error("Erreur lors de la lecture du fichier.");
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith("image/")) {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onloadend = () => {
+          img.src = reader.result as string;
+        };
+
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            toast.error("Erreur lors de la conversion de l'image.");
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0);
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                toast.error("Erreur lors de la conversion de l'image.");
+                return;
+              }
+
+              const convertedReader = new FileReader();
+              convertedReader.onloadend = () => {
+                const base64String =
+                  convertedReader.result?.toString().split(",")[1] || null;
+                setFileData({
+                  base64: base64String,
+                  name: file.name.replace(
+                    /\.(png|gif|bmp|webp|tiff)$/i,
+                    ".jpg",
+                  ),
+                  type: "image/jpeg",
+                });
+              };
+              convertedReader.readAsDataURL(blob);
+            },
+            "image/jpeg",
+            0.95,
+          );
+        };
+
+        img.onerror = () => {
+          toast.error("Erreur lors du chargement de l'image.");
+        };
+
+        reader.readAsDataURL(file);
       };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -66,10 +137,26 @@ function page() {
     conclusion: "",
   });
 
-  const { getRootProps, getInputProps, open } = useDropzone({
+  const { getRootProps, getInputProps } = useDropzone({
     onDrop,
     maxSize: 5 * 1024 * 1024,
-    noClick: true,
+    accept: {
+      "application/pdf": [".pdf"],
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+    },
+    onDropRejected: (fileRejections) => {
+      const rejection = fileRejections[0];
+      if (rejection.errors[0].code === "file-too-large") {
+        toast.error("Le fichier est trop volumineux. Taille maximale : 5 MB");
+      } else if (rejection.errors[0].code === "file-invalid-type") {
+        toast.error(
+          "Format de fichier non supporte. Utilisez PDF, PNG, JPEG ou JPG.",
+        );
+      } else {
+        toast.error("Le fichier ne peut pas etre telecharge.");
+      }
+    },
   });
 
   const handleExtractAndAnalyze = async () => {
@@ -99,20 +186,52 @@ function page() {
         body: JSON.stringify(extractPayload),
       });
 
-      const extractData = await extractResponse.json();
+      if (!extractResponse.ok) {
+        const errorData = await extractResponse.json();
+        toast.error(
+          errorData.message || "Erreur lors de l'extraction du document",
+        );
+        return;
+      }
 
+      const extractData = await extractResponse.json();
       if (extractData.status === 200) {
         const extractedText = extractData.message;
-        setExtractedText(extractedText);
         console.log("Texte extrait :", extractedText);
 
-        // Étape 2 : Analyse via OpenAI
-        const analyzeResponse = await fetch("/api/openapi", {
+        // Étape 2 : Recuperation des contextes RAG
+        let contexts = "";
+        try {
+          const askResponse = await fetch("/api/rag/ask", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question: extractedText.substring(0, 500),
+              namespace: "devis",
+              topK: 5,
+            }),
+          });
+
+          const askData = await askResponse.json();
+          if (askData.status === 200 && askData.contexts) {
+            contexts = askData.contexts;
+          }
+        } catch (error) {
+          console.log("Erreur lors de la recuperation des contextes RAG :", error);
+        }
+
+        // Étape 3 : Analyse avec RAG
+        const analyzeResponse = await fetch("/api/rag/analyze", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text: extractedText }),
+          body: JSON.stringify({
+            text: extractedText,
+            contexts,
+          }),
         });
 
         const analyzeData = await analyzeResponse.json();
@@ -127,6 +246,7 @@ function page() {
           console.log("Analyse réussie :", analyzeData);
         } else {
           console.log("Erreur d'analyse :", analyzeData.error);
+          toast.error("Erreur lors de l'analyse du devis");
         }
       } else {
         console.log("Erreur d'extraction :", extractData.message);
@@ -196,7 +316,7 @@ function page() {
                     />
                   </div>
                   <h2 className="text-center text-gray-400   text-xs font-normal leading-4 mb-1">
-                    Format PDF, PNG ou JPG, moins de 50MB
+                    Format PDF, PNG ou JPG, moins de 5MB
                   </h2>
                   <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
                     Glissez votre devis ici ou{" "}

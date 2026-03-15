@@ -1,7 +1,157 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle } from "react-icons/fi";
 import { useEffect, useState } from "react";
+
+type AnalysisPayload = {
+  reliability: number | null;
+  details: Record<string, string>;
+  conclusion: string;
+};
+
+type AnalysisResultsProps = {
+  isLoading: boolean;
+  isAnalyzed: boolean;
+  analysis: AnalysisPayload;
+  handleShareResults: () => void;
+  resultsRef: React.RefObject<HTMLDivElement | null>;
+};
+
+type GradeTheme = {
+  letter: "A" | "B" | "C" | "D";
+  title: string;
+  subtitle: string;
+  badgeBg: string;
+  badgeText: string;
+  scoreBg: string;
+  scoreText: string;
+};
+
+const POSITIVE_KEYWORDS = [
+  "valid",
+  "conforme",
+  "cohérent",
+  "coherent",
+  "aligné",
+  "complet",
+  "ok",
+  "réaliste",
+  "realiste",
+  "présent",
+  "present",
+];
+
+const WARNING_KEYWORDS = [
+  "manque",
+  "recommand",
+  "attention",
+  "à vérifier",
+  "a verifier",
+  "partiel",
+  "modéré",
+  "modere",
+  "moyen",
+];
+
+const NEGATIVE_KEYWORDS = [
+  "invalide",
+  "non conforme",
+  "absent",
+  "risque",
+  "suspect",
+  "incohérent",
+  "incoherent",
+  "trop élevé",
+  "trop eleve",
+  "trop bas",
+  "erreur",
+];
+
+function clampScore(value: number) {
+  if (Number.isNaN(value)) return 0;
+  return Math.min(100, Math.max(0, value));
+}
+
+function classifyDetail(value: string): "positive" | "warning" | "negative" {
+  const normalized = value.toLowerCase();
+
+  if (NEGATIVE_KEYWORDS.some((keyword) => normalized.includes(keyword))) {
+    return "negative";
+  }
+
+  if (WARNING_KEYWORDS.some((keyword) => normalized.includes(keyword))) {
+    return "warning";
+  }
+
+  if (POSITIVE_KEYWORDS.some((keyword) => normalized.includes(keyword))) {
+    return "positive";
+  }
+
+  return "warning";
+}
+
+function estimateScoreFromDetails(details: Record<string, string>) {
+  const values = Object.values(details || {});
+  if (values.length === 0) return 60;
+
+  let score = 65;
+  values.forEach((value) => {
+    const sentiment = classifyDetail(String(value));
+    if (sentiment === "positive") score += 6;
+    if (sentiment === "warning") score -= 4;
+    if (sentiment === "negative") score -= 12;
+  });
+
+  return clampScore(score);
+}
+
+function getGradeTheme(score: number): GradeTheme {
+  if (score >= 85) {
+    return {
+      letter: "A",
+      title: "Excellent",
+      subtitle: "Prix et garanties validés",
+      badgeBg: "#00DD9E",
+      badgeText: "#043327",
+      scoreBg: "#009B6F",
+      scoreText: "#E9FFF8",
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      letter: "B",
+      title: "Bon",
+      subtitle: "Quelques vérifications recommandées",
+      badgeBg: "#FFC671",
+      badgeText: "#4A3004",
+      scoreBg: "#E09E3B",
+      scoreText: "#FFF7E9",
+    };
+  }
+
+  if (score >= 50) {
+    return {
+      letter: "C",
+      title: "Moyen",
+      subtitle: "Points de vigilance à corriger",
+      badgeBg: "#F4C6C4",
+      badgeText: "#5A1D1A",
+      scoreBg: "#D69492",
+      scoreText: "#FFF3F3",
+    };
+  }
+
+  return {
+    letter: "D",
+    title: "Critique",
+    subtitle: "Risque élevé, ne pas signer sans contrôle",
+    badgeBg: "#340100",
+    badgeText: "#FFFFFF",
+    scoreBg: "#340100",
+    scoreText: "#FFFFFF",
+  };
+}
 
 export default function AnalysisResults({
   isLoading,
@@ -9,9 +159,15 @@ export default function AnalysisResults({
   analysis,
   handleShareResults,
   resultsRef,
-}: any) {
+}: AnalysisResultsProps) {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
+  const fallbackScore = estimateScoreFromDetails(analysis?.details || {});
+  const normalizedScore = clampScore(
+    typeof analysis?.reliability === "number" ? analysis.reliability : fallbackScore,
+  );
+  const gradeTheme = getGradeTheme(normalizedScore);
+  const detailEntries = Object.entries(analysis?.details || {});
 
   useEffect(() => {
     if (isLoading) {
@@ -68,63 +224,99 @@ export default function AnalysisResults({
       ) : (
         isAnalyzed &&
         analysis && (
-          <div className="mt-8">
-            {/* Fiabilité globale */}
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-700">
-                Fiabilité globale
-              </h3>
-              <div className="px-3 py-1 bg-green-100 text-green-700 font-bold text-sm rounded-md">
-                Confiance : {analysis.reliability || "N/A"}%
+          <div className="space-y-6 mt-4">
+            <div className="rounded-[28px] bg-[#F4F4F4] p-6 md:p-8">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-[48px] md:text-[64px] leading-none font-bold text-[#372F2D]">
+                    {gradeTheme.title}
+                  </h3>
+                  <p className="mt-3 text-[24px] text-[#5E5E5E]">
+                    {gradeTheme.subtitle}
+                  </p>
+                </div>
+
+                <div className="relative flex flex-col items-center">
+                  <div
+                    className="w-[96px] h-[96px] md:w-[120px] md:h-[120px] rounded-full flex items-center justify-center text-[46px] md:text-[54px] font-semibold"
+                    style={{
+                      backgroundColor: gradeTheme.badgeBg,
+                      color: gradeTheme.badgeText,
+                    }}
+                  >
+                    {gradeTheme.letter}
+                  </div>
+                  <div
+                    className="absolute -bottom-3 px-3 py-1 rounded-full text-[24px] md:text-[28px] font-semibold"
+                    style={{
+                      backgroundColor: gradeTheme.scoreBg,
+                      color: gradeTheme.scoreText,
+                    }}
+                  >
+                    {normalizedScore}/100
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Détails des critères */}
-            <div className="space-y-4">
-              {Object.entries(analysis.details).map(([key, value]) => {
-                const isNegative =
-                  typeof value === "string" && value.includes("Non");
+            <div className="rounded-[24px] bg-[#F8F8F8] p-6 md:p-8">
+              <h4 className="text-[24px] md:text-[28px] font-semibold text-[#2E2E2E] mb-3">
+                L&apos;avis de l&apos;IA
+              </h4>
+              <p className="text-[18px] md:text-[24px] leading-relaxed text-[#4D4D4D]">
+                {analysis.conclusion || "Analyse terminée."}
+              </p>
+            </div>
+
+            <div className="rounded-[24px] bg-[#F8F8F8] p-6 md:p-8">
+              <h4 className="text-[24px] md:text-[30px] font-semibold text-[#2E2E2E] mb-6">
+                Détail de l&apos;analyse
+              </h4>
+
+              <div className="space-y-1">
+                {detailEntries.length === 0 && (
+                  <p className="text-gray-600">
+                    Aucun détail disponible pour cette analyse.
+                  </p>
+                )}
+
+                {detailEntries.map(([key, value], index) => {
+                  const sentiment = classifyDetail(String(value));
+
+                  const icon =
+                    sentiment === "negative" ? (
+                      <FiAlertCircle className="text-[#D55350]" size={30} />
+                    ) : sentiment === "warning" ? (
+                      <FiAlertTriangle className="text-[#E3A23E]" size={30} />
+                    ) : (
+                      <FiCheckCircle className="text-[#00B983]" size={30} />
+                    );
 
                 return (
                   <div
                     key={key}
-                    className="flex items-start md:items-center gap-4 shadow-md bg-white p-4 rounded-lg"
+                    className={`py-4 ${
+                      index < detailEntries.length - 1 ? "border-b border-[#E5E5E5]" : ""
+                    }`}
                   >
-                    <div
-                      className={`w-1.5 h-20 rounded-md ${
-                        isNegative ? "bg-red-500" : "bg-green-500"
-                      }`}
-                    />
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                          isNegative ? "bg-red-100" : "bg-green-100"
-                        }`}
-                      >
-                        {isNegative ? (
-                          <FiAlertCircle className="text-red-500" size={20} />
-                        ) : (
-                          <FiCheckCircle className="text-green-500" size={20} />
-                        )}
-                      </div>
+                    <div className="flex items-start gap-4">
+                      <div className="mt-1">{icon}</div>
                       <div>
-                        <p className="text-md font-bold text-gray-800">{key}</p>
-                        <p className="text-sm text-gray-600">{String(value)}</p>
+                        <p className="text-[26px] md:text-[32px] leading-tight font-semibold text-[#2F2A2A]">
+                          {key}
+                        </p>
+                        <p className="text-[20px] md:text-[24px] text-[#868686] mt-1">
+                          {String(value)}
+                        </p>
                       </div>
                     </div>
                   </div>
                 );
               })}
+              </div>
             </div>
 
-            {/* Conclusion */}
-            <div className="mt-8">
-              <p className="text-md font-bold text-gray-700">Conclusion :</p>
-              <p className="text-gray-600">{analysis.conclusion}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="mt-8 flex flex-col md:flex-row justify-end gap-4">
+            <div className="mt-4 flex flex-col md:flex-row justify-end gap-4">
               <button
                 className="cursor-pointer border border-dviaprimary-40 text-dviaprimary-40 hover:bg-dviaprimary-70 hover:text-white font-medium py-2 px-4 rounded-md transition"
                 onClick={handleShareResults}
