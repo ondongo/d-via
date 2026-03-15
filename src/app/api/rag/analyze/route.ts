@@ -44,6 +44,16 @@ function extractReliability(rawText: string): number | null {
   return null;
 }
 
+function cleanMarkdownText(value: string) {
+  return String(value || "")
+    .replace(/\*\*/g, "")
+    .replace(/__/g, "")
+    .replace(/`/g, "")
+    .replace(/^\s*[-*•]\s*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /*****************************************************************************************************************
  * Fonction pour extraire le SIRET du texte
  *****************************************************************************************************************/
@@ -162,7 +172,7 @@ export async function POST(req: NextRequest) {
           .replace(/^.*conclusion\s*:?\s*/i, "")
           .trim();
         if (conclusionText) {
-          conclusion = conclusionText;
+          conclusion = cleanMarkdownText(conclusionText);
         }
       } else if (
         inDetailsSection &&
@@ -173,14 +183,14 @@ export async function POST(req: NextRequest) {
           .split(":")
           .map((s:any) => s.trim());
         if (match.length >= 2) {
-          const key = match[0];
-          const value = match.slice(1).join(":").trim();
+          const key = cleanMarkdownText(match[0]);
+          const value = cleanMarkdownText(match.slice(1).join(":").trim());
           if (key && value) {
             details[key] = value;
           }
         }
       } else if (inConclusionSection && line.length > 0 && !conclusion) {
-        conclusion = line;
+        conclusion = cleanMarkdownText(line);
       }
     });
 
@@ -197,6 +207,7 @@ export async function POST(req: NextRequest) {
           .filter((l:any) => l.length > 0)
           .join(" ")
           .trim();
+        conclusion = cleanMarkdownText(conclusion);
       }
     }
 

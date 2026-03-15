@@ -27,6 +27,8 @@ type GradeTheme = {
   scoreText: string;
 };
 
+const DEFAULT_ACOMPTE_MESSAGE = "50% demandé (Recommandé: 30%)";
+
 const POSITIVE_KEYWORDS = [
   "valid",
   "conforme",
@@ -72,8 +74,63 @@ function clampScore(value: number) {
   return Math.min(100, Math.max(0, value));
 }
 
+function stripMarkdown(text: string) {
+  return String(text || "")
+    .replace(/\*\*/g, "")
+    .replace(/__/g, "")
+    .replace(/`/g, "")
+    .replace(/^\s*[-*•]\s*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeKey(rawKey: string) {
+  const cleaned = stripMarkdown(rawKey);
+  const normalized = cleaned
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  if (normalized.includes("materiau") || normalized.includes("tendance du marche")) {
+    return "Prix des materiaux";
+  }
+  if (
+    normalized.includes("main d'oeuvre") ||
+    normalized.includes("main d oeuvre") ||
+    normalized.includes("main doeuvre") ||
+    normalized.includes("tarif horaire")
+  ) {
+    return "Main d'oeuvre";
+  }
+  if (normalized.includes("garantie") || normalized.includes("assurance")) {
+    return "Garanties legales";
+  }
+  if (normalized.includes("acompte") || normalized.includes("avance")) {
+    return "Acompte";
+  }
+
+  return cleaned || "Critere";
+}
+
+function normalizeDetails(details: Record<string, string>) {
+  const normalized: Record<string, string> = {};
+
+  Object.entries(details || {}).forEach(([key, value]) => {
+    const canonicalKey = normalizeKey(key);
+    const cleanValue = stripMarkdown(String(value));
+    if (cleanValue) {
+      normalized[canonicalKey] = cleanValue;
+    }
+  });
+
+  // Regle metier demandee: message d'acompte par defaut toujours a 30%
+  normalized.Acompte = DEFAULT_ACOMPTE_MESSAGE;
+
+  return normalized;
+}
+
 function classifyDetail(value: string): "positive" | "warning" | "negative" {
-  const normalized = value.toLowerCase();
+  const normalized = stripMarkdown(value).toLowerCase();
 
   if (NEGATIVE_KEYWORDS.some((keyword) => normalized.includes(keyword))) {
     return "negative";
@@ -88,6 +145,40 @@ function classifyDetail(value: string): "positive" | "warning" | "negative" {
   }
 
   return "warning";
+}
+
+function buildAiOpinion(
+  conclusion: string,
+  details: Record<string, string>,
+  score: number,
+) {
+  const lines: string[] = [];
+  const cleanConclusion = stripMarkdown(conclusion);
+
+  if (cleanConclusion) {
+    lines.push(cleanConclusion);
+  } else if (score >= 80) {
+    lines.push("Ce devis respecte les standards du marché avec un niveau de fiabilité élevé.");
+  } else if (score >= 60) {
+    lines.push("Ce devis est globalement correct mais demande quelques vérifications avant signature.");
+  } else {
+    lines.push("Ce devis présente des points de vigilance importants avant de vous engager.");
+  }
+
+  if (details["Prix des materiaux"]) {
+    lines.push(`Prix des matériaux: ${details["Prix des materiaux"]}.`);
+  }
+  if (details["Main d'oeuvre"]) {
+    lines.push(`Main d'oeuvre: ${details["Main d'oeuvre"]}.`);
+  }
+  if (details["Garanties legales"]) {
+    lines.push(`Garanties légales: ${details["Garanties legales"]}.`);
+  }
+
+  lines.push(`Acompte: ${DEFAULT_ACOMPTE_MESSAGE}.`);
+
+  // Maximum 10 lignes comme demande
+  return lines.slice(0, 10).join("\n");
 }
 
 function estimateScoreFromDetails(details: Record<string, string>) {
@@ -162,12 +253,18 @@ export default function AnalysisResults({
 }: AnalysisResultsProps) {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
-  const fallbackScore = estimateScoreFromDetails(analysis?.details || {});
+  const normalizedDetails = normalizeDetails(analysis?.details || {});
+  const fallbackScore = estimateScoreFromDetails(normalizedDetails);
   const normalizedScore = clampScore(
     typeof analysis?.reliability === "number" ? analysis.reliability : fallbackScore,
   );
   const gradeTheme = getGradeTheme(normalizedScore);
-  const detailEntries = Object.entries(analysis?.details || {});
+  const detailEntries = Object.entries(normalizedDetails);
+  const aiOpinion = buildAiOpinion(
+    analysis?.conclusion || "",
+    normalizedDetails,
+    normalizedScore,
+  );
 
   useEffect(() => {
     if (isLoading) {
@@ -186,7 +283,7 @@ export default function AnalysisResults({
   return (
     <div
       ref={resultsRef}
-      className="bg-white rounded-xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-sm"
+      className={`${isAnalyzed ? "bg-white" : "bg-transparent"} rounded-xl p-6 md:p-8 w-full max-w-4xl mx-auto shadow-sm`}
     >
       {isLoading ? (
         <>
@@ -225,13 +322,13 @@ export default function AnalysisResults({
         isAnalyzed &&
         analysis && (
           <div className="space-y-6 mt-4">
-            <div className="rounded-[28px] bg-[#F4F4F4] p-6 md:p-8">
+            <div className="rounded-[28px] bg-white p-6 md:p-8">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-[48px] md:text-[64px] leading-none font-bold text-[#372F2D]">
+                  <h3 className="text-display-small md:text-display-medium leading-none font-bold text-[#372F2D]">
                     {gradeTheme.title}
                   </h3>
-                  <p className="mt-3 text-[24px] text-[#5E5E5E]">
+                  <p className="mt-3 text-body-large md:text-body-medium text-[#5E5E5E]">
                     {gradeTheme.subtitle}
                   </p>
                 </div>
@@ -259,16 +356,16 @@ export default function AnalysisResults({
               </div>
             </div>
 
-            <div className="rounded-[24px] bg-[#F8F8F8] p-6 md:p-8">
+            <div className="rounded-[24px] bg-white p-6 md:p-8">
               <h4 className="text-[24px] md:text-[28px] font-semibold text-[#2E2E2E] mb-3">
                 L&apos;avis de l&apos;IA
               </h4>
-              <p className="text-[18px] md:text-[24px] leading-relaxed text-[#4D4D4D]">
-                {analysis.conclusion || "Analyse terminée."}
+              <p className="text-[18px] md:text-[24px] leading-relaxed text-[#4D4D4D] whitespace-pre-line">
+                {aiOpinion}
               </p>
             </div>
 
-            <div className="rounded-[24px] bg-[#F8F8F8] p-6 md:p-8">
+            <div className="rounded-[24px] bg-white p-6 md:p-8">
               <h4 className="text-[24px] md:text-[30px] font-semibold text-[#2E2E2E] mb-6">
                 Détail de l&apos;analyse
               </h4>
@@ -303,10 +400,10 @@ export default function AnalysisResults({
                       <div className="mt-1">{icon}</div>
                       <div>
                         <p className="text-[26px] md:text-[32px] leading-tight font-semibold text-[#2F2A2A]">
-                          {key}
+                          {stripMarkdown(key)}
                         </p>
                         <p className="text-[20px] md:text-[24px] text-[#868686] mt-1">
-                          {String(value)}
+                          {stripMarkdown(String(value))}
                         </p>
                       </div>
                     </div>
