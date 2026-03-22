@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
@@ -107,7 +108,7 @@ const MapsSearch: React.FC = () => {
   if (!L) return null;
 
   const locationIcon = L.divIcon({
-    html: `<img src="/icons/icon-localisation.svg" alt="Location" style="width:45px;height:41px;" />`,
+    html: `<img src="${ICONS.mapPin}" alt="Location" style="width:45px;height:41px;" />`,
     className: "",
     iconSize: [25, 41],
     iconAnchor: [12, 41],

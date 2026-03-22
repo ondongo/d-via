@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import React, { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -167,7 +168,7 @@ export default function ImageUploadMultiple({
             onClick={() => handleRemoveImage(0)}
             className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white rounded-12px shadow-md transition-all"
           >
-            <img src="/icons/trash.svg" alt="delete_icon" />
+            <img src={ICONS.trash} alt="delete_icon" />
           </button>
         </div>
       )}
@@ -212,7 +213,7 @@ export default function ImageUploadMultiple({
               onClick={() => handleRemoveImage(index + 1)}
               className="absolute top-2 right-2 w-10 h-10 flex items-center justify-center bg-white/90 hover:bg-white rounded-12px shadow-md transition-all"
             >
-              <img src="/icons/trash.svg" alt="delete_icon" />
+              <img src={ICONS.trash} alt="delete_icon" />
             </button>
           </div>
         ))}

@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { useLocationContext } from "@/providers/LocationProvider";
 import { useState } from "react";
 import { Modal } from "../../atoms/ui/modals/CustomModal";
@@ -115,7 +116,7 @@ export const LeftSection = () => {
       >
         <img
           className="w-4 h-4 text-dvianeutralvariant-30"
-          src="/icons/LocationBlue.svg"
+          src={ICONS.locationBlue}
         />
 
         <span className="text-sm font-bold text-dvianeutralvariant-30 text-nowrap">

@@ -67,13 +67,14 @@
 
   /* Couleurs primaires */
   --color-dviaheader:#EFE8E2;
+  --color-dviaalert:#F5DECB;
   --color-dviaprimary-0: #f7f8ff;
   --color-dviaprimary-4: #160804;
   --color-dviaprimary-6: #220b05;
   --color-dviaprimary-10: #391107;
   --color-dviaprimary-12: #44170b;
   --color-dviaprimary-17: #612111;
-  --color-dviaprimary-20: #73230f;
+  --color-dviaprimary-20: #8C330A;
   --color-dviaprimary-22: #7d2b17;
   --color-dviaprimary-24: #892f19;
   --color-dviaprimary-30: #ac3416;

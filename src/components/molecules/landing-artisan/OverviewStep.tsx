@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { useGlobalState } from "@/providers/globalState";
 import React, { useState } from "react";
 
@@ -25,7 +26,7 @@ function OverviewStep({
         >
           <img
             className="w-4 h-4 text-dvianeutralvariant-30"
-            src="/icons/LocationBlue.svg"
+            src={ICONS.locationBlue}
           />
 
           <span className="text-sm font-bold text-dvianeutralvariant-30 text-nowrap">
@@ -43,7 +44,7 @@ function OverviewStep({
               rounded-full border-dvianeutralvariant-30 bg-white
           }`}
         >
-          <img src="/icons/SearchBlue.svg" alt="loc" className="w-4 h-4" />
+          <img src={ICONS.searchBlue} alt="loc" className="w-4 h-4" />
           <input
             onChange={(e) => setJob(e.target.value)}
             type="text"
@@ -61,7 +62,7 @@ function OverviewStep({
               rounded-full border-dvianeutralvariant-30 bg-white
           }`}
         >
-          <img src="/icons/SearchBlue.svg" alt="loc" className="w-4 h-4" />
+          <img src={ICONS.searchBlue} alt="loc" className="w-4 h-4" />
           <input
             onChange={(e) => setExperienceYears(Number(e.target.value))}
             type="number"

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { ICONS } from "@/constants/icons";
 
 type NominatimResult = {
   display_name: string;
@@ -44,7 +45,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
             : "rounded-full border-dvianeutralvariant-30 bg-white"
         }`}
       >
-        <img src="/icons/LocationBlue.svg" alt="loc" className="w-4 h-4" />
+        <img src={ICONS.locationBlue} alt="loc" className="w-4 h-4" />
         <input
           type="text"
           value={query}
@@ -91,7 +92,7 @@ function AddressStep({ onBack, onSelectAddress }: any) {
                         : ""
                     }`}
                   >
-                    <img src="/icons/OutlineLocation.svg" className="w-4 h-4" />
+                    <img src={ICONS.locationOutline} className="w-4 h-4" />
                     {r.display_name}
                   </div>
                 ))

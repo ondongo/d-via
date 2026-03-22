@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { usePathname } from "next/navigation";
 import { NavItem } from "./NavItem";
 import Image from "next/image";
@@ -29,7 +30,7 @@ export default function ResponsiveMenu() {
             onClick={handleSwitchAudience}
             icon={
               <Image
-                src="/icons/artisans.svg"
+                src={ICONS.artisans}
                 alt="Artisans"
                 width={18}
                 height={18}
@@ -46,7 +47,7 @@ export default function ResponsiveMenu() {
             onClick={handleSwitchAudience}
             icon={
               <Image
-                src="/icons/particulars.svg"
+                src={ICONS.particulars}
                 alt="Particulars"
                 width={18}
                 height={18}

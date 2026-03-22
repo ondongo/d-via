@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import React, { useState, useEffect } from "react";
 
 type NominatimResult = {
@@ -53,7 +54,7 @@ function AddressInputWithSeparator({ onBack, onSelectAddress, selectedAddress }:
         }`}
       >
         <div className={`flex items-center  px-4 py-3  gap-2`}>
-          <img src="/icons/LocationBrown.svg" alt="loc" className="w-5 h-5" />
+          <img src={ICONS.locationBrown} alt="loc" className="w-5 h-5" />
           <input
             type="text"
             value={query}
@@ -77,7 +78,7 @@ function AddressInputWithSeparator({ onBack, onSelectAddress, selectedAddress }:
 
         <div className={`flex items-center gap-2 px-4 py-3 `}>
           <img
-            src="/icons/circleBrown.svg"
+            src={ICONS.circleBrown}
             alt="state-layer"
             className="w-4 h-4"
           />
@@ -117,7 +118,7 @@ function AddressInputWithSeparator({ onBack, onSelectAddress, selectedAddress }:
                     : ""
                 }`}
               >
-                <img src="/icons/OutlineLocation.svg" className="w-4 h-4" />
+                <img src={ICONS.locationOutline} className="w-4 h-4" />
                 {r.display_name}
               </div>
             ))}

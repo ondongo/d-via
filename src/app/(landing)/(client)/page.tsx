@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { StepsSection } from "@/components/molecules/StepsSection";
 import ClientGrid from "@/components/molecules/landing-client/ClientGrid";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
@@ -37,15 +38,15 @@ export default function Home() {
         subtitle="Découvrez comment vérifier la fiabilité de vos devis d'artisans en trois étapes simples."
         steps={[
           {
-            icon: "/icons/iconDownload.svg",
+            icon: ICONS.download,
             text: "Uploadez votre devis en quelques clics",
           },
           {
-            icon: "/icons/iconSearch.svg",
+            icon: ICONS.search,
             text: "Notre IA analyse les prix et vérifie l'artisan",
           },
           {
-            icon: "/icons/iconsuccess.svg",
+            icon: ICONS.checkCircle,
             text: "Recevez votre rapport détaillé instantanément",
           },
         ]}
