@@ -3,6 +3,8 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/configs/prisma/prisma";
 import { signupClientSchema } from "@/schemas/auth";
+import { sendWelcomeEmail } from "@/services/email/serviceBrevo";
+import { Role } from "@prisma/client";
 
 type SignupClientActionResult =
   | { success: true; userId: string }
@@ -49,7 +51,7 @@ export async function signupClientAction(
       data: {
         email: normalizedEmail,
         name: `${firstName} ${lastName}`,
-        role: "CLIENT" as any,
+        role: Role.CLIENT,
       },
     });
 
@@ -62,6 +64,10 @@ export async function signupClientAction(
         access_token: hashedPassword,
       },
     });
+
+    sendWelcomeEmail(normalizedEmail, `${firstName} ${lastName}`).catch((err) =>
+      console.error("Erreur envoi email bienvenue:", err)
+    );
 
     return { success: true, userId: user.id };
   } catch (error) {

@@ -312,6 +312,22 @@ export const useSignupStore = create<SignupState>((set, get) => ({
       return;
     }
 
+    const SMS_MAX_ATTEMPTS = 3;
+    const currentAttempts = parseInt(
+      sessionStorage.getItem("sms_attempts_artisan") ?? "0",
+      10
+    );
+
+    if (currentAttempts >= SMS_MAX_ATTEMPTS) {
+      toast.error(
+        `Nombre maximum de tentatives atteint. Veuillez contacter notre service client à support@d-via.fr.`
+      );
+      return;
+    }
+
+    const nextAttempts = currentAttempts + 1;
+    sessionStorage.setItem("sms_attempts_artisan", String(nextAttempts));
+
     set({ loading: true, error: "", success: "" });
 
     try {
@@ -327,7 +343,6 @@ export const useSignupStore = create<SignupState>((set, get) => ({
         toast.success("Code envoyé avec succès !");
         sessionStorage.setItem("phoneNumber", state.phoneNumber);
         sessionStorage.setItem("codeSent", "true");
-        // Stocker le timestamp d'envoi pour vérifier l'expiration (5 minutes)
         sessionStorage.setItem("codeSentAt", Date.now().toString());
         set((prev) => ({
           stepParts: { ...prev.stepParts, 1: 2 },

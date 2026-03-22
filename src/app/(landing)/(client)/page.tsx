@@ -9,14 +9,11 @@ export default function Home() {
   return (
     <div className="flex flex-col h-auto gap-12 lg:gap-[90px] py-10 sm:py-12 lg:py-14 px-4 sm:px-8 lg:px-16 overflow-hidden">
       <div className="flex flex-col  gap-4 items-center">
-        {/* Pour les grands écrans (md et +) */}
         <h1 className="hidden md:block text-[44px] font-bold leading-display-large tracking-display-large text-dvianeutral-10 text-center">
           Analysez vos devis. Trouver des artisans.
           <br /> Évitez{" "}
           <span className="text-dviaprimary-40">les arnaques.</span>
         </h1>
-
-        {/* Pour les petits écrans (en dessous de md) */}
         <h1 className="block md:hidden text-[24px] font-bold leading-display-small tracking-display-small text-dvianeutral-10 text-center">
           Analysez vos devis. <br /> Trouver des artisans.
           <br /> Évitez{" "}
