@@ -1,8 +1,14 @@
+/**
+ * Couche « middleware » de l’app (Next.js 16+).
+ * Ce fichier joue le rôle de `middleware.ts` : ne pas dupliquer avec un second middleware.
+ * @see https://nextjs.org/docs/messages/middleware-to-proxy
+ */
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 import { SIGNUP_COOKIES } from "@/utils/cookies";
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // ============================================
@@ -20,6 +26,7 @@ export function proxy(request: NextRequest) {
     "/logos",
     "/emojis",
     "/phasetest",
+    "/non-authorized",
   ];
 
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
@@ -29,6 +36,29 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/phasetest";
     return NextResponse.redirect(url);
+  }
+
+  // ============================================
+  // ESPACE CONNECTÉ — /dashboard (JWT session)
+  // ============================================
+  if (pathname.startsWith("/dashboard")) {
+    const secret =
+      process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? "";
+    if (!secret) {
+      console.warn(
+        "[proxy] NEXTAUTH_SECRET (ou AUTH_SECRET) manquant — accès /dashboard non protégé.",
+      );
+    } else {
+      const token = await getToken({
+        req: request,
+        secret,
+      });
+      if (!token) {
+        return NextResponse.redirect(
+          new URL("/non-authorized", request.nextUrl.origin),
+        );
+      }
+    }
   }
 
   // ============================================
@@ -104,7 +134,7 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Configurer les chemins sur lesquels le middleware s'exécute
+// Matcher des requêtes traitées par ce proxy (équivalent `middleware.config`)
 export const config = {
   matcher: [
     /*
