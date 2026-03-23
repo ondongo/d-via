@@ -29,10 +29,10 @@ function Header() {
   const [loginMode, setLoginMode] = useState<"client" | "artisan">("client");
 
   const handleClick = () => {
-    if (isOnArtisanPage) {
+    if (isOnArtisanPage && !session) {
       setIsSignupModeModalOpen(true);
     } else {
-      router.push("/dashboard/clients");
+      router.push(isOnArtisanPage ? "/dashboard/artisan/messages" : "/dashboard/clients");
     }
   };
 

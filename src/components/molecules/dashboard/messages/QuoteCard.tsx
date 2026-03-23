@@ -14,6 +14,7 @@ interface QuoteCardProps {
   title: string;
   amount: string;
   status: string;
+  canSign?: boolean;
 }
 
 export default function QuoteCard({
@@ -21,6 +22,7 @@ export default function QuoteCard({
   title,
   amount,
   status,
+  canSign = true,
 }: QuoteCardProps) {
   const [signModalOpen, setSignModalOpen] = useState(false);
 
@@ -87,30 +89,34 @@ export default function QuoteCard({
             </svg>
             Voir le devis
           </button>
-          <button
-            type="button"
-            onClick={() => setSignModalOpen(true)}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-dviaprimary-40 text-white text-xs py-2 rounded-8px hover:shadow-md transition-shadow cursor-pointer"
-          >
-            <Image
-              src={ICONS.fileWhite}
-              alt="file"
-              width={12}
-              height={12}
-            />
-            Signer le devis
-          </button>
+          {canSign ? (
+            <button
+              type="button"
+              onClick={() => setSignModalOpen(true)}
+              className="flex-1 flex items-center justify-center gap-1.5 bg-dviaprimary-40 text-white text-xs py-2 rounded-8px hover:shadow-md transition-shadow cursor-pointer"
+            >
+              <Image
+                src={ICONS.fileWhite}
+                alt="file"
+                width={12}
+                height={12}
+              />
+              Signer le devis
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <SignQuoteModal
-        isOpen={signModalOpen}
-        onClose={() => setSignModalOpen(false)}
-        quoteRef={quoteRef}
-        quoteTitle={title}
-        amount={amount}
-        onSigned={handleSigned}
-      />
+      {canSign ? (
+        <SignQuoteModal
+          isOpen={signModalOpen}
+          onClose={() => setSignModalOpen(false)}
+          quoteRef={quoteRef}
+          quoteTitle={title}
+          amount={amount}
+          onSigned={handleSigned}
+        />
+      ) : null}
     </>
   );
 }
