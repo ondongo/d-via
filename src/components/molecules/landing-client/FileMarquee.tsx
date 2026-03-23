@@ -1,13 +1,13 @@
 "use client";
 
+import { ICONS } from "@/constants/icons";
+import { useInView } from "@/hooks/useInView";
 
 const files = [
   "Devis plomberie salle bain.pdf",
   "Renovation cuisine artisan .pdf",
   "toiture devis comparaison 3.pdf",
 ];
-
-import { useInView } from "@/hooks/useInView";
 
 const FileCard = ({ name }: { name: string }) => {
   const { ref, isVisible } = useInView(1); // 1 = entièrement visible
@@ -19,7 +19,7 @@ const FileCard = ({ name }: { name: string }) => {
         isVisible ? "opacity-100" : "md:opacity-40"
       }`}
     >
-      <img src="/icons/draftPrimary.svg" className="w-3 h-3 md:w-4 md:h-4 text-dviaprimary-40" />
+      <img src={ICONS.draftPrimary} className="w-3 h-3 md:w-4 md:h-4 text-dviaprimary-40" />
       <span>{name}</span>
     </div>
   );

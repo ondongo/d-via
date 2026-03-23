@@ -1,3 +1,5 @@
+import { ICONS } from "@/constants/icons";
+
 interface ArtisanCardProps {
   image: string;
   rating: number;
@@ -39,7 +41,7 @@ export const ArtisanCard = ({
         </div>
 
         <img
-          src="/dashboard/card/threePoints.svg"
+          src={ICONS.artisanCard.moreMenu}
           alt="Options"
           className="w-4 h-4 cursor-pointer"
         />
@@ -56,7 +58,7 @@ export const ArtisanCard = ({
         {verified && (
           <div className="ml-auto border border-dvianeutralvariant-50  text-xs px-2 py-1 rounded flex flex-row gap-2 justify-content-center items-center">
             <img
-              src="/dashboard/card/check.svg"
+              src={ICONS.artisanCard.verified}
               alt="loc"
               className="w-3 h-3"
             />{" "}
@@ -66,11 +68,11 @@ export const ArtisanCard = ({
       </div>
 
       <div className="text-xs text-gray-500 mb-2 flex flex-row gap-2 justify-content-center items-center mt-6 ">
-        <img src="/dashboard/card/location.svg" alt="loc" className="w-4 h-4" />
+        <img src={ICONS.artisanCard.location} alt="loc" className="w-4 h-4" />
         {location} ({distance})
       </div>
       <div className="text-xs text-gray-500 mb-6 flex flex-row gap-2 justify-content-center items-center ">
-        <img src="/dashboard/card/clock.svg" alt="loc" className="w-4 h-4" />
+        <img src={ICONS.artisanCard.clock} alt="loc" className="w-4 h-4" />
         {availability}
       </div>
 
@@ -88,7 +90,7 @@ export const ArtisanCard = ({
       <div className="flex flex-row gap-2">
         <button className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4 cursor-pointer">
           <img
-            src="/dashboard/card/contact.svg"
+            src={ICONS.artisanCard.contact}
             alt="loc"
             className="w-4 h-4"
           />{" "}
@@ -96,7 +98,7 @@ export const ArtisanCard = ({
         </button>
 
         <button className="max-w-[50px] w-full border bg-dviaprimary-40  text-white text-sm py-2 rounded-8px flex items-center justify-center cursor-pointer">
-          <img src="/icons/call.svg" alt="" className="w-[14px] h-[14px]" />
+          <img src={ICONS.phone} alt="" className="w-[14px] h-[14px]" />
         </button>
       </div>
     </div>

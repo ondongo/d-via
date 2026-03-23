@@ -1,3 +1,4 @@
+import { ICONS } from "@/constants/icons";
 import ArtisanGrid from "@/components/molecules/landing-artisan/ArtisanGrid";
 import { LeftSection } from "@/components/molecules/landing-artisan/LeftSection";
 import { StepsSection } from "@/components/molecules/StepsSection";
@@ -22,15 +23,15 @@ function page() {
         subtitle="Découvrez comment simplifier la gestion de vos demandes clients en trois étapes simples."
         steps={[
           {
-            icon: "/icons/iconuser.svg",
+            icon: ICONS.userAvatar,
             text: "Créez votre profil en quelques étapes",
           },
           {
-            icon: "/icons/iconsuccess.svg",
+            icon: ICONS.checkCircle,
             text: "Faites valider votre expertise",
           },
           {
-            icon: "/icons/add_chart.svg",
+            icon: ICONS.chartPlus,
             text: "Recevez des demandes de clients qualifiés",
           },
         ]}

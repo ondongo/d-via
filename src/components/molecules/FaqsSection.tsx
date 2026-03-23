@@ -1,3 +1,4 @@
+import { ICONS } from "@/constants/icons";
 import React from "react";
 
 type FaqItem = {
@@ -49,7 +50,7 @@ export function FaqsSection({
                 {index == 0 && (
                   <button className="flex items-center gap-2 text-dviaprimary-40 hover:bg-dviaprimary-87 py-1 text-label-large leading-label-large tracking-label-large bg-transparent px-4  hover:rounded-full text-sm font-medium cursor-pointer">
                     <img
-                      src="/icons/error.svg"
+                      src={ICONS.alert}
                       alt="Icône draft"
                       className="w-4 h-4"
                     />{" "}

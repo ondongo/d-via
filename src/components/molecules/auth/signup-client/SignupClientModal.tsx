@@ -40,6 +40,10 @@ export default function SignupClientModal({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [smsAttempts, setSmsAttempts] = useState(0);
+
+  const SMS_MAX_ATTEMPTS = 3;
+  const smsBlocked = smsAttempts >= SMS_MAX_ATTEMPTS;
 
   useEffect(() => {
     if (isOpen) {
@@ -50,8 +54,16 @@ export default function SignupClientModal({
       setShowConfirmPassword(false);
       setFocusedField(null);
       setVerificationCode("");
+      const stored = parseInt(sessionStorage.getItem("sms_attempts_client") ?? "0", 10);
+      setSmsAttempts(stored);
     }
   }, [isOpen]);
+
+  const incrementSmsAttempts = () => {
+    const next = smsAttempts + 1;
+    setSmsAttempts(next);
+    sessionStorage.setItem("sms_attempts_client", String(next));
+  };
 
   const fullPhoneNumber = `${countryCode}${phoneNumber}`
     .replace(/\s+/g, " ")
@@ -100,10 +112,10 @@ export default function SignupClientModal({
 
   const handleSendCode = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!validateAccountForm()) {
-      return;
-    }
+    if (!validateAccountForm()) return;
+    if (smsBlocked) return;
 
+    incrementSmsAttempts();
     setLoading(true);
     try {
       const response = await fetch("/api/twilio/send", {
@@ -199,7 +211,34 @@ export default function SignupClientModal({
       mobileClassName="w-full rounded-t-2xl max-h-[90dvh]"
     >
       <div className="w-full">
-        {step === "account" && (
+        {step === "account" && smsBlocked && (
+          <div className="flex flex-col gap-4 py-4">
+            <p className="text-body-medium text-dvianeutralvariant-30">
+              Vous avez atteint le nombre maximum de tentatives d&apos;envoi de
+              code SMS ({SMS_MAX_ATTEMPTS}/{SMS_MAX_ATTEMPTS}).
+            </p>
+            <p className="text-body-medium text-dvianeutralvariant-30">
+              Pour continuer votre inscription, veuillez contacter notre service
+              client à{" "}
+              <a
+                href="mailto:support@d-via.fr"
+                className="font-semibold text-dviaprimary-40 hover:underline"
+              >
+                support@d-via.fr
+              </a>
+              .
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="mt-2 w-full rounded-8px border border-dvianeutral-50 py-2.5 text-label-large text-dvianeutral-30"
+            >
+              Fermer
+            </button>
+          </div>
+        )}
+
+        {step === "account" && !smsBlocked && (
           <form className="flex flex-col gap-4" onSubmit={handleSendCode}>
             <p className="text-body-medium text-dvianeutralvariant-30 my-2">
               Renseignez vos informations pour commencer.
@@ -493,12 +532,8 @@ export default function SignupClientModal({
           </form>
         )}
 
-        {step === "phone-verification" && (
+        {step === "phone-verification" && !smsBlocked && (
           <div className="flex flex-col gap-5">
-            <p className="text-body-small text-dvianeutral-30">
-              Confirmez votre numéro pour sécuriser votre compte.
-            </p>
-
             <div className="rounded-8px border border-dvianeutral-50 p-4">
               <h2 className="text-headline-medium text-dvianeutral-10">
                 Entrer le code

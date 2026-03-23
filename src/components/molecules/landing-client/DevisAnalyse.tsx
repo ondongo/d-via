@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
 import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
@@ -328,7 +329,7 @@ function DevisAnalyse() {
           onClick={() => openModal()}
           className="my-5 text-white text-[12px] md:text-label-large leading-label-large tracking-label-large px-4 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center gap-2 bg-dviaprimary-40"
         >
-          <img src="/icons/draft.svg" alt="Icône draft" className="w-4 h-4" />
+          <img src={ICONS.draft} alt="Icône draft" className="w-4 h-4" />
           Analyser un devis
         </button>
       </div>

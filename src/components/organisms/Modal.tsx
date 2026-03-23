@@ -1,5 +1,6 @@
 "use client";
 
+import { ICONS } from "@/constants/icons";
 import React, { useEffect, useRef, useState } from "react";
 
 type ModalProps = {
@@ -132,7 +133,7 @@ export default function Modal({
             {/* Action: Prendre une photo */}
             <button onClick={startCamera} className="flex flex-col items-center gap-2 p-4 rounded-12px border border-dvianeutral-50 bg-dvianeutral-94 hover:bg-dvianeutral-92 transition-colors cursor-pointer">
               <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dvianeutral-90 border border-dvianeutral-60 text-dvianeutral-10">
-                <img src="/icons/photo.svg" alt="" className="w-5 h-5" />
+                <img src={ICONS.photo} alt="" className="w-5 h-5" />
               </span>
               <span className="text-dvianeutral-20 text-sm font-medium">Prendre une photo</span>
             </button>
@@ -140,7 +141,7 @@ export default function Modal({
             {/* Action: Importer fichier */}
             <label className="flex flex-col items-center gap-2 p-4 rounded-12px border border-dviaprimary-40 bg-dviaprimary-94 hover:bg-dviaprimary-92 transition-colors cursor-pointer">
               <span className="inline-flex items-center justify-center w-8 h-8 rounded-8px bg-dviaprimary-90 border border-dviaprimary-50">
-                <img src="/icons/document.svg" alt="camera" className="w-5 h-5" />
+                <img src={ICONS.document} alt="camera" className="w-5 h-5" />
               </span>
               <span className="text-dviaprimary-40 text-sm font-medium mt-2">Importer fichier</span>
               <input type="file" accept="application/pdf,image/*" className="hidden" onChange={handleFileChange} />

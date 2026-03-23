@@ -1,18 +1,28 @@
 "use client";
 import React from "react";
-import { FaFile } from "react-icons/fa";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
+import { ICONS } from "@/constants/icons";
+
+function navLabelClass(active: boolean) {
+  return `max-w-[70px] group-hover:max-w-[120px] truncate overflow-hidden whitespace-nowrap text-center leading-label-medium text-label-medium tracking-label-medium transition-colors duration-200 ${
+    active
+      ? "text-dvianeutral-10 font-semibold"
+      : "text-dvianeutralvariant-30 font-medium"
+  }`;
+}
+
 function NavigationRail() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  
-  const handleClickHome = () => {
-    router.push("/");
-  };
+
+  const isAnalysisActive = pathname === "/dashboard/clients";
+  const isArtisansActive = pathname.startsWith("/dashboard/clients/search");
+  const isMessagesActive = pathname.startsWith("/dashboard/clients/messages");
+  const isBlogActive = pathname.startsWith("/dashboard/clients/blog");
 
   const handleSignOut = () => {
     signOut({ callbackUrl: "/" });
@@ -24,78 +34,86 @@ function NavigationRail() {
     >
       <div className="flex flex-col py-[44px] justify-between h-full min-h-screen items-center">
         <div className="flex flex-col gap-4 justify-center items-center">
-          <div onClick={handleClickHome} className="cursor-pointer">
-            <img
-              src="/logos/Picto.png"
-              alt="Logo"
-              className="w-12 h-12 mb-4 transition-all duration-200"
-            />
-          </div>
 
-          <div className="flex flex-col justify-center items-center gap-2 leading-label-medium text-label-medium tracking-label-medium font-semibold">
+
+          <div className="flex flex-col justify-center items-center gap-2">
             <button
               onClick={() => router.push("/dashboard/clients")}
               className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
-                pathname === "/dashboard/clients" ? "bg-dviasecondary-90" : ""
+                isAnalysisActive ? "bg-dviasecondary-90" : ""
               }`}
             >
               <img
                 src={
-                  pathname === "/dashboard/clients"
-                    ? "/dashboard/active/quick_reference_all.svg"
-                    : "/dashboard/quick_reference_all.svg"
+                  isAnalysisActive
+                    ? ICONS.dashboardNav.quoteAnalysisActive
+                    : ICONS.dashboardNav.quoteAnalysis
                 }
-                alt="logo"
+                alt="Analyse de devis"
                 className="w-[24px] h-[24px]"
               />
             </button>
-            <span className="max-w-[70px] group-hover:max-w-[120px] truncate overflow-hidden whitespace-nowrap text-center transition-all duration-300 ease-in-out">
-              Analyse de devis
-            </span>
+            <span className={navLabelClass(isAnalysisActive)}>Analyse de devis</span>
           </div>
 
-          <div className="flex flex-col justify-center items-center gap-2 text-dvianeutralvariant-30 leading-label-medium text-label-medium tracking-label-medium">
+          <div className="flex flex-col justify-center items-center gap-2">
             <button
               onClick={() => router.push("/dashboard/clients/search")}
               className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
-                pathname === "/dashboard/clients/search"
-                  ? "bg-dviasecondary-90"
-                  : ""
+                isArtisansActive ? "bg-dviasecondary-90" : ""
               }`}
             >
               <img
                 src={
-                  pathname === "/dashboard/clients/search"
-                    ? "/dashboard/active/search.svg"
-                    : "/dashboard/search.svg"
+                  isArtisansActive
+                    ? ICONS.dashboardNav.artisansActive
+                    : ICONS.dashboardNav.artisans
                 }
-                alt="logo"
+                alt="Artisans"
                 className="w-[24px] h-[24px]"
               />
             </button>
-            Artisans
+            <span className={navLabelClass(isArtisansActive)}>Artisans</span>
           </div>
 
-          <div className="flex flex-col justify-center items-center gap-2 text-dvianeutralvariant-30 leading-label-medium text-label-medium tracking-label-medium">
+          <div className="flex flex-col justify-center items-center gap-2">
+            <button
+              onClick={() => router.push("/dashboard/clients/messages")}
+              className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
+                isMessagesActive ? "bg-dviasecondary-90" : ""
+              }`}
+            >
+              <img
+                src={
+                  isMessagesActive
+                    ? ICONS.dashboardNav.messagesActive
+                    : ICONS.dashboardNav.messages
+                }
+                alt="Messages"
+                className="w-[24px] h-[24px]"
+              />
+            </button>
+            <span className={navLabelClass(isMessagesActive)}>Messages</span>
+          </div>
+
+          <div className="flex flex-col justify-center items-center gap-2">
             <button
               onClick={() => router.push("/dashboard/clients/blog")}
               className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
-                pathname.startsWith("/dashboard/clients/blog")
-                  ? "bg-dviasecondary-90"
-                  : ""
+                isBlogActive ? "bg-dviasecondary-90" : ""
               }`}
             >
               <img
                 src={
-                  pathname.startsWith("/dashboard/clients/blog")
-                    ? "/dashboard/active/articles.svg"
-                    : "/dashboard/articles.svg"
+                  isBlogActive
+                    ? ICONS.dashboardNav.articlesActive
+                    : ICONS.dashboardNav.articles
                 }
-                alt="logo"
+                alt="Articles"
                 className="w-[24px] h-[24px]"
               />
             </button>
-            Articles
+            <span className={navLabelClass(isBlogActive)}>Articles</span>
           </div>
         </div>
 
@@ -139,7 +157,7 @@ function NavigationRail() {
               className="rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer"
             >
               <img
-                src="/dashboard/user.svg"
+                src={ICONS.dashboardNav.user}
                 alt="logo"
                 className="w-[24px] h-[24px]"
               />

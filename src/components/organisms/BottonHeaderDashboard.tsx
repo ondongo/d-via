@@ -1,7 +1,6 @@
 "use client";
-import Image from "next/image";
+import { ICONS } from "@/constants/icons";
 import { usePathname, useRouter } from "next/navigation";
-import { FiFileText } from "react-icons/fi";
 
 export default function BottomHeaderDashboard() {
   const router = useRouter();
@@ -21,10 +20,10 @@ export default function BottomHeaderDashboard() {
             <img
               src={
                 pathname === "/dashboard/clients"
-                  ? "/dashboard/active/quick_reference_all.svg"
-                  : "/dashboard/quick_reference_all.svg"
+                  ? ICONS.dashboardNav.quoteAnalysisActive
+                  : ICONS.dashboardNav.quoteAnalysis
               }
-              alt="logo"
+              alt="Analyse de devis"
               className="w-[24px] h-[24px]"
             />
           </button>
@@ -45,10 +44,10 @@ export default function BottomHeaderDashboard() {
             <img
               src={
                 pathname === "/dashboard/clients/search"
-                  ? "/dashboard/active/search.svg"
-                  : "/dashboard/search.svg"
+                  ? ICONS.dashboardNav.artisansActive
+                  : ICONS.dashboardNav.artisans
               }
-              alt="logo"
+              alt="Artisans"
               className="w-[24px] h-[24px]"
             />
           </button>
@@ -57,24 +56,24 @@ export default function BottomHeaderDashboard() {
 
         <div className="flex flex-col justify-center items-center gap-2 text-dvianeutralvariant-30 leading-label-medium text-label-medium tracking-label-medium">
           <button
-            onClick={() => router.push("/dashboard/clients/blog")}
+            onClick={() => router.push("/dashboard/clients/messages")}
             className={`rounded-28px px-5 py-2 transition-all duration-200 hover:bg-dviasecondary-90 cursor-pointer ${
-              pathname.startsWith("/dashboard/clients/blog")
+              pathname.startsWith("/dashboard/clients/messages")
                 ? "bg-dviasecondary-90"
                 : ""
             }`}
           >
             <img
               src={
-                pathname.startsWith("/dashboard/clients/blog")
-                  ? "/dashboard/active/articles.svg"
-                  : "/dashboard/articles.svg"
+                pathname.startsWith("/dashboard/clients/messages")
+                  ? ICONS.dashboardNav.messagesActive
+                  : ICONS.dashboardNav.messages
               }
-              alt="logo"
-              className="w-[24px] h-[24px]"
+              alt="Messages"
+              className="h-6 w-6"
             />
           </button>
-          Articles
+          Messages
         </div>
       </div>
     </div>

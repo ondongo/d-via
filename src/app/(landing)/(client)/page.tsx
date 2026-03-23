@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import { StepsSection } from "@/components/molecules/StepsSection";
 import ClientGrid from "@/components/molecules/landing-client/ClientGrid";
 import { FaqsSection } from "@/components/molecules/FaqsSection";
@@ -9,14 +10,11 @@ export default function Home() {
   return (
     <div className="flex flex-col h-auto gap-12 lg:gap-[90px] py-10 sm:py-12 lg:py-14 px-4 sm:px-8 lg:px-16 overflow-hidden">
       <div className="flex flex-col  gap-4 items-center">
-        {/* Pour les grands écrans (md et +) */}
         <h1 className="hidden md:block text-[44px] font-bold leading-display-large tracking-display-large text-dvianeutral-10 text-center">
           Analysez vos devis. Trouver des artisans.
           <br /> Évitez{" "}
           <span className="text-dviaprimary-40">les arnaques.</span>
         </h1>
-
-        {/* Pour les petits écrans (en dessous de md) */}
         <h1 className="block md:hidden text-[24px] font-bold leading-display-small tracking-display-small text-dvianeutral-10 text-center">
           Analysez vos devis. <br /> Trouver des artisans.
           <br /> Évitez{" "}
@@ -40,15 +38,15 @@ export default function Home() {
         subtitle="Découvrez comment vérifier la fiabilité de vos devis d'artisans en trois étapes simples."
         steps={[
           {
-            icon: "/icons/iconDownload.svg",
+            icon: ICONS.download,
             text: "Uploadez votre devis en quelques clics",
           },
           {
-            icon: "/icons/iconSearch.svg",
+            icon: ICONS.search,
             text: "Notre IA analyse les prix et vérifie l'artisan",
           },
           {
-            icon: "/icons/iconsuccess.svg",
+            icon: ICONS.checkCircle,
             text: "Recevez votre rapport détaillé instantanément",
           },
         ]}

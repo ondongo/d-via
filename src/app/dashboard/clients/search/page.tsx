@@ -1,5 +1,6 @@
 "use client";
 
+import { ICONS } from "@/constants/icons";
 import { ArtisanCard } from "@/components/molecules/dashboard/ArtisanCard";
 import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
 import React, { useState, useEffect } from "react";
@@ -125,7 +126,7 @@ function page() {
     <div className="min-h-screen p-4  md:p-6 w-full">
       <div className="flex w-full items-center mb-6 gap-4">
         <div className="w-full max-w-[350px]  border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94">
-          <img src="/dashboard/card/search.svg" alt="loc" className="w-4 h-4" />
+          <img src={ICONS.artisanCard.search} alt="loc" className="w-4 h-4" />
           <input
             type="text"
             placeholder="Rechercher par nom ou métier..."
@@ -150,7 +151,7 @@ function page() {
               ))}
             </select>
             <img
-              src="/dashboard/card/select.svg"
+              src={ICONS.artisanCard.select}
               alt="flèche"
               className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-3 h-3"
             />
@@ -164,7 +165,7 @@ function page() {
           aria-controls="advanced-filters"
         >
           <img
-            src="/dashboard/card/discover_tune.svg"
+            src={ICONS.artisanCard.tune}
             alt="filtres avancés"
             className="w-4 h-4"
           />
@@ -250,7 +251,7 @@ function page() {
       <div className="flex gap-2 mb-4 items-center text-dvianeutralvariant-30 overflow-x-scroll md:overflow-hidden w-full whitespace-nowrap">
         <div className="flex flex-row gap-2 justify-center items-center mr-4 md:mr-0">
           <img
-            src="/dashboard/card/filter_alt.svg"
+            src={ICONS.artisanCard.filter}
             alt="filtrer"
             className="w-4 h-4"
           />
@@ -263,7 +264,7 @@ function page() {
           }`}
           onClick={() => setFilterRating((v) => !v)}
         >
-          <img src="/dashboard/card/star.svg" alt="note" className="w-4 h-4" />
+          <img src={ICONS.artisanCard.star} alt="note" className="w-4 h-4" />
           Note
         </button>
 
@@ -274,7 +275,7 @@ function page() {
           onClick={() => setFilterDistance((v) => !v)}
         >
           <img
-            src="/dashboard/card/location.svg"
+            src={ICONS.artisanCard.location}
             alt="distance"
             className="w-4 h-4"
           />
@@ -288,7 +289,7 @@ function page() {
           onClick={() => setOnlyVerified((v) => !v)}
         >
           <img
-            src="/dashboard/card/check.svg"
+            src={ICONS.artisanCard.verified}
             alt="artisans vérifiés"
             className="w-4 h-4"
           />

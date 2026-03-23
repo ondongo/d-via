@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { ICONS } from "@/constants/icons";
 
 type NominatimResult = {
   display_name: string;
@@ -12,7 +13,7 @@ function InputAddress() {
       <div
         className='border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94'
       >
-        <img src="/icons/LocationBlue.svg" alt="loc" className="w-4 h-4" />
+        <img src={ICONS.locationBlue} alt="loc" className="w-4 h-4" />
         <input
           type="text"
           placeholder="Où êtes-vous situé ?"

@@ -6,7 +6,7 @@ import ResponsiveMenu from "./ResponsiveMenu";
 import { useSession } from "next-auth/react";
 import SignupModeModal from "@/components/molecules/auth/signup/SignupModeModal";
 import AttestationUploadModal from "@/components/molecules/auth/signup/AttestationUploadModal";
-import LoginClientModal from "@/components/molecules/auth/login/LoginModal";
+import LoginModal from "@/components/molecules/auth/login/LoginModal";
 import SignupClientModal from "@/components/molecules/auth/signup-client/SignupClientModal";
 import { toast } from "react-toastify";
 
@@ -16,10 +16,16 @@ function Header() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isOnArtisanPage = pathname === "/artisans";
+
+  //Ouvre la modal d'inscription pour les artisans
   const [isSignupModeModalOpen, setIsSignupModeModalOpen] = useState(false);
+  // Ouvre l'inscription avec attestation décénale pour les artisans
   const [isAttestationModalOpen, setIsAttestationModalOpen] = useState(false);
-  const [isClientLoginModalOpen, setIsClientLoginModalOpen] = useState(false);
+  //Ouvre la modal de connexion pour les artisans ou clients
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  //Ouvre la modal d'inscription pour les clients
   const [isClientSignupModalOpen, setIsClientSignupModalOpen] = useState(false);
+  //Décide si la modal de connexion est pour un client ou un artisan
   const [loginMode, setLoginMode] = useState<"client" | "artisan">("client");
 
   const handleClick = () => {
@@ -39,6 +45,7 @@ function Header() {
     setIsAttestationModalOpen(true);
   };
 
+  // Gère les erreurs de connexion Google pour les artisans
   useEffect(() => {
     const authError = searchParams.get("authError");
     if (authError === "artisan-google") {
@@ -94,10 +101,10 @@ function Header() {
                 onClick={() => {
                   if (isOnArtisanPage) {
                     setLoginMode("artisan");
-                    setIsClientLoginModalOpen(true);
+                    setIsLoginModalOpen(true);
                   } else {
                     setLoginMode("client");
-                    setIsClientLoginModalOpen(true);
+                    setIsLoginModalOpen(true);
                   }
                 }}
                 className={`text-label-large leading-label-large tracking-label-large px-4 py-1 border rounded-8px text-sm font-medium
@@ -135,9 +142,9 @@ function Header() {
         onClose={() => setIsAttestationModalOpen(false)}
       />
 
-      <LoginClientModal
-        isOpen={isClientLoginModalOpen}
-        onClose={() => setIsClientLoginModalOpen(false)}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
         onOpenSignupClient={() => setIsClientSignupModalOpen(true)}
         mode={loginMode}
       />
@@ -145,7 +152,7 @@ function Header() {
       <SignupClientModal
         isOpen={isClientSignupModalOpen}
         onClose={() => setIsClientSignupModalOpen(false)}
-        onOpenLoginClient={() => setIsClientLoginModalOpen(true)}
+        onOpenLoginClient={() => setIsLoginModalOpen(true)}
       />
     </div>
   );

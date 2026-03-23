@@ -1,4 +1,5 @@
 "use client";
+import { ICONS } from "@/constants/icons";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { SimpleModal } from "@/components/atoms/ui/modals/SimpleModal";
@@ -64,7 +65,7 @@ export default function SignupModeModal({
                     Inscription rapide
                   </h3>
                   <div className="border-1 rounded-12px p-4 flex items-center justify-center gap-2 max-w-[145px] max-h-[32px]">
-                    <img src="/icons/star_shine.svg" alt="star_shine" />
+                    <img src={ICONS.starSparkle} alt="Recommandé" />
                     <p className="text-dvianeutralvariant-50 text-sm">
                       Recommandé
                     </p>
@@ -76,7 +77,7 @@ export default function SignupModeModal({
                 </p>
               </div>
 
-              <img src="/icons/Rapid.svg" alt="classic_icon" />
+              <img src={ICONS.rapid} alt="Inscription rapide" />
             </div>
           </div>
 
@@ -109,7 +110,7 @@ export default function SignupModeModal({
                 </p>
               </div>
 
-              <img src="/icons/Classic.svg" alt="classic_icon" />
+              <img src={ICONS.draft} alt="Inscription classique" />
             </div>
           </div>
         </div>

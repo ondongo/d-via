@@ -8,10 +8,10 @@ import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ComplexModal } from "@/components/atoms/ui/modals/ComplexModal";
 
-type LoginClientStep = "signin" | "forgot-password" | "phone-verification";
+type LoginStep = "signin" | "forgot-password" | "reset-sent";
 type LoginMode = "client" | "artisan";
 
-interface LoginClientModalProps {
+interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   onOpenSignupClient?: () => void;
@@ -23,9 +23,9 @@ export default function LoginModal({
   onClose,
   onOpenSignupClient,
   mode = "client",
-}: LoginClientModalProps) {
+}: LoginModalProps) {
   const router = useRouter();
-  const [step, setStep] = useState<LoginClientStep>("signin");
+  const [step, setStep] = useState<LoginStep>("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [resetEmail, setResetEmail] = useState("");
@@ -34,6 +34,7 @@ export default function LoginModal({
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,10 +46,9 @@ export default function LoginModal({
   }, [isOpen]);
 
   const modalTitle = useMemo(() => {
-    if (step === "forgot-password") {
-      return "Mot de passe oublié";
-    }
-    return "Content de vous revoir";
+    if (step === "forgot-password") return "Mot de passe oublié";
+    if (step === "reset-sent") return "Email envoyé";
+    return "Connexion";
   }, [step]);
 
   const handleSignin = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -79,9 +79,42 @@ export default function LoginModal({
     }
   };
 
-  const handleSendResetLink = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSendResetLink = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStep("phone-verification");
+
+    if (!resetEmail.trim()) {
+      toast.error("Veuillez renseigner une adresse email.");
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const response = await fetch("/api/auth/password-reset/request", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: resetEmail,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.error || "Impossible d'envoyer le lien de réinitialisation.");
+        return;
+      }
+
+      toast.success(
+        "Si ce compte existe, un lien de réinitialisation a été envoyé."
+      );
+      setStep("reset-sent");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erreur réseau pendant l'envoi du lien.");
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   const goToClientSignup = () => {
@@ -94,10 +127,10 @@ export default function LoginModal({
     router.push("/");
   };
 
-  const goToArtisanSignin = () => {
+/*   const goToArtisanSignin = () => {
     onClose();
     setStep("signin");
-  };
+  }; */
 
   const handleGoogleClick = async () => {
     if (googleLoading) return;
@@ -331,12 +364,38 @@ export default function LoginModal({
               </button>
               <button
                 type="submit"
+                disabled={resetLoading}
                 className="flex-1 rounded-8px bg-dviaprimary-40 px-4 py-2 text-body-small text-white"
               >
-                Envoyer le lien
+                {resetLoading ? "Envoi..." : "Envoyer le lien"}
               </button>
             </div>
           </form>
+        )}
+
+        {step === "reset-sent" && (
+          <div className="flex flex-col gap-4">
+            <p className="text-body-medium text-dvianeutralvariant-30 my-2">
+              Si un compte est associé à cet email, vous recevrez un lien de
+              réinitialisation dans quelques instants.
+            </p>
+            <div className="mt-1 flex items-center justify-end gap-2 w-full">
+              <button
+                type="button"
+                onClick={() => setStep("signin")}
+                className=" cursor-pointer flex-1 rounded-8px border border-dvianeutral-50 px-4 py-2 font-semibold text-body-small text-dviaprimary-40"
+              >
+                Retour à la connexion
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("forgot-password")}
+                className="cursor-pointer flex-1 rounded-8px bg-dviaprimary-40 px-4 py-2 font-semibold text-body-small text-white"
+              >
+                Renvoyer
+              </button>
+            </div>
+          </div>
         )}
 
       </div>

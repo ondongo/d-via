@@ -14,7 +14,7 @@
  *****************************************************************************************************************/
 import { NextRequest, NextResponse } from "next/server";
 import { mistral } from "@/services/rag/chatcompletion";
-import { prompt } from "@/constants";
+import { prompt } from "@/constants/promptRag";
 
 function clampScore(value: number) {
   if (Number.isNaN(value)) return 0;
