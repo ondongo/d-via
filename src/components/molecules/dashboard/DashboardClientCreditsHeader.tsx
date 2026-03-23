@@ -1,6 +1,6 @@
 "use client";
 
-import { getAnalysisEntitlement } from "@/actions/analysis";
+import { getAnalysisEntitlement } from "@/services/database/analysis-actions";
 import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";

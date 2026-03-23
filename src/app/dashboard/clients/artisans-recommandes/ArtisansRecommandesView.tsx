@@ -1,7 +1,7 @@
 "use client";
 
 import { ICONS } from "@/constants/icons";
-import type { RecommendedArtisanCard } from "@/actions/recommended-artisans";
+import type { RecommendedArtisanCard } from "@/services/database/recommended-artisans";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

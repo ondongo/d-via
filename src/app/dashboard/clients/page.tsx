@@ -10,7 +10,7 @@ import CreditStateBlock from "@/components/molecules/dashboard/CreditStateBlock"
 import {
   deleteAnalysisHistory,
   getAnalysisEntitlement,
-} from "@/actions/analysis";
+} from "@/services/database/analysis-actions";
 import {
   type AnalysisCreditState,
   useAnalysisHistory,

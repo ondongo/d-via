@@ -1,6 +1,6 @@
 "use client";
 
-import { createStripeCheckoutSession } from "@/actions/stripe-checkout";
+import { createStripeCheckoutSession } from "@/services/database/stripe-checkout-action";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
