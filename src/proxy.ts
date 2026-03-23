@@ -43,7 +43,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   // ============================================
   if (pathname.startsWith("/dashboard")) {
     const secret =
-      process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? "";
+      process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET ?? "";
     if (!secret) {
       console.warn(
         "[proxy] NEXTAUTH_SECRET (ou AUTH_SECRET) manquant — accès /dashboard non protégé.",
@@ -52,6 +52,11 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
       const token = await getToken({
         req: request,
         secret,
+        cookieName:
+          process.env.NODE_ENV === "production"
+            ? "__Secure-authjs.session-token"
+            : "authjs.session-token",
+        secureCookie: true,
       });
       if (!token) {
         return NextResponse.redirect(
