@@ -1,16 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import type { AnalysisGrade, AnalysisHistoryItem } from "@/types/analysis";
 
-export type AnalysisGrade = "A" | "B" | "C" | "D";
-
-export type AnalysisHistoryItem = {
-  id: string;
-  fileName: string;
-  date: string;
-  reliability: number;
-  grade: AnalysisGrade;
-};
+export type { AnalysisGrade, AnalysisHistoryItem } from "@/types/analysis";
 
 const STORAGE_KEY = "dvia_analysis_history";
 const MAX_HISTORY = 20;
@@ -40,6 +33,7 @@ export type AnalysisCreditState =
   | "authenticated_with_credits"
   | "authenticated_without_credits";
 
+/** Historique local pour les invités ; les comptes connectés utilisent la base (server actions). */
 export function useAnalysisHistory() {
   const [history, setHistory] = useState<AnalysisHistoryItem[]>([]);
 
@@ -81,37 +75,4 @@ export function useAnalysisHistory() {
   }, []);
 
   return { history, addToHistory, removeFromHistory };
-}
-
-export function readCreditState(isAuthenticated: boolean): AnalysisCreditState {
-  if (typeof window === "undefined") return "guest_free_analysis_available";
-
-  if (!isAuthenticated) {
-    const used = window.localStorage.getItem("dvia_guest_analysis_used");
-    return used === "true"
-      ? "guest_free_analysis_used"
-      : "guest_free_analysis_available";
-  }
-
-  const raw = window.localStorage.getItem("dvia_analysis_credits");
-  const credits = raw !== null ? Number(raw) : 1;
-  return credits > 0
-    ? "authenticated_with_credits"
-    : "authenticated_without_credits";
-}
-
-export function consumeCredit(isAuthenticated: boolean): void {
-  if (typeof window === "undefined") return;
-
-  if (!isAuthenticated) {
-    window.localStorage.setItem("dvia_guest_analysis_used", "true");
-    return;
-  }
-
-  const raw = window.localStorage.getItem("dvia_analysis_credits");
-  const credits = raw !== null ? Number(raw) : 1;
-  window.localStorage.setItem(
-    "dvia_analysis_credits",
-    String(Math.max(0, credits - 1)),
-  );
 }

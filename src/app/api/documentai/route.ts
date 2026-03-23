@@ -1,15 +1,48 @@
 import { DocumentProcessorServiceClient } from "@google-cloud/documentai";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { auth } from "@/configs/prisma/auth";
+import {
+  assertAnalysisAllowed,
+  getClientIp,
+  hashClientIp,
+} from "@/data/analysis";
 
-export async function POST(request: any) {
+export async function POST(request: NextRequest) {
+  const session = await auth();
+  const userId = session?.user?.id ?? null;
+  const ipHash = hashClientIp(getClientIp(request));
+  const gate = await assertAnalysisAllowed({ userId, ipHash });
+  if (gate.ok === false) {
+    return NextResponse.json(
+      { status: gate.status, message: gate.message },
+      { status: gate.status },
+    );
+  }
+
+  const pk = process.env.PRIVATE_KEY;
+  if (
+    !pk ||
+    !process.env.PROJECT_ID ||
+    !process.env.REGION_ID ||
+    !process.env.PROCESSOR_ID ||
+    !process.env.CLIENT_EMAIL
+  ) {
+    return NextResponse.json(
+      {
+        status: 503,
+        message:
+          "Document AI n'est pas configuré en local (variables PROJECT_ID, PRIVATE_KEY, REGION_ID, PROCESSOR_ID, CLIENT_EMAIL). Sur Vercel, vérifiez que ces variables sont définies.",
+      },
+      { status: 503 },
+    );
+  }
+
   const documentclient = new DocumentProcessorServiceClient({
-
     credentials: {
       type: process.env.TYPE,
       project_id: process.env.PROJECT_ID,
       private_key_id: process.env.PRIVATE_KEY_ID,
-      private_key: process.env.PRIVATE_KEY.replace(/\\n/g, "\n"),
-      //private_key: process.env.PRIVATE_KEY,
+      private_key: pk.replace(/\\n/g, "\n"),
       client_email: process.env.CLIENT_EMAIL,
       client_id: process.env.CLIENT_ID,
       universe_domain: process.env.UNIVERSE_DOMAIN,
@@ -21,7 +54,7 @@ export async function POST(request: any) {
 
   const fileData = files?.files?.[0]?.file ?? "aucun";
   const mimeType = files?.files?.[0]?.mimetype;
-  
+
   console.log("MimeType reçu :", mimeType);
 
   if (!fileData || fileData === "aucun") {
@@ -69,7 +102,6 @@ export async function POST(request: any) {
 
     const { text } = document;
 
-    // Fonction pour récupérer des segments de texte
     const getText = (textAnchor: any) => {
       if (!textAnchor.textSegments || textAnchor.textSegments.length === 0) {
         return "";
@@ -79,14 +111,18 @@ export async function POST(request: any) {
       return text.substring(startIndex, endIndex);
     };
 
-    // Collecter tous les paragraphes du document
-    let extractedText = ""; // Variable pour collecter le texte
+    let extractedText = "";
 
-    // Supposons que "document.pages" contient les pages du document
-    const [page1] = document.pages;
+    const [page1] = document.pages ?? [];
+    if (!page1?.paragraphs?.length) {
+      return NextResponse.json({
+        status: 200,
+        message: text || "",
+      });
+    }
+
     const { paragraphs } = page1;
 
-    // Parcours de tous les paragraphes et collecte du texte
     for (const paragraph of paragraphs) {
       const paragraphText = getText(paragraph.layout.textAnchor);
       extractedText += `\n${paragraphText}\n\n`;
@@ -94,24 +130,23 @@ export async function POST(request: any) {
 
     console.log("********* extractedText *********", extractedText);
 
-    /* 
-    Retourne la réponse avec tout le texte extrait dans la variable extractedText
-    */
     return NextResponse.json({ status: 200, message: extractedText });
   } catch (error: any) {
     console.error("Erreur DocumentAI :", error);
-    
+
     let errorMessage = "Erreur lors du traitement du document";
     if (error.message) {
       if (error.message.includes("DECODER")) {
-        errorMessage = "Le fichier ne peut pas être décodé. Veuillez vérifier que le fichier n'est pas corrompu et qu'il est dans un format supporté (PDF, PNG, JPEG).";
+        errorMessage =
+          "Le fichier ne peut pas être décodé. Veuillez vérifier que le fichier n'est pas corrompu et qu'il est dans un format supporté (PDF, PNG, JPEG).";
       } else if (error.message.includes("INVALID_ARGUMENT")) {
-        errorMessage = "Le format du fichier n'est pas valide ou n'est pas supporté.";
+        errorMessage =
+          "Le format du fichier n'est pas valide ou n'est pas supporté.";
       } else {
         errorMessage = error.message;
       }
     }
-    
+
     return NextResponse.json({
       status: 500,
       message: errorMessage,

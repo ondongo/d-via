@@ -1,4 +1,6 @@
 "use client";
+
+import { createStripeCheckoutSession } from "@/actions/stripe-checkout";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -23,30 +25,14 @@ export default function StripeCheckoutButton({
     }
 
     setIsLoading(true);
-    
-    try {
-      // Appeler l'API checkout qui gérera la création du client Stripe
-      const response = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          priceId,
-          userEmail: session.user.email,
-          userName: session.user.name || undefined,
-          userId: session.user.id || "",
-        }),
-      });
 
-      const { url, error } = await response.json();
-      
-      if (error) {
-        throw new Error(error);
+    try {
+      const result = await createStripeCheckoutSession(priceId);
+      if (result.ok === false) {
+        throw new Error(result.error);
       }
-      
-      if (url) {
-        window.location.href = url;
+      if (result.url) {
+        window.location.href = result.url;
       } else {
         throw new Error("Erreur lors de la création de la session de paiement");
       }

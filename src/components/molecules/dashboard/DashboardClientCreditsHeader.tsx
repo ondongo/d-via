@@ -1,25 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { getAnalysisEntitlement } from "@/actions/analysis";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export default function DashboardClientCreditsHeader() {
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const [analysisCredits, setAnalysisCredits] = useState<number>(1);
+  const { data: session, status } = useSession();
+  const [credits, setCredits] = useState<number | null>(null);
+
+  const loadCredits = useCallback(async () => {
+    if (status !== "authenticated" || !session?.user) {
+      setCredits(null);
+      return;
+    }
+    try {
+      const result = await getAnalysisEntitlement();
+      if (result.ok && result.data.mode === "user") {
+        setCredits(result.data.credits);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [session?.user, status]);
 
   useEffect(() => {
-    const creditsFromStorage = window.localStorage.getItem("dvia_analysis_credits");
-    if (!creditsFromStorage) return;
+    void loadCredits();
+  }, [loadCredits]);
 
-    const parsedCredits = Number(creditsFromStorage);
-    if (!Number.isNaN(parsedCredits) && parsedCredits >= 0) {
-      setAnalysisCredits(parsedCredits);
-    }
-  }, []);
+  useEffect(() => {
+    const onRefresh = () => {
+      void loadCredits();
+    };
+    window.addEventListener("dvia-entitlement-changed", onRefresh);
+    return () =>
+      window.removeEventListener("dvia-entitlement-changed", onRefresh);
+  }, [loadCredits]);
 
   if (pathname !== "/dashboard/clients") {
+    return null;
+  }
+
+  if (status === "loading") {
+    return null;
+  }
+
+  if (status !== "authenticated") {
     return null;
   }
 
@@ -27,7 +54,10 @@ export default function DashboardClientCreditsHeader() {
     <div className="w-full md:w-auto p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div>
         <p className="text-dvianeutral-10 text-base md:text-lg font-medium">
-          Crédits restants : <span className="font-bold ">{analysisCredits}</span>
+          Crédits restants :{" "}
+          <span className="font-bold ">
+            {credits === null ? "…" : credits}
+          </span>
         </p>
       </div>
       <a

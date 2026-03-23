@@ -8,11 +8,33 @@ import AnalysisResults from "@/components/molecules/landing-client/AnalysisResul
 import AnalysisHistorySidebar from "@/components/molecules/dashboard/AnalysisHistorySidebar";
 import CreditStateBlock from "@/components/molecules/dashboard/CreditStateBlock";
 import {
+  deleteAnalysisHistory,
+  getAnalysisEntitlement,
+} from "@/actions/analysis";
+import {
   type AnalysisCreditState,
-  consumeCredit,
-  readCreditState,
   useAnalysisHistory,
 } from "@/hooks/useAnalysisHistory";
+import type { EntitlementResponse } from "@/types/analysis";
+
+function mapEntitlementToCreditState(
+  data: EntitlementResponse | null,
+  isAuthenticated: boolean,
+): AnalysisCreditState {
+  if (!data) {
+    return isAuthenticated
+      ? "authenticated_with_credits"
+      : "guest_free_analysis_available";
+  }
+  if (data.mode === "user") {
+    return data.credits > 0
+      ? "authenticated_with_credits"
+      : "authenticated_without_credits";
+  }
+  return data.guestFreeAvailable
+    ? "guest_free_analysis_available"
+    : "guest_free_analysis_used";
+}
 
 function GuestFreeBadge() {
   return (
@@ -48,6 +70,10 @@ function DashboardClientsPage() {
   const [creditState, setCreditState] = useState<AnalysisCreditState>(
     "guest_free_analysis_available",
   );
+  const [entitlement, setEntitlement] = useState<EntitlementResponse | null>(
+    null,
+  );
+  const [entitlementLoading, setEntitlementLoading] = useState(true);
 
   const [fileData, setFileData] = useState<{
     base64: string | null;
@@ -61,14 +87,51 @@ function DashboardClientsPage() {
     conclusion: string;
   }>({ reliability: null, details: {}, conclusion: "" });
 
-  const { history, addToHistory, removeFromHistory } = useAnalysisHistory();
+  const {
+    history: guestHistory,
+    addToHistory,
+    removeFromHistory: removeGuestHistoryItem,
+  } = useAnalysisHistory();
 
-  // Détecter l'état de crédits dès que la session est chargée
-  useEffect(() => {
-    if (!isSessionLoading) {
-      setCreditState(readCreditState(isAuthenticated));
+  const refreshEntitlement = React.useCallback(async () => {
+    setEntitlementLoading(true);
+    try {
+      const result = await getAnalysisEntitlement();
+      if (result.ok) {
+        setEntitlement(result.data);
+        setCreditState(
+          mapEntitlementToCreditState(result.data, isAuthenticated),
+        );
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setEntitlementLoading(false);
     }
-  }, [isAuthenticated, isSessionLoading]);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("dvia-entitlement-changed"));
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isSessionLoading) return;
+    void refreshEntitlement();
+  }, [isSessionLoading, isAuthenticated, refreshEntitlement]);
+
+  const serverHistory =
+    isAuthenticated && entitlement?.mode === "user"
+      ? entitlement.history
+      : [];
+  const historyItems = isAuthenticated ? serverHistory : guestHistory;
+
+  const removeHistoryEntry = async (id: string) => {
+    if (isAuthenticated) {
+      const result = await deleteAnalysisHistory(id);
+      if (result.ok) await refreshEntitlement();
+      return;
+    }
+    removeGuestHistoryItem(id);
+  };
 
   useEffect(() => {
     if (fileData.base64) {
@@ -202,6 +265,15 @@ function DashboardClientsPage() {
         body: JSON.stringify(extractPayload),
       });
 
+      if (extractResponse.status === 402) {
+        const errorData = await extractResponse.json();
+        toast.error(
+          errorData.message || "Crédits ou analyse gratuite indisponible.",
+        );
+        await refreshEntitlement();
+        return;
+      }
+
       if (!extractResponse.ok) {
         const errorData = await extractResponse.json();
         toast.error(errorData.message || "Erreur lors de l'extraction du document");
@@ -234,8 +306,21 @@ function DashboardClientsPage() {
         const analyzeResponse = await fetch("/api/rag/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: extractedText, contexts }),
+          body: JSON.stringify({
+            text: extractedText,
+            contexts,
+            fileName: fileData.name ?? undefined,
+          }),
         });
+
+        if (analyzeResponse.status === 402) {
+          const err = await analyzeResponse.json();
+          toast.error(
+            err.error || "Crédits ou analyse gratuite indisponible.",
+          );
+          await refreshEntitlement();
+          return;
+        }
 
         const analyzeData = await analyzeResponse.json();
 
@@ -247,12 +332,10 @@ function DashboardClientsPage() {
           });
           setIsAnalyzed(true);
 
-          // Consommer le crédit + sauvegarder dans l'historique
-          consumeCredit(isAuthenticated);
-          setCreditState(readCreditState(isAuthenticated));
-          if (fileData.name && analyzeData.reliability != null) {
+          if (!isAuthenticated && fileData.name && analyzeData.reliability != null) {
             addToHistory(fileData.name, analyzeData.reliability);
           }
+          await refreshEntitlement();
         } else {
           toast.error("Erreur lors de l'analyse du devis");
         }
@@ -294,15 +377,26 @@ ${analysis.conclusion}
   };
 
   const canAnalyze =
+    entitlementLoading ||
     creditState === "guest_free_analysis_available" ||
     creditState === "authenticated_with_credits";
+
+  /** Après une analyse réussie, les crédits passent à 0 mais on doit afficher les résultats. */
+  const showCreditBlock =
+    !isSessionLoading &&
+    !entitlementLoading &&
+    !canAnalyze &&
+    !isAnalyzed &&
+    !isLoading;
 
   return (
     <div className="flex w-full min-h-[calc(100vh-120px)]">
       {/* Sidebar historique — desktop uniquement */}
       <AnalysisHistorySidebar
-        history={history}
-        onRemove={removeFromHistory}
+        history={historyItems}
+        onRemove={(id) => {
+          void removeHistoryEntry(id);
+        }}
       />
 
       {/* Contenu principal */}
@@ -327,8 +421,7 @@ ${analysis.conclusion}
           </p>
         )}
 
-        {/* Blocage selon état crédit */}
-        {!isSessionLoading && !canAnalyze ? (
+        {showCreditBlock ? (
           <CreditStateBlock state={creditState} />
         ) : (
           <>
