@@ -1,6 +1,8 @@
 "use client";
 
 import { createStripeCheckoutSession } from "@/services/database/stripe-checkout-action";
+import LoginModal from "@/components/molecules/auth/login/LoginModal";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 
@@ -16,11 +18,15 @@ export default function StripeCheckoutButton({
   className = "" 
 }: StripeCheckoutButtonProps) {
   const { data: session } = useSession();
+  const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  const callbackUrl = pathname || "/pricing";
 
   const handleCheckout = async () => {
     if (!session?.user?.email) {
-      alert("Veuillez vous connecter pour effectuer un achat");
+      setIsLoginModalOpen(true);
       return;
     }
 
@@ -45,12 +51,21 @@ export default function StripeCheckoutButton({
   };
 
   return (
-    <button
-      onClick={handleCheckout}
-      className={className}
-      disabled={isLoading || !session}
-    >
-      {isLoading ? "Traitement..." : children}
-    </button>
+    <>
+      <button
+        onClick={handleCheckout}
+        className={className}
+        disabled={isLoading}
+      >
+        {isLoading ? "Traitement..." : children}
+      </button>
+
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        mode="client"
+        callbackUrl={callbackUrl}
+      />
+    </>
   );
 }

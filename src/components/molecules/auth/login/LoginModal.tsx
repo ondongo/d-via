@@ -16,6 +16,7 @@ interface LoginModalProps {
   onClose: () => void;
   onOpenSignupClient?: () => void;
   mode?: LoginMode;
+  callbackUrl?: string;
 }
 
 export default function LoginModal({
@@ -23,6 +24,7 @@ export default function LoginModal({
   onClose,
   onOpenSignupClient,
   mode = "client",
+  callbackUrl,
 }: LoginModalProps) {
   const router = useRouter();
   const [step, setStep] = useState<LoginStep>("signin");
@@ -73,7 +75,7 @@ export default function LoginModal({
 
       toast.success("Connexion réussie.");
       onClose();
-      router.push(mode === "artisan" ? "/dashboard" : "/dashboard/clients");
+      router.push(callbackUrl || (mode === "artisan" ? "/dashboard" : "/dashboard/clients"));
     } finally {
       setLoading(false);
     }
@@ -137,11 +139,12 @@ export default function LoginModal({
 
     setGoogleLoading(true);
     try {
-      const callbackUrl = mode === "artisan" ? "/dashboard" : "/dashboard/clients";
+      const targetCallbackUrl =
+        callbackUrl || (mode === "artisan" ? "/dashboard" : "/dashboard/clients");
       const provider = mode === "artisan" ? "google-artisan" : "google";
 
       const result = await signIn(provider, {
-        callbackUrl,
+        callbackUrl: targetCallbackUrl,
         redirect: false,
       });
 
@@ -152,7 +155,7 @@ export default function LoginModal({
       }
 
       onClose();
-      router.replace(result?.url ?? callbackUrl);
+      router.replace(result?.url ?? targetCallbackUrl);
     } catch {
       toast.error("Erreur pendant la connexion Google.");
       setGoogleLoading(false);
