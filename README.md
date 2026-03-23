@@ -2,6 +2,34 @@
 
 Application [Next.js](https://nextjs.org) (App Router) pour l’analyse de devis, la mise en relation clients / artisans.
 
+<a id="sommaire"></a>
+## Sommaire
+
+- [Démarrage](#demarrage) — installation, variables d’environnement, [scripts npm](#scripts-npm)
+- [Structure du dépôt (`src/`)](#structure-depot)
+- [Conventions des dossiers dans `app/` (App Router)](#conventions-app)
+- [Authentification et rôles](#auth)
+- [Paiements et crédits d’analyse](#paiements-credits)
+- [Flux analyse de devis (résumé)](#flux-analyse)
+- [Dépannage (local / production)](#depannage)
+- [Contenu (blog)](#contenu-blog)
+- [Sécurité et bonnes pratiques](#securite)
+- [Server actions et routes API](#server-actions-api)
+- [RAG (recherche augmentée)](#rag)
+- [Providers (`src/providers/`)](#providers)
+- [Stores](#stores)
+- [Proxy (`src/proxy.ts`)](#proxy)
+- [Icônes](#icones)
+- [Prisma](#prisma)
+- [Schémas et validation](#schemas)
+- [Hooks (`src/hooks/`)](#hooks)
+- [Déploiement](#deploiement)
+- [Qualité et évolutions](#qualite)
+- [Documentation externe](#documentation-externe)
+
+---
+
+<a id="demarrage"></a>
 ## Démarrage
 
 ```bash
@@ -11,6 +39,7 @@ npm run dev
 
 Ouvrir [http://localhost:3000](http://localhost:3000). Les variables d’environnement sont décrites dans `.env.example` (base de données, NextAuth, Stripe, Document AI, Mistral, Pinecone, etc.).
 
+<a id="scripts-npm"></a>
 ### Scripts npm
 
 | Script | Rôle |
@@ -25,72 +54,7 @@ Ouvrir [http://localhost:3000](http://localhost:3000). Les variables d’environ
 
 ---
 
-## Groupes de routes (`app/`)
-
-Les dossiers entre parenthèses ne figurent pas dans l’URL ; ils servent à **mutualiser un layout**.
-
-| Groupe | Exemples d’URL | Layout typique |
-|--------|----------------|----------------|
-| `(landing)` | `/`, `/pricing`, `/blog` | Shell marketing / blog. |
-| `(auth)` | `/signup`, `/signin` | Parcours inscription / connexion. |
-| `(simple)` | `/reset-password`, `/non-authorized` | Page minimale : header logo + contenu centré. |
-| `dashboard` | `/dashboard`, `/dashboard/clients`, … | Shell connecté (rail, header dashboard). |
-
-Les **route handlers** restent sous `app/api/...` (hors de ces groupes).
-
----
-
-## Authentification et rôles
-
-- **NextAuth v5** (JWT) avec adaptateur Prisma pour la persistance comptes / sessions en base.
-- Fournisseurs configurés dans `configs/prisma/auth.config.ts` (Google, Google artisan, identifiants).
-- Rôles Prisma (`Role`) : `USER`, `ADMIN`, `CLIENT`, `ARTISAN` — exposés dans le token / session pour l’UI et les garde-fous serveur.
-- Le **proxy** ne lit que le JWT (Edge) ; toute logique métier lourde (Stripe customer, promotion de rôle) reste dans les callbacks côté Node.
-
----
-
-## Paiements et crédits d’analyse
-
-- **Checkout** : action serveur `createStripeCheckoutSession` (`services/database/stripe-checkout-action.ts`), packs et nombre de crédits décrits dans `configs/stripe/analysis-pack-credits.ts`.
-- **Webhook** : `POST /api/stripe/webhook` — événement `checkout.session.completed`, lecture de `metadata.userId` / `metadata.credits`, incrément `User.analysisCredits`. Nécessite `STRIPE_WEBHOOK_SECRET` et l’URL du webhook déclarée dans le dashboard Stripe.
-- **Succès paiement** : redirection vers `/dashboard/success`.
-- **Droits d’analyse** : règles dans `data/analysis.ts` (crédits utilisateur connecté, empreinte IP hashée pour l’invité via `ANALYSIS_IP_HASH_SALT`), appliquées sur `/api/documentai` et `/api/rag/analyze`.
-
----
-
-## Flux analyse de devis (résumé)
-
-1. Upload côté client → `POST /api/documentai` (Google Document AI, variables d’environnement du compte de service).
-2. Optionnel : `POST /api/rag/ask` pour des contextes Pinecone (namespace `devis`, etc.).
-3. `POST /api/rag/analyze` : prompt Mistral, détails structurés, vérification SIRET si applicable.
-4. Consommation du crédit / enregistrement invité et historique Prisma pour les comptes connectés (voir `data/analysis.ts`).
-
----
-
-## Dépannage (local / production)
-
-- **Document AI** : sans `PRIVATE_KEY`, `PROJECT_ID`, `REGION_ID`, `PROCESSOR_ID`, etc., la route renvoie une erreur explicite ; aligner le `.env` sur la prod Vercel.
-- **Proxy `/dashboard`** : sans `NEXTAUTH_SECRET` (ou `AUTH_SECRET`), la protection JWT est désactivée avec un avertissement console — à corriger en prod.
-- **Prisma** : en cas de décalage entre l’historique des migrations et la base (drift), traiter avec `prisma migrate` / SQL manuel selon votre politique d’équipe.
-- **RAG** : index Pinecone, clé API et nom d’index doivent correspondre à ceux utilisés par `insert-chunk` et `ask`.
-
----
-
-## Contenu (blog)
-
-Articles et pages MDX / contenu statique sous `app` et `content` selon l’implémentation actuelle ; images et métadonnées Open Graph à maintenir cohérents avec `app/layout.tsx` si vous changez l’URL canonique du site.
-
----
-
-## Sécurité et bonnes pratiques
-
-- Ne pas versionner `.env` ; utiliser `.env.example` comme référence.
-- Définir un **`ANALYSIS_IP_HASH_SALT`** long et unique en production pour l’analyse gratuite invité.
-- Restreindre les clés API (Document AI, Mistral, Pinecone) par environnement et rotationner en cas de fuite.
-- Vérifier que le **webhook Stripe** pointe bien vers l’URL de prod et que seules les signatures valides sont acceptées.
-
----
-
+<a id="structure-depot"></a>
 ## Structure du dépôt (`src/`)
 
 | Dossier | Rôle |
@@ -115,6 +79,162 @@ Articles et pages MDX / contenu statique sous `app` et `content` selon l’impl�
 
 ---
 
+<a id="conventions-app"></a>
+## Conventions des dossiers dans `app/` (App Router)
+
+Next.js transforme l’arborescence `app/` en URLs. Le **nom du dossier** détermine si un segment apparaît dans le chemin ou s’il a un rôle spécial.
+
+### 1. Dossier « normal » (sans préfixe ni syntaxe spéciale)
+
+Exemple : `app/dashboard/clients/page.tsx`
+
+- Chaque segment devient une partie de l’URL : ici `/dashboard/clients`.
+- Utilisé pour la structure réelle du site (zones `/blog`, `/dashboard`, etc.).
+
+### 2. Parenthèses : groupe de routes — `(nom)`
+
+Exemple : `app/(landing)/pricing/page.tsx` → URL **`/pricing`**, pas `/(landing)/pricing`.
+
+- Le dossier `(landing)` **n’apparaît pas** dans l’URL.
+- Sert à **regrouper** des routes qui partagent le même `layout.tsx` sans ajouter de segment d’URL.
+- Plusieurs groupes au même niveau peuvent coexister : `(marketing)` et `(shop)` peuvent chacun avoir leur layout, tout en produisant des URLs plates (`/about`, `/cart`, …).
+
+### 3. Crochets : segment dynamique — `[param]`
+
+Exemple : `app/blog/[slug]/page.tsx` → `/blog/mon-article`.
+
+- `params.slug` est disponible dans la page / layout (Server Component) ou via `useParams()` côté client.
+
+### 4. Catch-all — `[...segments]`
+
+Exemple : `app/docs/[...slug]/page.tsx` → `/docs/a`, `/docs/a/b`, etc.
+
+- `params.slug` est un **tableau** de segments.
+
+### 5. Catch-all optionnel — `[[...segments]]`
+
+Exemple : `app/shop/[[...category]]/page.tsx` → `/shop` **et** `/shop/vetements`, etc.
+
+- Permet une même page pour la racine du segment et pour des sous-chemins variables.
+
+### 6. Arobase : routes parallèles — `@slot`
+
+Exemple : `app/@modal/(.)photo/[id]/page.tsx` avec un `layout.tsx` qui rend `{children}` et `{modal}`.
+
+- Les dossiers `@nom` sont des **emplacements (slots)** passés en props au layout parent (`modal`, `sidebar`, etc.).
+- L’URL affichée reste celle de la route « principale » ; le slot affiche du contenu en plus (souvent une modale ou un panneau).
+- Nécessite en général un `default.tsx` dans chaque slot pour le cas « slot vide ».
+
+### 7. Interception de routes — préfixes `(.)`, `(..)`, `(..)(..)`, `(...)`
+
+Utilisés **à l’intérieur** d’un dossier `@slot` (ou équivalent) pour afficher une UI (ex. modale) tout en gardant l’URL du parent dans la barre d’adresse.
+
+| Préfixe | Signification (raccourci) |
+|---------|---------------------------|
+| `(.)` | Intercepter au **même** niveau de segment. |
+| `(..)` | Remonter **un** niveau par rapport au dossier du slot. |
+| `(..)(..)` | Remonter **deux** niveaux. |
+| `(...)` | Relatif à la **racine** `app/`. |
+
+La doc officielle détaille les cas limites ; à utiliser quand on veut une modale + deep-link sans dupliquer toute une arborescence.
+
+### 8. Underscore : dossier privé — `_dossier`
+
+Exemple : `app/dashboard/_components/Button.tsx`
+
+- Le segment `_components` **ne crée pas** de route.
+- Sert à **colocaliser** fichiers utilitaires, composants ou tests à côté des routes sans les exposer en URL.
+
+### 9. Fichiers spéciaux (à la racine d’un segment)
+
+| Fichier | Rôle |
+|---------|------|
+| `page.tsx` | UI de la route (obligatoire pour une page navigable). |
+| `layout.tsx` | Enveloppe partagée pour ce segment et ses enfants. |
+| `loading.tsx` | Suspense boundary / état de chargement. |
+| `error.tsx` | Boundary d’erreur pour ce segment. |
+| `not-found.tsx` | 404 locale au segment. |
+| `template.tsx` | Comme layout mais remonte l’état à chaque navigation. |
+| `route.ts` | **Route Handler** HTTP (`GET`, `POST`, …) — pas de `page.tsx` pour la même URL. |
+| `default.tsx` | Contenu par défaut d’un **slot** `@` quand aucune route parallèle ne correspond. |
+
+Les API REST du projet sont surtout sous **`app/api/.../route.ts`** (même idée : `route.ts` sans `page.tsx`).
+
+### Références dans ce dépôt
+
+| Convention | Exemple chemin | URL réelle |
+|------------|----------------|------------|
+| Groupe `(landing)` | `(landing)/pricing/page.tsx` | `/pricing` |
+| Groupe `(auth)` | `(auth)/signup/step1/page.tsx` | `/signup/step1` |
+| Groupe `(simple)` | `(simple)/non-authorized/page.tsx` | `/non-authorized` |
+| Segment fixe | `dashboard/clients/page.tsx` | `/dashboard/clients` |
+| Dynamique | `blog/[slug]/page.tsx` | `/blog/...` |
+| API | `api/rag/ask/route.ts` | `/api/rag/ask` |
+
+Les **routes parallèles** (`@`) et **interceptions** (`(.)` …) ne sont pas utilisées dans ce dépôt pour l’instant ; les ajouter seulement si un besoin UX (modale + URL) le justifie.
+
+Documentation Next.js : [Project structure and organization](https://nextjs.org/docs/app/getting-started/project-structure), [Route Groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups), [Parallel Routes](https://nextjs.org/docs/app/building-your-application/routing/parallel-routes), [Intercepting Routes](https://nextjs.org/docs/app/building-your-application/routing/intercepting-routes).
+
+---
+
+<a id="auth"></a>
+## Authentification et rôles
+
+- **NextAuth v5** (JWT) avec adaptateur Prisma pour la persistance comptes / sessions en base.
+- Fournisseurs configurés dans `configs/prisma/auth.config.ts` (Google, Google artisan, identifiants).
+- Rôles Prisma (`Role`) : `USER`, `ADMIN`, `CLIENT`, `ARTISAN` — exposés dans le token / session pour l’UI et les garde-fous serveur.
+- Le **proxy** ne lit que le JWT (Edge) ; toute logique métier lourde (Stripe customer, promotion de rôle) reste dans les callbacks côté Node.
+
+---
+
+<a id="paiements-credits"></a>
+## Paiements et crédits d’analyse
+
+- **Checkout** : action serveur `createStripeCheckoutSession` (`services/database/stripe-checkout-action.ts`), packs et nombre de crédits décrits dans `configs/stripe/analysis-pack-credits.ts`.
+- **Webhook** : `POST /api/stripe/webhook` — événement `checkout.session.completed`, lecture de `metadata.userId` / `metadata.credits`, incrément `User.analysisCredits`. Nécessite `STRIPE_WEBHOOK_SECRET` et l’URL du webhook déclarée dans le dashboard Stripe.
+- **Succès paiement** : redirection vers `/dashboard/success`.
+- **Droits d’analyse** : règles dans `data/analysis.ts` (crédits utilisateur connecté, empreinte IP hashée pour l’invité via `ANALYSIS_IP_HASH_SALT`), appliquées sur `/api/documentai` et `/api/rag/analyze`.
+
+---
+
+<a id="flux-analyse"></a>
+## Flux analyse de devis (résumé)
+
+1. Upload côté client → `POST /api/documentai` (Google Document AI, variables d’environnement du compte de service).
+2. Optionnel : `POST /api/rag/ask` pour des contextes Pinecone (namespace `devis`, etc.).
+3. `POST /api/rag/analyze` : prompt Mistral, détails structurés, vérification SIRET si applicable.
+4. Consommation du crédit / enregistrement invité et historique Prisma pour les comptes connectés (voir `data/analysis.ts`).
+
+---
+
+<a id="depannage"></a>
+## Dépannage (local / production)
+
+- **Document AI** : sans `PRIVATE_KEY`, `PROJECT_ID`, `REGION_ID`, `PROCESSOR_ID`, etc., la route renvoie une erreur explicite ; aligner le `.env` sur la prod Vercel.
+- **Proxy `/dashboard`** : sans `NEXTAUTH_SECRET` (ou `AUTH_SECRET`), la protection JWT est désactivée avec un avertissement console — à corriger en prod.
+- **Prisma** : en cas de décalage entre l’historique des migrations et la base (drift), traiter avec `prisma migrate` / SQL manuel selon votre politique d’équipe.
+- **RAG** : index Pinecone, clé API et nom d’index doivent correspondre à ceux utilisés par `insert-chunk` et `ask`.
+
+---
+
+<a id="contenu-blog"></a>
+## Contenu (blog)
+
+Articles et pages MDX / contenu statique sous `app` et `content` selon l’implémentation actuelle ; images et métadonnées Open Graph à maintenir cohérents avec `app/layout.tsx` si vous changez l’URL canonique du site.
+
+---
+
+<a id="securite"></a>
+## Sécurité et bonnes pratiques
+
+- Ne pas versionner `.env` ; utiliser `.env.example` comme référence.
+- Définir un **`ANALYSIS_IP_HASH_SALT`** long et unique en production pour l’analyse gratuite invité.
+- Restreindre les clés API (Document AI, Mistral, Pinecone) par environnement et rotationner en cas de fuite.
+- Vérifier que le **webhook Stripe** pointe bien vers l’URL de prod et que seules les signatures valides sont acceptées.
+
+---
+
+<a id="server-actions-api"></a>
 ## Server actions et routes API : quand utiliser quoi
 
 ### Server actions (`"use server"`)
@@ -139,6 +259,7 @@ En résumé : préférer les **actions** pour le dialogue app ↔ base / Stripe 
 
 ---
 
+<a id="rag"></a>
 ## RAG (recherche augmentée)
 
 **Services** : `src/services/rag/` (`chunk.ts`, `vector.ts`, `pinecone.ts`, `chatcompletion.ts`).
@@ -155,6 +276,7 @@ Les fichiers de routes RAG contiennent des blocs de commentaire décrivant param
 
 ---
 
+<a id="providers"></a>
 ## Providers (`src/providers/`)
 
 Ordre dans `providers.tsx` (extérieur → intérieur) :
@@ -168,6 +290,7 @@ Tout ce qui est **persistant multi-étapes** ou volumineux peut rester dans un *
 
 ---
 
+<a id="stores"></a>
 ## Stores
 
 - **`src/stores/signupStore.ts`** (Zustand) : parcours d’inscription long, étapes, appels API, toasts. Évite de surcharger `GlobalStateProvider`.
@@ -175,6 +298,7 @@ Tout ce qui est **persistant multi-étapes** ou volumineux peut rester dans un *
 
 ---
 
+<a id="proxy"></a>
 ## Proxy (`src/proxy.ts`)
 
 Next.js 16 utilise ce fichier comme **middleware applicatif** (voir [documentation middleware / proxy](https://nextjs.org/docs/messages/middleware-to-proxy)).
@@ -189,6 +313,7 @@ Le `config.matcher` limite les extensions statiques et exclut `api`, `_next`, et
 
 ---
 
+<a id="icones"></a>
 ## Icônes
 
 - Fichiers SVG sous **`public/icons/`**, organisés par domaine (ex. `dashboard/nav/`, `dashboard/artisan-card/`).
@@ -196,6 +321,7 @@ Le `config.matcher` limite les extensions statiques et exclut `api`, `_next`, et
 
 ---
 
+<a id="prisma"></a>
 ## Prisma
 
 - Schéma : `prisma/schema.prisma`.
@@ -205,6 +331,7 @@ Le `config.matcher` limite les extensions statiques et exclut `api`, `_next`, et
 
 ---
 
+<a id="schemas"></a>
 ## Schémas et validation
 
 - **`src/schemas/`** : Zod pour les entrées utilisateur (ex. `signupClientSchema`, rôles).
@@ -212,6 +339,7 @@ Le `config.matcher` limite les extensions statiques et exclut `api`, `_next`, et
 
 ---
 
+<a id="hooks"></a>
 ## Hooks (`src/hooks/`)
 
 - Préfixe `use`, composants consommateurs en `"use client"` si nécessaire.
@@ -219,6 +347,7 @@ Le `config.matcher` limite les extensions statiques et exclut `api`, `_next`, et
 
 ---
 
+<a id="deploiement"></a>
 ## Déploiement
 
 Build Vercel typique : `prisma generate` puis `next build` (script `vercel-build` dans `package.json`). Configurer les variables d’environnement sur la plateforme comme en local.
@@ -227,6 +356,7 @@ Configurer **`HOST_URL`** (URLs de succès / annulation Stripe, liens e-mail) su
 
 ---
 
+<a id="qualite"></a>
 ## Qualité et évolutions
 
 - **`npm run lint`** avant merge conseillé ; pas de suite de tests E2E/unitaire imposée dans le dépôt à ce jour — à ajouter si le produit le nécessite (Playwright, Vitest, etc.).
@@ -234,6 +364,7 @@ Configurer **`HOST_URL`** (URLs de succès / annulation Stripe, liens e-mail) su
 
 ---
 
+<a id="documentation-externe"></a>
 ## Documentation externe
 
 - [Next.js](https://nextjs.org/docs)
