@@ -26,6 +26,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     "/logos",
     "/emojis",
     "/phasetest",
+    "/non-authorized",
   ];
 
   const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
@@ -53,9 +54,9 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
         secret,
       });
       if (!token) {
-        const signIn = new URL("/api/auth/signin", request.nextUrl.origin);
-        signIn.searchParams.set("callbackUrl", request.nextUrl.href);
-        return NextResponse.redirect(signIn);
+        return NextResponse.redirect(
+          new URL("/non-authorized", request.nextUrl.origin),
+        );
       }
     }
   }
