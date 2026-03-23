@@ -13,8 +13,15 @@
  * ou { status: 400|500, error: string }
  *****************************************************************************************************************/
 import { NextRequest, NextResponse } from "next/server";
-import { mistral } from "@/services/rag/chatcompletion";
+import { auth } from "@/configs/prisma/auth";
 import { prompt } from "@/constants/promptRag";
+import {
+  assertAnalysisAllowed,
+  commitSuccessfulAnalysis,
+  getClientIp,
+  hashClientIp,
+} from "@/data/analysis";
+import { mistral } from "@/services/rag/chatcompletion";
 
 function clampScore(value: number) {
   if (Number.isNaN(value)) return 0;
@@ -239,11 +246,22 @@ async function verifySiret(siret: string, request: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { text, contexts } = await req.json();
+    const { text, contexts, fileName } = await req.json();
     if (!text || text.trim().length === 0) {
       return NextResponse.json(
         { error: "Le texte est requis" },
         { status: 400 }
+      );
+    }
+
+    const session = await auth();
+    const userId = session?.user?.id ?? null;
+    const ipHash = hashClientIp(getClientIp(req));
+    const gate = await assertAnalysisAllowed({ userId, ipHash });
+    if (gate.ok === false) {
+      return NextResponse.json(
+        { status: gate.status, error: gate.message },
+        { status: gate.status },
       );
     }
     let siretInfo: {
@@ -384,6 +402,20 @@ export async function POST(req: NextRequest) {
       siretInfo,
       acompteFromSource?.total,
     );
+
+    try {
+      await commitSuccessfulAnalysis({
+        userId,
+        ipHash,
+        fileName:
+          typeof fileName === "string" && fileName.trim().length > 0
+            ? fileName.trim()
+            : null,
+        reliability: reliability ?? 0,
+      });
+    } catch (e) {
+      console.error("commitSuccessfulAnalysis:", e);
+    }
 
     return NextResponse.json({
       status: 200,

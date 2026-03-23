@@ -23,13 +23,35 @@ model User {
   emailVerified    DateTime?
   image            String?
   stripeCustomerId String?         @unique
+  /// Crédits d’analyse de devis (défaut 1 pour les comptes existants)
+  analysisCredits  Int             @default(1)
   accounts         Account[]
   sessions         Session[]
   role             Role            @default(USER)
   Authenticator    Authenticator[]
   artisan          Artisan?
+  analysisHistory  AnalysisHistory[]
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
+}
+
+/// Historique des analyses (utilisateurs connectés)
+model AnalysisHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName    String
+  reliability Float
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// Une analyse gratuite par empreinte IP (invités non connectés)
+model GuestAnalysisUsage {
+  id        String   @id @default(cuid())
+  ipHash    String   @unique
+  createdAt DateTime @default(now())
 }
 
 model Artisan {

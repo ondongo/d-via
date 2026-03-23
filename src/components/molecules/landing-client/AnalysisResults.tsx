@@ -430,7 +430,7 @@ export default function AnalysisResults({
                       Trouver une alternative
                     </p>
                     <p className="text-white/80 text-xs">
-                      3 artisans fiables disponibles pour ce projet
+                      Jusqu&apos;à 5 artisans les mieux notés pour ce type de projet
                     </p>
                   </div>
                 </div>
