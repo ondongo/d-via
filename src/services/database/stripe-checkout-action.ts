@@ -41,7 +41,7 @@ export async function createStripeCheckoutSession(
         userId,
         credits: String(credits),
       },
-      success_url: `${process.env.HOST_URL}/dashboard?success=true`,
+      success_url: `${process.env.HOST_URL}/dashboard/success`,
       cancel_url: `${process.env.HOST_URL}/pricing?canceled=true`,
     });
 
