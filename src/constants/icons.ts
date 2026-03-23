@@ -15,6 +15,7 @@ export const ICONS = {
   search: "/icons/search.svg",
   searchBlue: "/icons/search-blue.svg",
   send: "/icons/send.svg",
+  sendPrimary: "/icons/send-primary.svg",
   camera: "/icons/camera.svg",
   /** Pièce jointe (ex. messagerie) */
   attachment: "/icons/attachment.svg",

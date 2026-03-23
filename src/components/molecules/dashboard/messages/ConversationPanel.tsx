@@ -102,7 +102,7 @@ export default function ConversationPanel({ conv }: { conv: Conversation }) {
       </div>
 
       {/* Input — dernière ligne de la grille, hors zone scroll */}
-      <div className="flex shrink-0 items-center gap-3 border-t border-dvianeutral-50 bg-white px-4 py-3">
+      <div className="flex shrink-0 items-center gap-3 border-t border-dvianeutral-50 px-4 py-3">
         <button className="text-dvianeutralvariant-60 hover:text-dviaprimary-40 transition-colors cursor-pointer shrink-0">
           <Image
             src={ICONS.attachment}
@@ -124,17 +124,13 @@ export default function ConversationPanel({ conv }: { conv: Conversation }) {
           placeholder="Décrivez votre projet ...."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          className="flex-1 text-sm text-dvianeutralvariant-30 outline-none placeholder:text-dvianeutralvariant-60 bg-transparent"
+          className="flex-1 text-sm text-dvianeutralvariant-30 outline-none placeholder:text-dvianeutralvariant-60 bg-transparent border border-dvianeutral-50 rounded-8px px-4 py-2"
         />
         <button
-          className={`cursor-pointer transition-colors shrink-0 ${
-            inputValue.trim()
-              ? "text-dviaprimary-40"
-              : "text-dvianeutralvariant-60"
-          }`}
+          className="cursor-pointer transition-colors shrink-0 text-dviaprimary-40"
         >
-          <Image src={ICONS.send} alt="send" width={18} height={18} />
-        </button>
+          <Image src={ICONS.sendPrimary} alt="send" width={28} height={28}/>
+        </button> 
       </div>
     </div>
   );
