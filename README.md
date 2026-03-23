@@ -243,6 +243,8 @@ Fichiers typiques : `src/services/database/*-actions.ts`, `recommended-artisans.
 
 - Appel direct depuis les composants client ou les Server Components, typage fort, moins de code `fetch` manuel.
 - Adapté aux **mutations et lectures simples** déclenchées par l’UI (crédits, historique d’analyse, checkout Stripe côté session utilisateur).
+- Limite de payload Server Actions configurée dans `next.config.ts` :
+  `experimental.serverActions.bodySizeLimit = "8mb"` (évite l’erreur *Body exceeded 1 MB limit* sur les envois volumineux).
 
 La logique Prisma partagée avec d’autres couches vit de préférence dans `src/data/` ; les actions orchestrent auth, headers et appellent `data/`.
 
