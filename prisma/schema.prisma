@@ -31,6 +31,9 @@ model User {
   Authenticator    Authenticator[]
   artisan          Artisan?
   analysisHistory  AnalysisHistory[]
+  payments         Payment[]
+  clientConversations Conversation[] @relation("ClientConversation")
+  artisanConversations Conversation[] @relation("ArtisanConversation")
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 }
@@ -177,4 +180,81 @@ enum ReactionType {
   CLAPPING
   THINKING
   AMAZED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+model Payment {
+  id                    String        @id @default(cuid())
+  userId                String
+  user                  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSessionId       String        @unique
+  stripePaymentIntentId String?
+  stripeEventId         String?       @unique
+  amount                Int
+  currency              String
+  status                PaymentStatus @default(PENDING)
+  creditsAdded          Int           @default(0)
+  metadata              Json?
+  paidAt                DateTime?
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+}
+
+enum ConversationStatus {
+  QUOTE_SIGNED
+  IN_PROGRESS
+  PENDING
+}
+
+enum MessageFrom {
+  CLIENT
+  ARTISAN
+  SYSTEM
+}
+
+enum MessageContentType {
+  TEXT
+  QUOTE
+  ALERT
+}
+
+model Conversation {
+  id          String             @id @default(cuid())
+  clientId    String
+  artisanId   String
+  client      User               @relation("ClientConversation", fields: [clientId], references: [id], onDelete: Cascade)
+  artisan     User               @relation("ArtisanConversation", fields: [artisanId], references: [id], onDelete: Cascade)
+  status      ConversationStatus @default(PENDING)
+  isUnreadByClient  Boolean      @default(false)
+  isUnreadByArtisan Boolean      @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  messages    Message[]
+
+  @@index([clientId, updatedAt])
+  @@index([artisanId, updatedAt])
+}
+
+model Message {
+  id             String             @id @default(cuid())
+  conversationId String
+  conversation   Conversation       @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  from           MessageFrom
+  contentType    MessageContentType
+  text           String?
+  payload        Json?
+  readAt         DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([conversationId, createdAt])
 }
