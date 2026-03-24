@@ -146,6 +146,9 @@ function DashboardClientsPage() {
     reliability: number | null;
     details: Record<string, string>;
     conclusion: string;
+    artisanName?: string | null;
+    montantTotal?: string | null;
+    dateEmission?: string | null;
   }>({ reliability: null, details: {}, conclusion: "" });
 
   const {
@@ -389,6 +392,9 @@ function DashboardClientsPage() {
             reliability: analyzeData.reliability,
             details: analyzeData.details,
             conclusion: analyzeData.conclusion,
+            artisanName: analyzeData.artisanName ?? null,
+            montantTotal: analyzeData.montantTotal ?? null,
+            dateEmission: analyzeData.dateEmission ?? null,
           });
           setIsAnalyzed(true);
 
@@ -470,7 +476,7 @@ ${analysis.conclusion}
       />
 
       {/* Contenu principal */}
-      <div className="flex-1 min-w-0 px-4 md:px-8 py-4 md:py-0">
+      <div className="flex-1 min-w-0 px-4 md:px-8 py-4 md:pt-6 md:pb-0">
         {/* Sous-titre */}
         {!isAnalyzed && !isLoading && canAnalyze && (
           <p className="text-dvianeutral-20 text-sm md:text-base my-6">

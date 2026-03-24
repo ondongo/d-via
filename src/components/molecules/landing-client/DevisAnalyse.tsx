@@ -151,9 +151,12 @@ function DevisAnalyse() {
     reliability: number | null;
     details: Record<string, string>;
     conclusion: string;
+    artisanName?: string | null;
+    montantTotal?: string | null;
+    dateEmission?: string | null;
   }>({
     reliability: null,
-    details: {}, // Objet avec des clés et des chaînes de caractères
+    details: {},
     conclusion: "",
   });
 
@@ -273,6 +276,9 @@ function DevisAnalyse() {
             reliability: analyzeData.reliability,
             details: analyzeData.details,
             conclusion: analyzeData.conclusion,
+            artisanName: analyzeData.artisanName ?? null,
+            montantTotal: analyzeData.montantTotal ?? null,
+            dateEmission: analyzeData.dateEmission ?? null,
           });
           setIsAnalyzed(true);
 

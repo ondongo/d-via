@@ -184,6 +184,48 @@ function adjustReliabilityScore(
   return clampScore(score);
 }
 
+function extractArtisanName(text: string, siretInfo?: { nomEntreprise?: string }): string | null {
+  if (siretInfo?.nomEntreprise) return siretInfo.nomEntreprise;
+  const patterns = [
+    /(?:Nom de l['']entreprise|Raison sociale|Soci[eé]t[eé]|Prestataire)\s*:?\s*([^\n]+)/i,
+    /^((?:SARL|SAS|EURL|SA|SASU|EI|Ets?\.?)\s+[A-Za-zÀ-ÿ\s&''-]+)/m,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) return cleanMarkdownText(match[1]).slice(0, 60);
+  }
+  return null;
+}
+
+function extractMontantTotal(text: string): string | null {
+  const patterns = [
+    /(?:Total TTC|Total\s+T\.T\.C\.?|Montant TTC|NET\s+[AÀ]\s+PAYER|Net\s+[aà]\s+payer|Total\s+[aà]\s+payer)\s*:?\s*([\d\s.,]+\s*€?)/i,
+    /(?:Total HT|Montant HT|Total\s+H\.T\.?)\s*:?\s*([\d\s.,]+\s*€?)/i,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) {
+      const val = cleanMarkdownText(match[1]).trim();
+      if (val) return val.includes("€") ? val : `${val} €`;
+    }
+  }
+  return null;
+}
+
+function extractDateEmission(text: string): string | null {
+  const patterns = [
+    /(?:Date\s+(?:d[''']?[eé]mission|du devis|de facturation|d[''']?[eé]tablissement))\s*:?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i,
+    /(?:[EÉ]mis le|[EÉ]tabli le|Fait le)\s*:?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/i,
+    /(?:^|[\s,;])Date\s*:?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/im,
+    /\b(\d{1,2}\/\d{1,2}\/\d{4})\b/,
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match?.[1]) return match[1].trim();
+  }
+  return null;
+}
+
 /*****************************************************************************************************************
  * Fonction pour extraire le SIRET du texte
  *****************************************************************************************************************/
@@ -422,6 +464,9 @@ export async function POST(req: NextRequest) {
       reliability,
       details,
       conclusion,
+      artisanName: extractArtisanName(text, siretInfo) ?? null,
+      montantTotal: extractMontantTotal(text) ?? null,
+      dateEmission: extractDateEmission(text) ?? null,
     });
   } catch (error) {
     console.error("Erreur lors de l'analyse :", error);

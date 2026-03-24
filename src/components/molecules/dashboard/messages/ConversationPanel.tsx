@@ -56,7 +56,7 @@ export default function ConversationPanel({ conv, onSendMessage }: { conv: Conve
       </div>
 
       {/* Messages — 1fr + min-h-0 : scroll interne, barre de saisie toujours visible en bas */}
-      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4 py-4">
+      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4">
         {conv.messages.map((msg) => {
           if (msg.contentType === "ALERT") {
             return <AlertMessage key={msg.id} text={msg.text || ""} />;
