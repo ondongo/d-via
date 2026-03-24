@@ -28,6 +28,19 @@ export type SignupFormData = {
   experienceYears?: string;
   specialties?: string;
   description?: string;
+  interventionDelay?: string;
+  hourlyRateMin?: string;
+  hourlyRateMax?: string;
+  dailyRateMin?: string;
+  dailyRateMax?: string;
+  travelFee?: string;
+  freeEstimate?: boolean;
+  schedule?: string;
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  tiktok?: string;
+  websiteUrl?: string;
   // Métadonnées
   completedSteps?: number[];
   currentStep?: number;

@@ -481,15 +481,13 @@ export const useSignupStore = create<SignupState>((set, get) => ({
       router.push("/signup/step4");
     } else if (state.currentStep === 4) {
       const step4Part = state.stepParts[4] || 1;
-      if (step4Part === 1) {
-        // Partie 1 : Passer à partie 2
+      if (step4Part >= 1 && step4Part < 7) {
         set((prev) => ({
-          stepParts: { ...prev.stepParts, 4: 2 },
+          stepParts: { ...prev.stepParts, 4: step4Part + 1 },
         }));
-      } else if (step4Part === 2) {
-        // Partie 2 :  Enregistrer les données dans la base de données et connecter l'utilisateur
+      } else if (step4Part === 7) {
         await state.handleFinalSubmit(router);
-      } 
+      }
     }
   },
 
@@ -595,6 +593,19 @@ export const useSignupStore = create<SignupState>((set, get) => ({
         description: state.description || savedData.description || undefined,
         professionalGuarantees: professionalGuarantees.length > 0 ? professionalGuarantees : undefined,
         workPhotos: workPhotos.length > 0 ? workPhotos : undefined,
+        interventionDelay: savedData.interventionDelay || undefined,
+        hourlyRateMin: savedData.hourlyRateMin || undefined,
+        hourlyRateMax: savedData.hourlyRateMax || undefined,
+        dailyRateMin: savedData.dailyRateMin || undefined,
+        dailyRateMax: savedData.dailyRateMax || undefined,
+        travelFee: savedData.travelFee || undefined,
+        freeEstimate: savedData.freeEstimate || false,
+        schedule: savedData.schedule || undefined,
+        facebook: savedData.facebook || undefined,
+        instagram: savedData.instagram || undefined,
+        linkedin: savedData.linkedin || undefined,
+        tiktok: savedData.tiktok || undefined,
+        websiteUrl: savedData.websiteUrl || undefined,
       });
 
       if (!result.success || !result.userId) {

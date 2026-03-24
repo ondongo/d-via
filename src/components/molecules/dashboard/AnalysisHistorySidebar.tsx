@@ -27,32 +27,26 @@ function formatRelativeDate(iso: string): string {
 interface Props {
   history: AnalysisHistoryItem[];
   onRemove: (id: string) => void;
+  isLoading?: boolean;
 }
 
-export default function AnalysisHistorySidebar({ history, onRemove }: Props) {
+export default function AnalysisHistorySidebar({ history, onRemove, isLoading }: Props) {
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<"all" | "saved">("all");
 
   const filtered = history.filter((item) =>
     item.fileName.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
-    <aside className="hidden md:flex flex-col w-[260px] shrink-0 border-r border-dvianeutral-50 bg-dvianeutral-90 min-h-[calc(100vh-120px)] overflow-y-auto">
-      <div className="sticky top-0 bg-dvianeutral-90 z-10 px-4 pt-4 pb-3 border-b border-dvianeutral-50">
-        <p className="text-label-large leading-label-large tracking-label-large font-semibold text-dvianeutral-10 mb-3">
+    <aside className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-dvianeutral-50 min-h-[calc(100vh-120px)] overflow-y-auto">
+      <div className="sticky top-0 z-10 px-4 pt-5 pb-3">
+        <p className="text-base font-bold text-dvianeutral-10 mb-4">
           Historique
         </p>
 
-        <div className="flex items-center gap-2 bg-dvianeutral-94 border border-dvianeutral-50 rounded-8px px-3 py-2 mb-3">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#6A7282"
-            strokeWidth="2"
-            strokeLinecap="round"
-          >
+        <div className="flex items-center gap-2 border border-dvianeutral-50 focus-within:border-dviaprimary-40 rounded-8px px-3 py-2 mb-3">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6A7282" strokeWidth="2" strokeLinecap="round">
             <circle cx="11" cy="11" r="8" />
             <path d="M21 21l-4.35-4.35" />
           </svg>
@@ -66,26 +60,54 @@ export default function AnalysisHistorySidebar({ history, onRemove }: Props) {
         </div>
 
         <div className="flex gap-2">
-          <button className="text-xs px-3 py-1.5 rounded-28px bg-dviaprimary-40 text-white font-medium">
+          <button
+            onClick={() => setFilter("all")}
+            className={`text-xs px-3 py-1.5 rounded-28px font-medium transition-colors cursor-pointer ${
+              filter === "all"
+                ? "bg-dviaprimary-40 text-white"
+                : "border border-dvianeutral-50 text-dvianeutralvariant-40 hover:bg-dvianeutral-96"
+            }`}
+          >
+            {filter === "all" && (
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="inline mr-1 -mt-0.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
             Tous
           </button>
-          <button className="text-xs px-3 py-1.5 rounded-28px border border-dvianeutral-50 text-dvianeutralvariant-40">
-            Enregistrés
+          <button
+            onClick={() => setFilter("saved")}
+            className={`text-xs px-3 py-1.5 rounded-28px font-medium transition-colors cursor-pointer ${
+              filter === "saved"
+                ? "bg-dviaprimary-40 text-white"
+                : "border border-dvianeutral-50 text-dvianeutralvariant-40 hover:bg-dvianeutral-96"
+            }`}
+          >
+            Enregistrer
           </button>
         </div>
       </div>
 
       <div className="flex-1 px-3 py-2">
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <ul className="flex flex-col gap-0.5 mt-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-2.5 px-2 py-2.5 rounded-8px animate-pulse"
+              >
+                <div className="w-8 h-8 shrink-0 bg-dvianeutral-94 rounded-8px" />
+                <div className="flex-1 min-w-0">
+                  <div className="h-3 bg-dvianeutral-94 rounded w-24 mb-1.5" />
+                  <div className="h-2.5 bg-dvianeutral-94 rounded w-16" />
+                </div>
+                <div className="w-11 h-11 shrink-0 bg-dvianeutral-94 rounded-full" />
+              </li>
+            ))}
+          </ul>
+        ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#D0B8A2"
-              strokeWidth="1.5"
-            >
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D0B8A2" strokeWidth="1.5">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
@@ -94,47 +116,35 @@ export default function AnalysisHistorySidebar({ history, onRemove }: Props) {
             </p>
           </div>
         ) : (
-          <ul className="flex flex-col gap-1 mt-1">
+          <ul className="flex flex-col gap-0.5 mt-1">
             {filtered.map((item) => (
               <li
                 key={item.id}
-                className="group flex items-center gap-2 px-2 py-2 rounded-8px hover:bg-dvianeutral-94 cursor-pointer transition-colors"
+                className="group flex items-center gap-2.5 px-2 py-2.5 rounded-8px bg-dvianeutral-96 hover:bg-dvianeutral-96 cursor-pointer transition-colors"
               >
-                <div
-                  className={`w-6 h-6 shrink-0 rounded flex items-center justify-center text-[10px] font-bold ${GRADE_COLORS[item.grade]}`}
-                >
-                  {item.grade}
+                <div className="w-8 h-8 shrink-0 bg-dvianeutral-96 rounded-8px flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6A7282" strokeWidth="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-dvianeutral-10 truncate">
                     {item.fileName}
                   </p>
-                  <p className="text-[10px] text-dvianeutralvariant-60">
+                  <p className="text-[10px] font-medium text-dvianeutralvariant-60">
                     {formatRelativeDate(item.date)}
                   </p>
                 </div>
 
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemove(item.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-dvianeutral-50"
-                  aria-label="Supprimer"
+                <div
+                  className={`w-11 h-11 shrink-0 rounded-full flex items-center justify-center text-[10px] font-bold ${GRADE_COLORS[item.grade]}`}
                 >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#6A7282"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  >
-                    <path d="M18 6L6 18M6 6l12 12" />
-                  </svg>
-                </button>
+                  {item.grade}
+                </div>
               </li>
             ))}
           </ul>

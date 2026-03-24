@@ -1,435 +1,420 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Début du seed...');
   
-  // Nettoyage
+  // Nettoyage complet
+  await prisma.message.deleteMany();
+  await prisma.conversation.deleteMany();
   await prisma.artisan.deleteMany();
-  await prisma.user.deleteMany();
-  
-  // Création des Users d'abord
-  console.log('👤 Création des utilisateurs...');
-  const users = await prisma.user.createMany({
-    data: [
-      { email: 'plombier@example.com', name: 'Jean Dupont' },
-      { email: 'electricienne@example.com', name: 'Marie Martin' },
-      { email: 'macon@example.com', name: 'Pierre Durand' },
-      { email: 'peintre@example.com', name: 'Sophie Bernard' },
-      { email: 'menuisier@example.com', name: 'Luc Moreau' },
-      { email: 'chauffagiste1@example.com', name: 'Thomas Petit' },
-      { email: 'electricienne2@example.com', name: 'Emma Dubois' },
-      { email: 'couvreur@example.com', name: 'Antoine Leroy' },
-      { email: 'carreleur@example.com', name: 'Julie Roux' },
-      { email: 'platrier@example.com', name: 'Nicolas Simon' },
-      { email: 'electricien@example.com', name: 'Camille Michel' },
-      { email: 'serrurier@example.com', name: 'Lucas Garcia' },
-      { email: 'chauffagiste2@example.com', name: 'Léa Martinez' },
-      { email: 'macon2@example.com', name: 'Hugo Lopez' },
-    ],
-    skipDuplicates: true,
-  });
-  
-  // Récupération des users créés pour les associer aux artisans
-  const createdUsers = await prisma.user.findMany({
-    orderBy: { createdAt: 'asc' },
-  });
-  
-  console.log('🔧 Création des artisans...');
-  const artisans = [
-      {
-        userId: createdUsers[0].id,
-        firstName: 'Jean',
-        lastName: 'Dupont',
-        email: 'plombier@example.com',
-        phoneNumber: '+33612345678',
-        address: '15 Rue de la République, 75011 Paris',
-        coordinates: JSON.stringify([48.8566, 2.3522]),
-        companyName: 'Plomberie Dupont',
-        siret: '12345678901234',
-        profession: 'Plombier',
-        category: 'Rénovation',
-        description: 'Plombier expérimenté spécialisé en rénovation de salles de bain',
-        experienceYears: '15',
-        services: 'Installation, réparation, rénovation',
-        specialties: 'Salle de bain, chauffage',
-        certifications: ['RGE', 'Qualibat'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://plus.unsplash.com/premium_photo-1663100790655-a9a79e9b2d7e?fm=jpg&q=60&w=3000',
-        rating: 4.8,
-        reviews: 214,
-        verified: true,
-        location: 'Paris, 75011',
-        distance: 5,
-        availability: 'Disponible dans 2 semaines',
-      },
-      {
-        userId: createdUsers[1].id,
-        firstName: 'Marie',
-        lastName: 'Martin',
-        email: 'electricienne@example.com',
-        phoneNumber: '+33612345679',
-        address: '22 Avenue des Minimes, 31000 Toulouse',
-        coordinates: JSON.stringify([43.6047, 1.4442]),
-        companyName: 'Électricité Martin',
-        siret: '12345678901235',
-        profession: 'Électricienne',
-        category: 'Électricité',
-        description: 'Électricienne qualifiée pour tous types d\'installations',
-        experienceYears: '10',
-        services: 'Installation, dépannage, mise aux normes',
-        specialties: 'Installation électrique, domotique',
-        certifications: ['Qualifelec'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://img.freepik.com/photos-gratuite/portrait-jeune-femme-noire-professionnelle-ingenieur-civil-architecture-ouvriere-portant-casque-securite-pour-travailler-chantier-construction-entrepot-utilisant-ordinateur-portable-pour-travail_640221-430.jpg',
-        rating: 4.5,
-        reviews: 120,
-        verified: false,
-        location: 'Toulouse, 31000',
-        distance: 6,
-        availability: 'Disponible dans 1 mois',
-      },
-      {
-        userId: createdUsers[2].id,
-        firstName: 'Pierre',
-        lastName: 'Durand',
-        email: 'macon@example.com',
-        phoneNumber: '+33612345680',
-        address: '8 Rue de la Charité, 69003 Lyon',
-        coordinates: JSON.stringify([45.7640, 4.8357]),
-        companyName: 'Maçonnerie Durand',
-        siret: '12345678901236',
-        profession: 'Maçon',
-        category: 'Gros oeuvre',
-        description: 'Maçon expérimenté en construction et rénovation',
-        experienceYears: '20',
-        services: 'Construction, rénovation, extension',
-        specialties: 'Gros oeuvre, maçonnerie traditionnelle',
-        certifications: ['RGE'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1743222270396-703376b47d58?fm=jpg&q=60&w=3000',
-        rating: 4.6,
-        reviews: 180,
-        verified: false,
-        location: 'Lyon, 69003',
-        distance: 12,
-        availability: 'Disponible la semaine prochaine',
-      },
-      {
-        userId: createdUsers[3].id,
-        firstName: 'Sophie',
-        lastName: 'Bernard',
-        email: 'peintre@example.com',
-        phoneNumber: '+33612345681',
-        address: '45 Boulevard Longchamp, 13006 Marseille',
-        coordinates: JSON.stringify([43.2965, 5.3698]),
-        companyName: 'Peinture Bernard',
-        siret: '12345678901237',
-        profession: 'Peintre',
-        category: 'Finition',
-        description: 'Peintre décorateur spécialisé en finitions de qualité',
-        experienceYears: '12',
-        services: 'Peinture intérieure, extérieure, décoration',
-        specialties: 'Peinture décorative, finitions',
-        certifications: ['Qualibat', 'EcoArtisan'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1521799022345-481a897e45ca?fm=jpg&q=60&w=3000',
-        rating: 4.9,
-        reviews: 300,
-        verified: true,
-        location: 'Marseille, 13006',
-        distance: 8,
-        availability: 'Disponible immédiatement',
-      },
-      {
-        userId: createdUsers[4].id,
-        firstName: 'Luc',
-        lastName: 'Moreau',
-        email: 'menuisier@example.com',
-        phoneNumber: '+33612345682',
-        address: '12 Promenade des Anglais, 06000 Nice',
-        coordinates: JSON.stringify([43.7102, 7.2620]),
-        companyName: 'Menuiserie Moreau',
-        siret: '12345678901238',
-        profession: 'Menuisier',
-        category: 'Menuiserie',
-        description: 'Menuisier spécialisé en menuiserie sur mesure',
-        experienceYears: '18',
-        services: 'Menuiserie intérieure, extérieure, sur mesure',
-        specialties: 'Portes, fenêtres, escaliers',
-        certifications: 'RGE',
-        image: 'https://plus.unsplash.com/premium_photo-1681989486976-9ec9d2eac57a?fm=jpg&q=60&w=3000',
-        photos: [],
-        rating: 4.7,
-        reviews: 150,
-        verified: true,
-        location: 'Nice, 06000',
-        distance: 3,
-        availability: 'Disponible dans 3 jours',
-      },
-      {
-        userId: createdUsers[5].id,
-        firstName: 'Thomas',
-        lastName: 'Petit',
-        email: 'chauffagiste1@example.com',
-        phoneNumber: '+33612345683',
-        address: '30 Cours de l\'Intendance, 33000 Bordeaux',
-        coordinates: JSON.stringify([44.8378, -0.5792]),
-        companyName: 'Chauffage Petit',
-        siret: '12345678901239',
-        profession: 'Chauffagiste',
-        category: 'Chauffage',
-        description: 'Chauffagiste expert en installation et maintenance',
-        experienceYears: '14',
-        services: 'Installation, maintenance, dépannage',
-        specialties: 'Chaudières, pompes à chaleur',
-        certifications: ['RGE', 'Qualibat'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=jpg&q=60&w=3000',
-        rating: 4.9,
-        reviews: 280,
-        verified: true,
-        location: 'Bordeaux, 33000',
-        distance: 4,
-        availability: 'Disponible dans 1 semaine',
-      },
-      {
-        userId: createdUsers[6].id,
-        firstName: 'Emma',
-        lastName: 'Dubois',
-        email: 'electricienne2@example.com',
-        phoneNumber: '+33612345684',
-        address: '15 Rue Crébillon, 44000 Nantes',
-        coordinates: JSON.stringify([47.2184, -1.5536]),
-        companyName: 'Électricité Dubois',
-        siret: '12345678901240',
-        profession: 'Électricienne',
-        category: 'Électricité',
-        description: 'Électricienne spécialisée en rénovation électrique',
-        experienceYears: '8',
-        services: 'Rénovation, mise aux normes, dépannage',
-        specialties: 'Tableaux électriques, éclairage',
-        certifications: 'Qualifelec',
-        image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?fm=jpg&q=60&w=3000',
-        photos: [],
-        rating: 4.4,
-        reviews: 95,
-        verified: false,
-        location: 'Nantes, 44000',
-        distance: 7,
-        availability: 'Disponible dans 2 semaines',
-      },
-      {
-        userId: createdUsers[7].id,
-        firstName: 'Antoine',
-        lastName: 'Leroy',
-        email: 'couvreur@example.com',
-        phoneNumber: '+33612345685',
-        address: '25 Rue de la Barre, 59000 Lille',
-        coordinates: JSON.stringify([50.6292, 3.0573]),
-        companyName: 'Couverture Leroy',
-        siret: '12345678901241',
-        profession: 'Couvreur',
-        category: 'Couverture',
-        description: 'Couvreur expert en toiture et étanchéité',
-        experienceYears: '16',
-        services: 'Toiture, étanchéité, zinguerie',
-        specialties: 'Ardoise, tuile, zinc',
-        certifications: ['RGE', 'EcoArtisan'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fm=jpg&q=60&w=3000',
-        rating: 4.8,
-        reviews: 320,
-        verified: true,
-        location: 'Lille, 59000',
-        distance: 9,
-        availability: 'Disponible immédiatement',
-      },
-      {
-        userId: createdUsers[8].id,
-        firstName: 'Julie',
-        lastName: 'Roux',
-        email: 'carreleur@example.com',
-        phoneNumber: '+33612345686',
-        address: '18 Place Kléber, 67000 Strasbourg',
-        coordinates: JSON.stringify([48.5734, 7.7521]),
-        companyName: 'Carrelage Roux',
-        siret: '12345678901242',
-        profession: 'Carreleur',
-        category: 'Finition',
-        description: 'Carreleur spécialisé en carrelage et faïence',
-        experienceYears: '11',
-        services: 'Carrelage, faïence, parquet',
-        specialties: 'Salle de bain, cuisine',
-        certifications: ['Qualibat'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=jpg&q=60&w=3000',
-        rating: 4.6,
-        reviews: 180,
-        verified: true,
-        location: 'Strasbourg, 67000',
-        distance: 6,
-        availability: 'Disponible dans 3 jours',
-      },
-      {
-        userId: createdUsers[9].id,
-        firstName: 'Nicolas',
-        lastName: 'Simon',
-        email: 'platrier@example.com',
-        phoneNumber: '+33612345687',
-        address: '7 Place de la Comédie, 34000 Montpellier',
-        coordinates: JSON.stringify([43.6108, 3.8767]),
-        companyName: 'Plâtrerie Simon',
-        siret: '12345678901243',
-        profession: 'Plâtrier',
-        category: 'Finition',
-        description: 'Plâtrier spécialisé en doublage et isolation',
-        experienceYears: '9',
-        services: 'Plâtrerie, doublage, isolation',
-        specialties: 'Cloisons, plafonds, isolation',
-        certifications: 'RGE',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=jpg&q=60&w=3000',
-        photos: [],
-        rating: 4.7,
-        reviews: 220,
-        verified: false,
-        location: 'Montpellier, 34000',
-        distance: 11,
-        availability: 'Disponible dans 1 mois',
-      },
-      {
-        userId: createdUsers[10].id,
-        firstName: 'Camille',
-        lastName: 'Michel',
-        email: 'electricien@example.com',
-        phoneNumber: '+33612345688',
-        address: '10 Rue de la Monnaie, 35000 Rennes',
-        coordinates: JSON.stringify([48.1173, -1.6778]),
-        companyName: 'Électricité Michel',
-        siret: '12345678901244',
-        profession: 'Électricien',
-        category: 'Électricité',
-        description: 'Électricien expert en installation et maintenance',
-        experienceYears: '13',
-        services: 'Installation, maintenance, dépannage',
-        specialties: 'Tableaux électriques, éclairage LED',
-        certifications: ['Qualifelec', 'RGE'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fm=jpg&q=60&w=3000',
-        rating: 4.5,
-        reviews: 160,
-        verified: true,
-        location: 'Rennes, 35000',
-        distance: 8,
-        availability: 'Disponible la semaine prochaine',
-      },
-      {
-        userId: createdUsers[11].id,
-        firstName: 'Lucas',
-        lastName: 'Garcia',
-        email: 'serrurier@example.com',
-        phoneNumber: '+33612345689',
-        address: '5 Place du Capitole, 31000 Toulouse',
-        coordinates: JSON.stringify([43.6047, 1.4442]),
-        companyName: 'Serrurerie Garcia',
-        siret: '12345678901245',
-        profession: 'Serrurier',
-        category: 'Sécurité',
-        description: 'Serrurier spécialisé en serrurerie et sécurité',
-        experienceYears: '17',
-        services: 'Serrurerie, blindage, sécurité',
-        specialties: 'Portes blindées, serrures haute sécurité',
-        certifications: 'Qualibat,EcoArtisan',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?fm=jpg&q=60&w=3000',
-        photos: [],
-        rating: 4.9,
-        reviews: 290,
-        verified: true,
-        location: 'Toulouse, 31000',
-        distance: 5,
-        availability: 'Disponible dans 2 semaines',
-      },
-      {
-        userId: createdUsers[12].id,
-        firstName: 'Léa',
-        lastName: 'Martinez',
-        email: 'chauffagiste2@example.com',
-        phoneNumber: '+33612345690',
-        address: '20 Place Stanislas, 54000 Nancy',
-        coordinates: JSON.stringify([48.6921, 6.1844]),
-        companyName: 'Chauffage Martinez',
-        siret: '12345678901246',
-        profession: 'Chauffagiste',
-        category: 'Chauffage',
-        description: 'Chauffagiste spécialisée en énergies renouvelables',
-        experienceYears: '7',
-        services: 'Installation, maintenance, pompes à chaleur',
-        specialties: 'Pompes à chaleur, chaudières gaz',
-        certifications: 'RGE',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?fm=jpg&q=60&w=3000',
-        photos: [],
-        rating: 4.3,
-        reviews: 110,
-        verified: false,
-        location: 'Nancy, 54000',
-        distance: 15,
-        availability: 'Disponible dans 3 semaines',
-      },
-      {
-        userId: createdUsers[13].id,
-        firstName: 'Hugo',
-        lastName: 'Lopez',
-        email: 'macon2@example.com',
-        phoneNumber: '+33612345691',
-        address: '14 Place Drouet d\'Erlon, 51100 Reims',
-        coordinates: JSON.stringify([49.2583, 4.0317]),
-        companyName: 'Maçonnerie Lopez',
-        siret: '12345678901247',
-        profession: 'Maçon',
-        category: 'Gros oeuvre',
-        description: 'Maçon expert en construction neuve et rénovation',
-        experienceYears: '19',
-        services: 'Construction, rénovation, extension',
-        specialties: 'Gros oeuvre, maçonnerie traditionnelle',
-        certifications: ['Qualibat'],
-        certificationUrls: [],
-        workPhotos: [],
-        professionalGuarantees: [],
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fm=jpg&q=60&w=3000',
-        rating: 4.8,
-        reviews: 250,
-        verified: true,
-        location: 'Reims, 51100',
-        distance: 7,
-        availability: 'Disponible immédiatement',
-      },
+  await prisma.account.deleteMany();
+  await prisma.session.deleteMany();
+  await prisma.user.deleteMany({ where: { role: { in: ['ARTISAN', 'USER'] } } });
+
+  console.log('👤 Création des utilisateurs artisans...');
+
+  const password = await bcrypt.hash('Dvia2026!', 10);
+
+  const schedule5j = JSON.stringify([
+    { day: 'Lundi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Mardi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Mercredi', enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Jeudi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Vendredi', enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '17:00' },
+    { day: 'Samedi',   enabled: false, amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Dimanche', enabled: false, amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+  ]);
+
+  const schedule6j = JSON.stringify([
+    { day: 'Lundi',    enabled: true,  amStart: '07:30', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:30' },
+    { day: 'Mardi',    enabled: true,  amStart: '07:30', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:30' },
+    { day: 'Mercredi', enabled: true,  amStart: '07:30', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:30' },
+    { day: 'Jeudi',    enabled: true,  amStart: '07:30', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:30' },
+    { day: 'Vendredi', enabled: true,  amStart: '07:30', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+    { day: 'Samedi',   enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '16:00' },
+    { day: 'Dimanche', enabled: false, amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '18:00' },
+  ]);
+
+  const artisansData = [
+    // ── 1. Karim Benali — Plombier (Maghrébin) ──────────────────────────────
+    {
+      email: 'karim.benali@yopmail.com',
+      name: 'Karim Benali',
+      firstName: 'Karim',
+      lastName: 'Benali',
+      phoneNumber: '+33612345001',
+      address: '15 Rue de la République, 75011 Paris',
+      coordinates: [48.8566, 2.3522],
+      companyName: 'Benali Plomberie',
+      legalName: 'Benali Plomberie SARL',
+      legalStatus: 'SARL',
+      siret: '12345678900011',
+      profession: 'Plombier',
+      category: 'Plomberie',
+      description: 'Artisan plombier passionné avec 15 ans d\'expérience en dépannage d\'urgence et rénovation complète de salle de bain. Ponctualité et propreté du chantier garanties. Devis gratuit sous 24h.',
+      services: JSON.stringify(['Plomberie', 'Chauffage', 'Rénovation complète']),
+      specialties: 'Salle de bain, chauffage central, dépannage urgent',
+      experienceYears: '15',
+      certifications: ['RGE', 'Qualibat'],
+      image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&fit=crop',
+      rating: 4.8, reviews: 214, verified: true,
+      location: 'Paris, 75011', distance: 3,
+      availability: 'Sous 48h', interventionDelay: 'sous_48h',
+      hourlyRateMin: 45, hourlyRateMax: 70, dailyRateMin: 350, dailyRateMax: 500,
+      travelFee: 1.5, freeEstimate: true,
+      schedule: schedule5j,
+      facebook: 'https://facebook.com/benali.plomberie', instagram: 'https://instagram.com/karimbenali_plombier',
+      linkedin: '', tiktok: '', websiteUrl: 'https://www.benali-plomberie.fr',
+    },
+    // ── 2. Amara Diallo — Électricien (Ouest-Africain) ───────────────────────
+    {
+      email: 'amara.diallo@yopmail.com',
+      name: 'Amara Diallo',
+      firstName: 'Amara',
+      lastName: 'Diallo',
+      phoneNumber: '+33612345002',
+      address: '22 Avenue des Minimes, 69003 Lyon',
+      coordinates: [45.7640, 4.8357],
+      companyName: 'Diallo Électricité',
+      legalName: 'Diallo Électricité SAS',
+      legalStatus: 'SAS',
+      siret: '12345678900022',
+      profession: 'Électricien',
+      category: 'Électricité',
+      description: 'Électricien qualifié depuis 12 ans, spécialisé dans les installations neuves, la mise aux normes et la domotique. Travail soigné, respect des délais et des budgets. Certifié RGE.',
+      services: JSON.stringify(['Électricité', 'Isolation', 'Chauffage / Climatisation']),
+      specialties: 'Installation électrique, domotique, éclairage LED',
+      experienceYears: '12',
+      certifications: ['Qualifelec', 'RGE'],
+      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop&face',
+      rating: 4.6, reviews: 178, verified: true,
+      location: 'Lyon, 69003', distance: 5,
+      availability: 'Sous 1 semaine', interventionDelay: 'sous_1_semaine',
+      hourlyRateMin: 50, hourlyRateMax: 75, dailyRateMin: 380, dailyRateMax: 550,
+      travelFee: 1.2, freeEstimate: true,
+      schedule: schedule6j,
+      facebook: 'https://facebook.com/diallo.electricite', instagram: 'https://instagram.com/amara_elec',
+      linkedin: 'https://linkedin.com/in/amara-diallo-elec', tiktok: '', websiteUrl: 'https://www.diallo-electricite.fr',
+    },
+    // ── 3. Wei Zhang — Maçon (Asiatique) ────────────────────────────────────
+    {
+      email: 'wei.zhang@yopmail.com',
+      name: 'Wei Zhang',
+      firstName: 'Wei',
+      lastName: 'Zhang',
+      phoneNumber: '+33612345003',
+      address: '8 Boulevard Longchamp, 13006 Marseille',
+      coordinates: [43.2965, 5.3698],
+      companyName: 'Zhang BTP',
+      legalName: 'Zhang BTP EURL',
+      legalStatus: 'EURL',
+      siret: '12345678900033',
+      profession: 'Maçon',
+      category: 'Maçonnerie',
+      description: 'Maçon expérimenté avec 20 ans de métier. Spécialisé en construction neuve, rénovation de bâti ancien et extensions. Expertise béton armé et carrelage grand format. Chantiers propres et organisés.',
+      services: JSON.stringify(['Maçonnerie', 'Carrelage', 'Rénovation complète']),
+      specialties: 'Gros œuvre, béton armé, rénovation bâti ancien',
+      experienceYears: '20',
+      certifications: ['Qualibat'],
+      image: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?w=400&fit=crop',
+      rating: 4.7, reviews: 195, verified: true,
+      location: 'Marseille, 13006', distance: 8,
+      availability: 'Sous 2 semaines', interventionDelay: 'sous_2_semaines',
+      hourlyRateMin: 40, hourlyRateMax: 60, dailyRateMin: 300, dailyRateMax: 450,
+      travelFee: 1.8, freeEstimate: true,
+      schedule: schedule5j,
+      facebook: '', instagram: '', linkedin: '', tiktok: '', websiteUrl: '',
+    },
+    // ── 4. Sophie Bernard — Peintre (Française) ─────────────────────────────
+    {
+      email: 'sophie.bernard@yopmail.com',
+      name: 'Sophie Bernard',
+      firstName: 'Sophie',
+      lastName: 'Bernard',
+      phoneNumber: '+33612345004',
+      address: '45 Rue du Faubourg Saint-Antoine, 75012 Paris',
+      coordinates: [48.8503, 2.3714],
+      companyName: 'Peinture & Déco Bernard',
+      legalName: 'Peinture Bernard Auto-Entrepreneur',
+      legalStatus: 'Auto-entrepreneur',
+      siret: '12345678900044',
+      profession: 'Peintre décoratrice',
+      category: 'Peinture',
+      description: 'Peintre décoratrice avec 10 ans d\'expérience. Spécialisée en peinture intérieure haut de gamme, effets décoratifs et revêtements muraux. Conseil couleur personnalisé inclus dans chaque projet.',
+      services: JSON.stringify(['Peinture', 'Carrelage', 'Rénovation complète']),
+      specialties: 'Peinture décorative, enduits, papier peint',
+      experienceYears: '10',
+      certifications: ['EcoArtisan', 'Qualibat'],
+      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&fit=crop',
+      rating: 4.9, reviews: 312, verified: true,
+      location: 'Paris, 75012', distance: 4,
+      availability: 'Sous 1 semaine', interventionDelay: 'sous_1_semaine',
+      hourlyRateMin: 35, hourlyRateMax: 55, dailyRateMin: 280, dailyRateMax: 420,
+      travelFee: 0, freeEstimate: true,
+      schedule: schedule6j,
+      facebook: 'https://facebook.com/peinture.bernard', instagram: 'https://instagram.com/sophiebernard_deco',
+      linkedin: '', tiktok: 'https://tiktok.com/@sophiedeco', websiteUrl: 'https://www.peinture-bernard.fr',
+    },
+    // ── 5. Mohammed Alaoui — Chauffagiste (Maghrébin) ───────────────────────
+    {
+      email: 'mohammed.alaoui@yopmail.com',
+      name: 'Mohammed Alaoui',
+      firstName: 'Mohammed',
+      lastName: 'Alaoui',
+      phoneNumber: '+33612345005',
+      address: '12 Cours de l\'Intendance, 33000 Bordeaux',
+      coordinates: [44.8378, -0.5792],
+      companyName: 'Alaoui Chauffage & Clim',
+      legalName: 'Alaoui Services SARL',
+      legalStatus: 'SARL',
+      siret: '12345678900055',
+      profession: 'Chauffagiste',
+      category: 'Chauffage',
+      description: 'Expert chauffagiste depuis 18 ans. Installation et maintenance de chaudières, pompes à chaleur et climatisations. Certifié RGE, accompagnement pour les aides MaPrimeRénov\'. Intervention rapide garantie.',
+      services: JSON.stringify(['Chauffage / Climatisation', 'Plomberie', 'Isolation']),
+      specialties: 'Pompes à chaleur, chaudières gaz, VMC',
+      experienceYears: '18',
+      certifications: ['RGE', 'Qualibat'],
+      image: 'https://images.unsplash.com/photo-1542909168-82c3e7fdca5c?w=400&fit=crop',
+      rating: 4.7, reviews: 156, verified: true,
+      location: 'Bordeaux, 33000', distance: 6,
+      availability: 'Sous 48h', interventionDelay: 'sous_48h',
+      hourlyRateMin: 55, hourlyRateMax: 80, dailyRateMin: 400, dailyRateMax: 600,
+      travelFee: 2.0, freeEstimate: false,
+      schedule: schedule5j,
+      facebook: '', instagram: 'https://instagram.com/alaoui_chauffage',
+      linkedin: 'https://linkedin.com/in/mohammed-alaoui', tiktok: '', websiteUrl: 'https://www.alaoui-chauffage.fr',
+    },
+    // ── 6. Isabelle Nguyen — Menuisière (Franco-Vietnamienne) ────────────────
+    {
+      email: 'isabelle.nguyen@yopmail.com',
+      name: 'Isabelle Nguyen',
+      firstName: 'Isabelle',
+      lastName: 'Nguyen',
+      phoneNumber: '+33612345006',
+      address: '30 Rue de Béthune, 59000 Lille',
+      coordinates: [50.6292, 3.0573],
+      companyName: 'Nguyen Menuiserie Design',
+      legalName: 'Isabelle Nguyen EI',
+      legalStatus: 'Entreprise Individuelle',
+      siret: '12345678900066',
+      profession: 'Menuisière',
+      category: 'Menuiserie',
+      description: 'Menuisière ébéniste depuis 14 ans. Fabrication sur mesure de cuisines, placards et agencements. Passion pour le bois massif et les matériaux nobles. Chaque projet est unique, réalisé avec soin.',
+      services: JSON.stringify(['Menuiserie', 'Isolation', 'Rénovation complète']),
+      specialties: 'Cuisines sur mesure, placards, dressing',
+      experienceYears: '14',
+      certifications: ['RGE'],
+      image: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&fit=crop',
+      rating: 4.9, reviews: 287, verified: true,
+      location: 'Lille, 59000', distance: 4,
+      availability: 'Sous 1 semaine', interventionDelay: 'sous_1_semaine',
+      hourlyRateMin: 55, hourlyRateMax: 85, dailyRateMin: 420, dailyRateMax: 650,
+      travelFee: 1.0, freeEstimate: true,
+      schedule: schedule6j,
+      facebook: 'https://facebook.com/nguyen.menuiserie', instagram: 'https://instagram.com/isabelle_nguyen_menuiserie',
+      linkedin: '', tiktok: '', websiteUrl: 'https://www.nguyen-menuiserie.fr',
+    },
+    // ── 7. Marcus Koné — Couvreur (Afro-Français) ───────────────────────────
+    {
+      email: 'marcus.kone@yopmail.com',
+      name: 'Marcus Koné',
+      firstName: 'Marcus',
+      lastName: 'Koné',
+      phoneNumber: '+33612345007',
+      address: '15 Rue Crébillon, 44000 Nantes',
+      coordinates: [47.2184, -1.5536],
+      companyName: 'Koné Couverture',
+      legalName: 'Koné Toiture SARL',
+      legalStatus: 'SARL',
+      siret: '12345678900077',
+      profession: 'Couvreur',
+      category: 'Couverture',
+      description: 'Couvreur-zingueur depuis 16 ans. Expert en toiture ardoise, tuile et zinc. Réparation, rénovation et installation complète. Intervention d\'urgence après tempête. Devis gratuit sous 24h.',
+      services: JSON.stringify(['Couverture / Toiture', 'Isolation', 'Maçonnerie']),
+      specialties: 'Ardoise, tuile, zinc, étanchéité terrasse',
+      experienceYears: '16',
+      certifications: ['RGE', 'EcoArtisan'],
+      image: 'https://images.unsplash.com/photo-1566492031773-4f4e44671d66?w=400&fit=crop',
+      rating: 4.5, reviews: 98, verified: true,
+      location: 'Nantes, 44000', distance: 7,
+      availability: 'Sous 48h', interventionDelay: 'sous_48h',
+      hourlyRateMin: 50, hourlyRateMax: 75, dailyRateMin: 380, dailyRateMax: 560,
+      travelFee: 1.5, freeEstimate: true,
+      schedule: schedule5j,
+      facebook: '', instagram: 'https://instagram.com/marcus_kone_couvreur',
+      linkedin: '', tiktok: 'https://tiktok.com/@marcuskone', websiteUrl: '',
+    },
+    // ── 8. Fatima El Amrani — Carrelage (Marocaine) ──────────────────────────
+    {
+      email: 'fatima.elamrani@yopmail.com',
+      name: 'Fatima El Amrani',
+      firstName: 'Fatima',
+      lastName: 'El Amrani',
+      phoneNumber: '+33612345008',
+      address: '18 Place Kléber, 67000 Strasbourg',
+      coordinates: [48.5734, 7.7521],
+      companyName: 'El Amrani Carrelage & Déco',
+      legalName: 'Fatima El Amrani Auto-Entrepreneur',
+      legalStatus: 'Auto-entrepreneur',
+      siret: '12345678900088',
+      profession: 'Carreleuse',
+      category: 'Carrelage',
+      description: 'Carreleuse passionnée spécialisée en carrelage grand format, mosaïque et zellige marocain. 11 ans d\'expérience en rénovation de salles de bain et cuisines. Finitions impeccables, sens du détail.',
+      services: JSON.stringify(['Carrelage', 'Peinture', 'Rénovation complète']),
+      specialties: 'Grand format, mosaïque, zellige, faïence murale',
+      experienceYears: '11',
+      certifications: ['Qualibat'],
+      image: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&fit=crop',
+      rating: 4.8, reviews: 234, verified: true,
+      location: 'Strasbourg, 67000', distance: 9,
+      availability: 'Sous 1 semaine', interventionDelay: 'sous_1_semaine',
+      hourlyRateMin: 40, hourlyRateMax: 60, dailyRateMin: 300, dailyRateMax: 450,
+      travelFee: 2.0, freeEstimate: true,
+      schedule: schedule5j,
+      facebook: 'https://facebook.com/elamrani.carrelage', instagram: 'https://instagram.com/fatima_elamrani_deco',
+      linkedin: '', tiktok: '', websiteUrl: 'https://www.elamrani-carrelage.fr',
+    },
+    // ── 9. Julie Roux — Isolatrice (Française) ──────────────────────────────
+    {
+      email: 'julie.roux@yopmail.com',
+      name: 'Julie Roux',
+      firstName: 'Julie',
+      lastName: 'Roux',
+      phoneNumber: '+33612345009',
+      address: '25 Promenade des Anglais, 06000 Nice',
+      coordinates: [43.7102, 7.2620],
+      companyName: 'Isolation Roux Méditerranée',
+      legalName: 'Julie Roux EI',
+      legalStatus: 'Entreprise Individuelle',
+      siret: '12345678900099',
+      profession: 'Isolatrice',
+      category: 'Isolation',
+      description: 'Spécialiste de l\'isolation thermique et phonique depuis 9 ans. Expertise en ITE, ITI et combles perdus. Matériaux écologiques privilégiés. Accompagnement dossiers MaPrimeRénov\' inclus.',
+      services: JSON.stringify(['Isolation', 'Peinture', 'Rénovation complète']),
+      specialties: 'ITE, ITI, combles, isolation phonique',
+      experienceYears: '9',
+      certifications: ['RGE', 'Qualibat'],
+      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&fit=crop',
+      rating: 4.6, reviews: 143, verified: true,
+      location: 'Nice, 06000', distance: 5,
+      availability: 'Sous 1 semaine', interventionDelay: 'sous_1_semaine',
+      hourlyRateMin: 45, hourlyRateMax: 65, dailyRateMin: 340, dailyRateMax: 480,
+      travelFee: 1.5, freeEstimate: true,
+      schedule: schedule5j,
+      facebook: '', instagram: 'https://instagram.com/julieroux_isolation',
+      linkedin: 'https://linkedin.com/in/julie-roux-isolation', tiktok: '', websiteUrl: 'https://www.isolation-roux.fr',
+    },
+    // ── 10. Rayan Messaoudi — Serrurier (Algérien) ──────────────────────────
+    {
+      email: 'rayan.messaoudi@yopmail.com',
+      name: 'Rayan Messaoudi',
+      firstName: 'Rayan',
+      lastName: 'Messaoudi',
+      phoneNumber: '+33612345010',
+      address: '10 Rue de la Monnaie, 35000 Rennes',
+      coordinates: [48.1173, -1.6778],
+      companyName: 'Messaoudi Sécurité & Serrurerie',
+      legalName: 'Messaoudi Sécurité SARL',
+      legalStatus: 'SARL',
+      siret: '12345678900100',
+      profession: 'Serrurier',
+      category: 'Serrurerie',
+      description: 'Serrurier professionnel depuis 11 ans. Spécialisé en ouverture de portes, blindage et systèmes de sécurité haute technologie. Disponible 7j/7 pour les urgences. Devis transparent et honnête.',
+      services: JSON.stringify(['Menuiserie', 'Rénovation complète']),
+      specialties: 'Portes blindées, serrures haute sécurité, coffres-forts',
+      experienceYears: '11',
+      certifications: ['Qualibat'],
+      image: 'https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400&fit=crop',
+      rating: 4.4, reviews: 167, verified: false,
+      location: 'Rennes, 35000', distance: 10,
+      availability: 'Sous 24h', interventionDelay: 'sous_24h',
+      hourlyRateMin: 60, hourlyRateMax: 90, dailyRateMin: 450, dailyRateMax: 680,
+      travelFee: 1.0, freeEstimate: false,
+      schedule: JSON.stringify([
+        { day: 'Lundi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '19:00' },
+        { day: 'Mardi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '19:00' },
+        { day: 'Mercredi', enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '19:00' },
+        { day: 'Jeudi',    enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '19:00' },
+        { day: 'Vendredi', enabled: true,  amStart: '08:00', amEnd: '12:00', pmStart: '13:00', pmEnd: '19:00' },
+        { day: 'Samedi',   enabled: true,  amStart: '09:00', amEnd: '12:00', pmStart: '14:00', pmEnd: '18:00' },
+        { day: 'Dimanche', enabled: true,  amStart: '10:00', amEnd: '12:00', pmStart: '14:00', pmEnd: '17:00' },
+      ]),
+      facebook: 'https://facebook.com/messaoudi.serrurerie', instagram: '',
+      linkedin: '', tiktok: '', websiteUrl: 'https://www.messaoudi-securite.fr',
+    },
   ];
-  
-  // Création des artisans un par un pour gérer les relations
-  for (const artisanData of artisans) {
+
+  for (const a of artisansData) {
+    const user = await prisma.user.create({
+      data: {
+        email: a.email,
+        name: a.name,
+        role: 'ARTISAN',
+      },
+    });
+
+    await prisma.account.create({
+      data: {
+        userId: user.id,
+        type: 'credentials',
+        provider: 'credentials',
+        providerAccountId: user.id,
+        access_token: password,
+      },
+    });
+
     await prisma.artisan.create({
-      data: artisanData as any, // Type assertion nécessaire car Prisma génère deux types différents
+      data: {
+        userId: user.id,
+        firstName: a.firstName,
+        lastName: a.lastName,
+        email: a.email,
+        phoneNumber: a.phoneNumber,
+        address: a.address,
+        coordinates: JSON.stringify(a.coordinates),
+        companyName: a.companyName,
+        legalName: a.legalName,
+        legalStatus: a.legalStatus,
+        siret: a.siret,
+        profession: a.profession,
+        category: a.category,
+        description: a.description,
+        services: a.services,
+        specialties: a.specialties,
+        experienceYears: a.experienceYears,
+        certifications: a.certifications,
+        certificationUrls: [],
+        workPhotos: [],
+        professionalGuarantees: [],
+        image: a.image,
+        rating: a.rating,
+        reviews: a.reviews,
+        verified: a.verified,
+        location: a.location,
+        distance: a.distance,
+        availability: a.availability,
+        interventionDelay: a.interventionDelay,
+        hourlyRateMin: a.hourlyRateMin,
+        hourlyRateMax: a.hourlyRateMax,
+        dailyRateMin: a.dailyRateMin,
+        dailyRateMax: a.dailyRateMax,
+        travelFee: a.travelFee,
+        freeEstimate: a.freeEstimate,
+        schedule: a.schedule,
+        facebook: a.facebook,
+        instagram: a.instagram,
+        linkedin: a.linkedin,
+        tiktok: a.tiktok,
+        websiteUrl: a.websiteUrl,
+      } as any,
     });
   }
-  
-  console.log(`✅ ${artisans.length} artisans créés avec succès !`);
+
+  console.log(`✅ ${artisansData.length} artisans créés avec succès !`);
 
   // Seed des articles de blog
   console.log('🌱 Création des articles de blog...');
@@ -446,41 +431,7 @@ async function main() {
         previewImage: 'https://images.unsplash.com/photo-1504307652254-4a7505c8b8b3?fm=jpg&q=80&w=600',
         author: 'Équipe D-Via',
         tags: ['artisan', 'conseils', 'travaux', 'choix'],
-        content: `# Comment choisir le bon artisan pour vos travaux ?
-
-Choisir le bon artisan est crucial pour la réussite de vos projets de rénovation ou de construction. Voici nos conseils pour faire le bon choix :
-
-## 1. Vérifiez les certifications et qualifications
-
-Un artisan qualifié doit posséder les certifications appropriées à son domaine :
-- **RGE** (Reconnu Garant de l'Environnement) pour les travaux d'efficacité énergétique
-- **Qualibat** pour les travaux de bâtiment
-- **Qualifelec** pour les travaux électriques
-- **EcoArtisan** pour les artisans engagés dans l'écologie
-
-## 2. Demandez plusieurs devis
-
-N'hésitez pas à solliciter au moins 3 devis différents. Cela vous permettra de :
-- Comparer les prix
-- Évaluer les méthodes de travail proposées
-- Vérifier la cohérence des estimations
-
-## 3. Consultez les avis clients
-
-Les témoignages d'anciens clients sont un excellent indicateur de la qualité du travail. Recherchez des avis sur :
-- Les plateformes spécialisées
-- Les réseaux sociaux
-- Le bouche-à-oreille
-
-## 4. Vérifiez l'assurance
-
-Assurez-vous que l'artisan dispose d'une assurance responsabilité civile professionnelle couvrant les travaux qu'il effectue.
-
-## 5. Demandez des références
-
-Un bon artisan n'hésitera pas à vous fournir des références de chantiers similaires au vôtre.
-
-En suivant ces conseils, vous maximisez vos chances de trouver l'artisan idéal pour votre projet !`,
+        content: '# Comment choisir le bon artisan ?\n\nVérifiez les certifications RGE, Qualibat, Qualifelec. Demandez 3 devis minimum. Consultez les avis clients.',
       },
       {
         title: 'Les 10 erreurs à éviter lors d\'une rénovation',
@@ -489,1718 +440,19 @@ En suivant ces conseils, vous maximisez vos chances de trouver l'artisan idéal 
         featuredImage: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f4b5?fm=jpg&q=80&w=1200',
         previewImage: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f4b5?fm=jpg&q=80&w=600',
         author: 'Équipe D-Via',
-        tags: ['rénovation', 'erreurs', 'conseils', 'planification'],
-        content: `# Les 10 erreurs à éviter lors d'une rénovation
-
-Une rénovation mal planifiée peut rapidement devenir un cauchemar. Voici les erreurs les plus courantes à éviter :
-
-## 1. Ne pas établir de budget précis
-
-Sans budget clair, vous risquez de dépasser vos moyens financiers. Prévoyez toujours 10 à 20% de marge pour les imprévus.
-
-## 2. Négliger les autorisations
-
-Certains travaux nécessitent des autorisations administratives. Renseignez-vous auprès de votre mairie avant de commencer.
-
-## 3. Choisir les matériaux au hasard
-
-La qualité des matériaux influence directement la durabilité de vos travaux. Privilégiez la qualité à la quantité.
-
-## 4. Ne pas anticiper les délais
-
-Les travaux prennent souvent plus de temps que prévu. Prévoyez des délais réalistes et communiquez avec vos artisans.
-
-## 5. Ignorer l'isolation
-
-Une bonne isolation est essentielle pour le confort et les économies d'énergie. N'hésitez pas à investir dans ce poste.
-
-## 6. Négliger l'éclairage
-
-Un bon éclairage transforme complètement un espace. Pensez à la lumière naturelle et artificielle.
-
-## 7. Oublier les prises électriques
-
-Prévoyez suffisamment de prises et d'interrupteurs selon vos besoins futurs.
-
-## 8. Choisir les couleurs à la hâte
-
-Les couleurs ont un impact psychologique important. Testez-les avant de vous décider.
-
-## 9. Ne pas prévoir de rangement
-
-Le rangement est souvent oublié mais essentiel pour maintenir un espace organisé.
-
-## 10. Faire les travaux soi-même sans compétences
-
-Certains travaux nécessitent des compétences spécifiques. N'hésitez pas à faire appel à des professionnels.
-
-En évitant ces erreurs, vous maximisez vos chances de réussir votre rénovation !`,
+        tags: ['rénovation', 'erreurs', 'conseils'],
+        content: '# Les 10 erreurs à éviter\n\n1. Ne pas établir de budget précis\n2. Négliger les autorisations\n3. Choisir les matériaux au hasard.',
       },
       {
         title: 'Guide complet de l\'isolation thermique',
         slug: 'guide-complet-isolation-thermique',
-        excerpt: 'Tout ce qu\'il faut savoir sur l\'isolation thermique : matériaux, zones prioritaires, aides financières et choix du professionnel.',
+        excerpt: 'Tout ce qu\'il faut savoir sur l\'isolation thermique : matériaux, zones prioritaires, aides financières.',
         featuredImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=1200',
         previewImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=600',
         author: 'Équipe D-Via',
-        tags: ['isolation', 'thermique', 'énergie', 'rénovation'],
-        content: `# Guide complet de l'isolation thermique
-
-Une bonne isolation thermique est essentielle pour réduire vos factures d'énergie et améliorer votre confort. Voici tout ce qu'il faut savoir :
-
-## Pourquoi isoler ?
-
-L'isolation thermique permet de :
-- Réduire les déperditions de chaleur
-- Diminuer la consommation d'énergie
-- Améliorer le confort de vie
-- Valoriser votre bien immobilier
-
-## Les zones à isoler en priorité
-
-### 1. La toiture (30% des déperditions)
-- Isolation des combles perdus
-- Isolation sous rampants
-- Isolation des murs de pignon
-
-### 2. Les murs (25% des déperditions)
-- Isolation par l'intérieur (ITI)
-- Isolation par l'extérieur (ITE)
-- Isolation des murs creux
-
-### 3. Les fenêtres (15% des déperditions)
-- Double ou triple vitrage
-- Châssis performants
-- Pose de survitrage
-
-### 4. Le sol (10% des déperditions)
-- Isolation des planchers bas
-- Isolation des caves et sous-sols
-
-## Les matériaux d'isolation
-
-### Matériaux naturels
-- **Laine de bois** : excellente régulation hygrométrique
-- **Ouate de cellulose** : recyclable et performante
-- **Laine de chanvre** : écologique et durable
-
-### Matériaux synthétiques
-- **Polystyrène expansé** : économique et efficace
-- **Polyuréthane** : très performant mais plus cher
-- **Mousse phénolique** : excellente résistance thermique
-
-## Les aides financières
-
-Plusieurs dispositifs peuvent vous aider à financer vos travaux :
-- **MaPrimeRénov'** : aide de l'État
-- **CEE** : Certificats d'Économies d'Énergie
-- **Éco-PTZ** : prêt à taux zéro
-- **TVA à 5,5%** : pour certains travaux
-
-## Choisir le bon professionnel
-
-Pour vos travaux d'isolation, privilégiez un artisan :
-- Certifié RGE (Reconnu Garant de l'Environnement)
-- Spécialisé dans l'isolation
-- Capable de vous conseiller sur les matériaux
-
-Une bonne isolation est un investissement rentable à long terme !`,
+        tags: ['isolation', 'thermique', 'énergie'],
+        content: '# Guide de l\'isolation thermique\n\nLa toiture représente 30% des déperditions, les murs 25%, les fenêtres 15%.',
       },
-      {
-        title: 'Tendances déco 2024 : les couleurs à adopter',
-        slug: 'tendances-deco-2024-couleurs-adopter',
-        excerpt: 'Découvrez les palettes de couleurs qui vont marquer 2024 : vert sauge, terracotta, bleu océan et conseils d\'harmonisation.',
-        featuredImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['déco', 'couleurs', 'tendances', '2024'],
-        content: `# Tendances déco 2024 : les couleurs à adopter
-
-Découvrez les palettes de couleurs qui vont marquer l'année 2024 et transformer vos intérieurs :
-
-## Les couleurs phares de 2024
-
-### 1. Le vert sauge
-Cette teinte apaisante apporte sérénité et connexion avec la nature. Parfait pour les chambres et espaces de détente.
-
-### 2. Le terracotta
-Cette couleur chaleureuse évoque la terre et l'authenticité. Idéale pour créer une ambiance cosy.
-
-### 3. Le bleu océan
-Un bleu profond et apaisant qui rappelle les fonds marins. Parfait pour les salles de bain et espaces zen.
-
-### 4. Le beige rosé
-Une couleur douce et moderne qui s'adapte à tous les styles. Excellente base pour vos murs.
-
-## Les tendances par pièce
-
-### Salon
-- Murs dans des tons neutres (beige, gris clair)
-- Accents colorés sur les textiles et accessoires
-- Mobilier aux lignes épurées
-
-### Cuisine
-- Blanc cassé pour les meubles
-- Dosseret coloré ou en carrelage
-- Électroménager intégré
-
-### Chambre
-- Couleurs apaisantes (vert sauge, bleu océan)
-- Textiles naturels (lin, coton)
-- Éclairage doux et tamisé
-
-### Salle de bain
-- Carrelage blanc ou gris clair
-- Robinetterie dorée ou noire
-- Miroirs et accessoires design
-
-## Les associations gagnantes
-
-### Trio gagnant
-- **Beige + Vert sauge + Blanc** : nature et sérénité
-- **Gris + Terracotta + Noir** : modernité et chaleur
-- **Blanc + Bleu océan + Doré** : élégance et fraîcheur
-
-### Contrastes audacieux
-- **Noir + Rose poudré** : sophistication
-- **Bleu marine + Orange** : énergie et dynamisme
-- **Vert foncé + Rouge brique** : caractère et originalité
-
-## Conseils pratiques
-
-### Tester avant de peindre
-- Utilisez des échantillons
-- Testez sur différentes surfaces
-- Observez sous différents éclairages
-
-### Harmoniser les espaces
-- Créez une continuité visuelle
-- Utilisez des couleurs complémentaires
-- Respectez la règle des 60-30-10
-
-### Accessoiriser intelligemment
-- Coussins et textiles colorés
-- Tableaux et œuvres d'art
-- Plantes et éléments naturels
-
-Les couleurs 2024 privilégient le bien-être et la connexion avec la nature. Choisissez celles qui vous ressemblent !`,
-      },
-      {
-        title: 'Économies d\'énergie : 15 gestes simples',
-        slug: 'economies-energie-15-gestes-simples',
-        excerpt: 'Réduisez votre facture d\'énergie de 20 à 30% avec ces 15 gestes simples : chauffage, éclairage, électroménager et plus.',
-        featuredImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['énergie', 'économies', 'écologie', 'conseils'],
-        content: `# Économies d'énergie : 15 gestes simples
-
-Réduire sa consommation d'énergie, c'est bon pour la planète et pour le portefeuille ! Voici 15 gestes simples à adopter :
-
-## Chauffage et climatisation
-
-### 1. Réglez votre thermostat
-- 19°C dans les pièces à vivre
-- 16°C dans les chambres
-- Baissez de 1°C = 7% d'économies
-
-### 2. Fermez les volets la nuit
-- Évitez les déperditions de chaleur
-- Gardez la fraîcheur en été
-
-### 3. Purgez vos radiateurs
-- Une fois par an minimum
-- Améliore l'efficacité du chauffage
-
-### 4. Utilisez un thermostat programmable
-- Adapte la température selon vos habitudes
-- Économies automatiques
-
-## Éclairage
-
-### 5. Passez aux LED
-- 80% d'économies par rapport aux ampoules classiques
-- Durée de vie 10 fois plus longue
-
-### 6. Éteignez les lumières
-- Dans les pièces inoccupées
-- Installez des détecteurs de mouvement
-
-### 7. Profitez de la lumière naturelle
-- Ouvrez les rideaux en journée
-- Peignez les murs en couleurs claires
-
-## Électroménager
-
-### 8. Choisissez des appareils A+++
-- Plus chers à l'achat mais rentables
-- Consommation réduite de 30%
-
-### 9. Lavez à basse température
-- 30°C pour le linge peu sale
-- 40°C maximum pour le linge normal
-
-### 10. Remplissez vos machines
-- Lave-linge et lave-vaisselle pleins
-- Évitez les cycles à demi-charge
-
-### 11. Dégivrez votre congélateur
-- 3mm de givre = 30% de consommation en plus
-- Dégivrage régulier nécessaire
-
-## Eau chaude
-
-### 12. Réduisez la température du chauffe-eau
-- 55°C suffisent pour l'usage domestique
-- Évitez les risques de brûlure
-
-### 13. Isolez votre ballon d'eau chaude
-- Réduit les pertes de chaleur
-- Économies immédiates
-
-### 14. Prenez des douches courtes
-- 5 minutes maximum
-- Fermez l'eau pendant le savonnage
-
-## Autres gestes
-
-### 15. Débranchez les appareils en veille
-- Utilisez des multiprises avec interrupteur
-- Économies de 10% sur la facture
-
-## Les aides disponibles
-
-- **MaPrimeRénov'** : pour l'isolation et le chauffage
-- **Coup de pouce chauffage** : pour remplacer votre chaudière
-- **Éco-PTZ** : prêt à taux zéro pour les travaux
-
-Avec ces gestes simples, vous pouvez réduire votre facture d'énergie de 20 à 30% !`,
-      },
-      // 10 nouveaux articles de blog
-      {
-        title: 'Rénovation écologique : les matériaux durables',
-        slug: 'renovation-ecologique-materiaux-durables',
-        excerpt: 'Découvrez les matériaux écologiques pour une rénovation respectueuse de l\'environnement : bois, chanvre, liège et leurs avantages.',
-        featuredImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['écologie', 'matériaux', 'durable', 'rénovation'],
-        content: `# Rénovation écologique : les matériaux durables
-
-La rénovation écologique est devenue une priorité pour de nombreux propriétaires. Découvrez les matériaux durables qui transforment votre habitat :
-
-## Les matériaux naturels stars
-
-### Le bois
-- **Avantages** : renouvelable, isolant, esthétique
-- **Utilisations** : charpente, ossature, revêtements
-- **Certifications** : PEFC, FSC
-
-### Le chanvre
-- **Avantages** : excellent isolant, régulateur d'humidité
-- **Utilisations** : isolation, enduits, béton
-- **Particularité** : absorbe le CO2 pendant sa croissance
-
-### Le liège
-- **Avantages** : isolant phonique et thermique, imputrescible
-- **Utilisations** : isolation, revêtements de sol
-- **Durabilité** : 50 ans minimum
-
-### La laine de mouton
-- **Avantages** : isolant naturel, ignifuge
-- **Utilisations** : isolation des combles
-- **Particularité** : régule l'humidité
-
-## Les matériaux recyclés
-
-### Le béton recyclé
-- **Composition** : granulats de béton concassé
-- **Avantages** : réduction des déchets, performance identique
-- **Utilisations** : fondations, dalles
-
-### Les briques de terre crue
-- **Avantages** : régulation hygrométrique, inertie thermique
-- **Utilisations** : murs porteurs, cloisons
-- **Particularité** : fabrication locale possible
-
-## Les avantages de l'écoconstruction
-
-### Performance énergétique
-- Isolation naturelle efficace
-- Réduction des ponts thermiques
-- Confort d'été et d'hiver
-
-### Santé et bien-être
-- Absence de composés toxiques
-- Régulation de l'humidité
-- Qualité de l'air intérieur
-
-### Impact environnemental
-- Réduction de l'empreinte carbone
-- Matériaux renouvelables
-- Recyclage en fin de vie
-
-## Les certifications à connaître
-
-- **NF Environnement** : écolabel français
-- **Natureplus** : label européen
-- **Cradle to Cradle** : économie circulaire
-
-Choisir des matériaux durables, c'est investir dans l'avenir de votre habitat !`,
-      },
-      {
-        title: 'Travaux de plomberie : guide du débutant',
-        slug: 'travaux-plomberie-guide-debutant',
-        excerpt: 'Apprenez les bases de la plomberie domestique : outils essentiels, réparations courantes et quand faire appel à un professionnel.',
-        featuredImage: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f4b5?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1581578731548-c6a0c3f2f4b5?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['plomberie', 'bricolage', 'réparation', 'guide'],
-        content: `# Travaux de plomberie : guide du débutant
-
-La plomberie peut sembler complexe, mais avec les bonnes connaissances, vous pouvez réaliser de nombreuses réparations vous-même :
-
-## Les outils essentiels
-
-### Outils de base
-- **Clé à molette** : pour les raccords
-- **Pince multiprise** : polyvalente
-- **Tournevis** : différents types
-- **Niveau à bulle** : pour l'alignement
-
-### Outils spécialisés
-- **Clé à molette à crémaillère** : pour les tuyaux
-- **Pince à dénuder** : pour les tuyaux en cuivre
-- **Filière** : pour fileter les tuyaux
-- **Détecteur de fuites** : électronique
-
-## Les réparations courantes
-
-### Changer un joint de robinet
-1. Couper l'arrivée d'eau
-2. Démonter le robinet
-3. Remplacer le joint
-4. Remonter et tester
-
-### Réparer une fuite de chasse d'eau
-1. Vider le réservoir
-2. Identifier la cause (joint, flotteur)
-3. Remplacer la pièce défectueuse
-4. Remonter et tester
-
-### Déboucher un évier
-1. **Ventouse** : méthode douce
-2. **Déboucheur chimique** : attention aux canalisations
-3. **Furet** : pour les bouchons tenaces
-4. **Démontage** : en dernier recours
-
-## Les matériaux de plomberie
-
-### Tuyaux en cuivre
-- **Avantages** : durable, résistant
-- **Inconvénients** : cher, installation complexe
-- **Utilisations** : eau chaude et froide
-
-### Tuyaux en PER
-- **Avantages** : facile à poser, économique
-- **Inconvénients** : moins résistant aux UV
-- **Utilisations** : eau froide principalement
-
-### Tuyaux multicouches
-- **Avantages** : résistant, flexible
-- **Inconvénients** : plus cher
-- **Utilisations** : eau chaude et froide
-
-## Quand faire appel à un professionnel
-
-### Situations d'urgence
-- Fuite importante
-- Panne de chauffe-eau
-- Canalisation bouchée
-- Problème de pression
-
-### Travaux complexes
-- Installation complète
-- Raccordement au réseau
-- Travaux de rénovation
-- Mise aux normes
-
-## Les précautions de sécurité
-
-### Avant de commencer
-- Couper l'arrivée d'eau générale
-- Vider les canalisations
-- Aérer la pièce
-- Porter des gants
-
-### Pendant les travaux
-- Ne pas mélanger les produits chimiques
-- Respecter les normes
-- Tester après chaque étape
-- Garder les outils propres
-
-## Les erreurs à éviter
-
-- **Surcharger les raccords** : risque de fuite
-- **Négliger l'étanchéité** : joints et mastics
-- **Oublier les vannes d'arrêt** : sécurité
-- **Mélanger les matériaux** : incompatibilité
-
-Avec ces bases, vous serez capable de réaliser de nombreuses réparations de plomberie !`,
-      },
-      {
-        title: 'Électricité domestique : sécurité avant tout',
-        slug: 'electricite-domestique-securite-avant-tout',
-        excerpt: 'Les règles de sécurité en électricité domestique : normes, équipements de protection et bonnes pratiques pour éviter les accidents.',
-        featuredImage: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['électricité', 'sécurité', 'normes', 'protection'],
-        content: `# Électricité domestique : sécurité avant tout
-
-L'électricité est un domaine où la sécurité ne doit jamais être négligée. Voici les règles essentielles à respecter :
-
-## Les équipements de protection
-
-### Tableau électrique
-- **Disjoncteur différentiel** : protection des personnes
-- **Disjoncteurs divisionnaires** : protection des circuits
-- **Parafoudre** : protection contre la foudre
-- **Interrupteur différentiel** : test mensuel obligatoire
-
-### Prises et interrupteurs
-- **Prise de terre** : obligatoire partout
-- **Interrupteur différentiel** : 30mA maximum
-- **Protection IP** : selon l'environnement
-- **Norme NF C 15-100** : respect obligatoire
-
-## Les zones de sécurité
-
-### Salle de bain
-- **Zone 0** : dans la baignoire/douche
-- **Zone 1** : 60cm autour de la baignoire
-- **Zone 2** : 3m autour de la baignoire
-- **Protection IP** : IPX4 minimum
-
-### Cuisine
-- **Zone humide** : 60cm autour de l'évier
-- **Protection IP** : IPX4 minimum
-- **Prise 20A** : pour les gros appareils
-- **Liaison équipotentielle** : obligatoire
-
-## Les bonnes pratiques
-
-### Avant toute intervention
-1. **Couper le courant** au disjoncteur
-2. **Vérifier l'absence de tension** avec un testeur
-3. **Signaler l'intervention** sur le tableau
-4. **Utiliser des outils isolés**
-
-### Pendant les travaux
-- **Ne jamais travailler sous tension**
-- **Utiliser des outils appropriés**
-- **Respecter les codes couleur**
-- **Vérifier les connexions**
-
-### Après les travaux
-- **Tester l'installation**
-- **Vérifier le bon fonctionnement**
-- **Mettre à jour le schéma**
-- **Informer les occupants**
-
-## Les normes à respecter
-
-### NF C 15-100
-- **Règles d'installation**
-- **Protection des personnes**
-- **Protection des biens**
-- **Évolutivité de l'installation**
-
-### RT 2012 / RE 2020
-- **Efficacité énergétique**
-- **Éclairage performant**
-- **Gestion intelligente**
-- **Production d'énergie**
-
-## Les situations d'urgence
-
-### Électrocution
-1. **Ne pas toucher la victime**
-2. **Couper le courant immédiatement**
-3. **Appeler les secours (15)**
-4. **Pratiquer les gestes de secours**
-
-### Incendie électrique
-1. **Couper le courant**
-2. **Utiliser un extincteur CO2**
-3. **Ne jamais utiliser d'eau**
-4. **Évacuer les lieux**
-
-## Les contrôles réguliers
-
-### Vérification mensuelle
-- **Test du différentiel**
-- **Vérification des prises**
-- **Contrôle visuel**
-- **Signalement des anomalies**
-
-### Contrôle périodique
-- **Tous les 10 ans** : logement
-- **Tous les 5 ans** : locaux professionnels
-- **Tous les 3 ans** : ERP
-- **Par un professionnel qualifié**
-
-## Les erreurs à éviter
-
-- **Travaux sans couper le courant**
-- **Mélanger les phases**
-- **Négliger la mise à la terre**
-- **Utiliser du matériel non conforme**
-
-La sécurité électrique, c'est l'affaire de tous !`,
-      },
-      {
-        title: 'Chauffage : choisir le bon système',
-        slug: 'chauffage-choisir-bon-systeme',
-        excerpt: 'Comparatif des systèmes de chauffage : gaz, électricité, pompe à chaleur, bois. Avantages, inconvénients et coûts pour faire le bon choix.',
-        featuredImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['chauffage', 'énergie', 'comparatif', 'coût'],
-        content: `# Chauffage : choisir le bon système
-
-Le choix du système de chauffage est crucial pour votre confort et vos économies. Voici un comparatif détaillé :
-
-## Les systèmes de chauffage
-
-### Chauffage au gaz
-**Avantages :**
-- Coût d'achat modéré
-- Installation simple
-- Confort de chauffe
-- Disponibilité du réseau
-
-**Inconvénients :**
-- Dépendance au prix du gaz
-- Émissions de CO2
-- Nécessite une évacuation
-- Maintenance annuelle
-
-**Coût :** 8 000 à 15 000 €
-
-### Chauffage électrique
-**Avantages :**
-- Installation simple
-- Pas d'évacuation
-- Contrôle précis
-- Entretien minimal
-
-**Inconvénients :**
-- Coût de fonctionnement élevé
-- Inertie thermique
-- Dépendance au réseau
-- Impact environnemental
-
-**Coût :** 3 000 à 8 000 €
-
-### Pompe à chaleur
-**Avantages :**
-- Très efficace (COP 3-4)
-- Énergie renouvelable
-- Fraîcheur en été
-- Aides financières
-
-**Inconvénients :**
-- Coût d'achat élevé
-- Nécessite un jardin
-- Bruit extérieur
-- Maintenance spécialisée
-
-**Coût :** 15 000 à 25 000 €
-
-### Chauffage au bois
-**Avantages :**
-- Énergie renouvelable
-- Coût du combustible faible
-- Ambiance chaleureuse
-- Indépendance énergétique
-
-**Inconvénients :**
-- Stockage du bois
-- Manutention
-- Entretien régulier
-- Émissions de particules
-
-**Coût :** 5 000 à 12 000 €
-
-## Les critères de choix
-
-### Surface à chauffer
-- **< 50 m²** : électrique, gaz
-- **50-100 m²** : gaz, PAC
-- **> 100 m²** : PAC, bois
-
-### Isolation
-- **Bien isolé** : tous les systèmes
-- **Mal isolé** : éviter l'électrique
-- **Très mal isolé** : isoler d'abord
-
-### Budget
-- **Faible** : électrique, gaz
-- **Moyen** : gaz, bois
-- **Élevé** : PAC, géothermie
-
-### Environnement
-- **Urbain** : gaz, PAC
-- **Rural** : bois, PAC
-- **Montagne** : bois, PAC
-
-## Les aides financières
-
-### MaPrimeRénov'
-- **Pompe à chaleur** : jusqu'à 4 000 €
-- **Chaudière gaz** : jusqu'à 1 200 €
-- **Poêle à bois** : jusqu'à 2 000 €
-
-### Coup de pouce chauffage
-- **Remplacement chaudière** : jusqu'à 4 000 €
-- **Pompe à chaleur** : jusqu'à 4 000 €
-
-### Éco-PTZ
-- **Prêt à taux zéro** : jusqu'à 30 000 €
-- **Travaux d'efficacité énergétique**
-- **Remboursement sur 15 ans**
-
-## Les calculs de rentabilité
-
-### Coût d'installation
-- Achat du système
-- Installation
-- Aides déduites
-- Coût réel
-
-### Coût de fonctionnement
-- Consommation annuelle
-- Prix de l'énergie
-- Maintenance
-- Coût total
-
-### Temps de retour
-- Investissement initial
-- Économies annuelles
-- Calcul du ROI
-- Comparaison des systèmes
-
-## Les tendances 2024
-
-### Électrification
-- **Pompe à chaleur** : solution d'avenir
-- **Réseau électrique** : renforcement
-- **Smart grid** : gestion intelligente
-
-### Écologie
-- **Énergies renouvelables** : priorité
-- **Bilan carbone** : prise en compte
-- **Réglementation** : évolution
-
-### Confort
-- **Régulation intelligente** : domotique
-- **Confort d'été** : rafraîchissement
-- **Qualité de l'air** : ventilation
-
-Choisir son chauffage, c'est anticiper l'avenir !`,
-      },
-      {
-        title: 'Rénovation de salle de bain : les étapes clés',
-        slug: 'renovation-salle-bain-etapes-cles',
-        excerpt: 'Guide complet pour rénover votre salle de bain : planification, choix des matériaux, étapes de travaux et conseils pratiques.',
-        featuredImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['salle de bain', 'rénovation', 'travaux', 'guide'],
-        content: `# Rénovation de salle de bain : les étapes clés
-
-Une rénovation de salle de bain bien planifiée transforme votre quotidien. Voici les étapes essentielles :
-
-## La phase de planification
-
-### Définir vos besoins
-- **Surface disponible** : optimisation de l'espace
-- **Nombre d'utilisateurs** : fonctionnalités nécessaires
-- **Budget** : réaliste et cohérent
-- **Délais** : planification des travaux
-
-### Établir le plan
-- **Cotation** : mesures précises
-- **Implantation** : position des équipements
-- **Évacuations** : respect des pentes
-- **Arrivées d'eau** : position optimale
-
-### Choisir le style
-- **Moderne** : lignes épurées, couleurs neutres
-- **Classique** : matériaux nobles, finitions soignées
-- **Rustique** : matériaux naturels, ambiance chaleureuse
-- **Minimaliste** : fonctionnalité, simplicité
-
-## Le choix des matériaux
-
-### Carrelage
-- **Grès cérame** : résistant, facile d'entretien
-- **Carrelage pâte blanche** : esthétique, fragile
-- **Mosaïque** : décorative, délicate
-- **Carrelage imitation bois** : chaleureux, pratique
-
-### Sanitaires
-- **Lavabo** : suspendu, posé, encastré
-- **Baignoire** : droite, d'angle, balnéo
-- **Douche** : à l'italienne, receveur, cabine
-- **WC** : suspendu, posé, bidet
-
-### Robinetterie
-- **Chrome** : classique, facile d'entretien
-- **Noir** : moderne, tendance
-- **Doré** : luxueux, délicat
-- **Mat** : épuré, contemporain
-
-## Les étapes de travaux
-
-### Démolition
-1. **Protection** des autres pièces
-2. **Démontage** des équipements
-3. **Dépose** des revêtements
-4. **Évacuation** des déchets
-
-### Gros œuvre
-1. **Modification** des cloisons
-2. **Création** des ouvertures
-3. **Renforcement** des structures
-4. **Préparation** des supports
-
-### Plomberie
-1. **Modification** des arrivées d'eau
-2. **Installation** des évacuations
-3. **Pose** des équipements
-4. **Tests** d'étanchéité
-
-### Électricité
-1. **Installation** des prises
-2. **Pose** des interrupteurs
-3. **Éclairage** adapté
-4. **Mise à la terre**
-
-### Finitions
-1. **Carrelage** des murs et sols
-2. **Pose** des sanitaires
-3. **Installation** de la robinetterie
-4. **Mise en service**
-
-## Les normes à respecter
-
-### Électricité
-- **Zone 0** : dans la baignoire/douche
-- **Zone 1** : 60cm autour de la baignoire
-- **Zone 2** : 3m autour de la baignoire
-- **Protection IP** : IPX4 minimum
-
-### Plomberie
-- **Pente d'évacuation** : 2cm/m minimum
-- **Diamètre des tuyaux** : selon le débit
-- **Ventilation** : évacuation des odeurs
-- **Étanchéité** : tests obligatoires
-
-### Accessibilité
-- **Largeur de porte** : 80cm minimum
-- **Espace de manœuvre** : 150cm de diamètre
-- **Hauteur des équipements** : selon les normes
-- **Poignées** : ergonomiques
-
-## Les erreurs à éviter
-
-### Planification
-- **Négliger les évacuations** : pentes insuffisantes
-- **Oublier la ventilation** : humidité excessive
-- **Sous-estimer le budget** : 20% de marge
-- **Négliger les délais** : planification réaliste
-
-### Travaux
-- **Travaux dans le désordre** : respecter les étapes
-- **Négliger l'étanchéité** : fuites coûteuses
-- **Oublier les tests** : mise en service
-- **Négliger la finition** : détails importants
-
-## Les conseils pratiques
-
-### Budget
-- **Établir un devis détaillé** : poste par poste
-- **Prévoir 20% de marge** : imprévus
-- **Comparer plusieurs devis** : 3 minimum
-- **Négocier les prix** : possible
-
-### Délais
-- **Planifier les travaux** : étapes chronologiques
-- **Coordonner les artisans** : planning
-- **Anticiper les imprévus** : délais supplémentaires
-- **Communiquer** : suivi régulier
-
-### Qualité
-- **Choisir des matériaux** : qualité/prix
-- **Vérifier les certifications** : normes
-- **Contrôler les travaux** : régularité
-- **Tester les installations** : fonctionnement
-
-Une salle de bain réussie, c'est une question de planification !`,
-      },
-      {
-        title: 'Isolation phonique : silence, on isole !',
-        slug: 'isolation-phonique-silence-on-isole',
-        excerpt: 'Les solutions d\'isolation phonique pour réduire les nuisances sonores : matériaux, techniques et réglementation acoustique.',
-        featuredImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['isolation', 'phonique', 'bruit', 'confort'],
-        content: `# Isolation phonique : silence, on isole !
-
-L'isolation phonique est essentielle pour le confort de vie. Découvrez les solutions pour réduire les nuisances sonores :
-
-## Les types de bruit
-
-### Bruit aérien
-- **Voix, musique** : transmission par l'air
-- **Solutions** : isolation des murs, plafonds
-- **Matériaux** : laine de verre, mousse
-- **Techniques** : doublage, faux plafonds
-
-### Bruit d'impact
-- **Pas, chutes** : transmission par les structures
-- **Solutions** : isolation des sols
-- **Matériaux** : sous-couches, moquettes
-- **Techniques** : chapes flottantes
-
-### Bruit d'équipement
-- **VMC, chauffage** : vibrations mécaniques
-- **Solutions** : isolation des équipements
-- **Matériaux** : plots antivibratoires
-- **Techniques** : suspension, découplage
-
-## Les matériaux d'isolation phonique
-
-### Laine de verre
-- **Avantages** : économique, efficace
-- **Inconvénients** : irritant, fragile
-- **Utilisations** : murs, plafonds
-- **Performance** : Rw 40-50 dB
-
-### Laine de roche
-- **Avantages** : résistant au feu, durable
-- **Inconvénients** : plus cher
-- **Utilisations** : murs, plafonds
-- **Performance** : Rw 45-55 dB
-
-### Mousse polyuréthane
-- **Avantages** : très efficace, compact
-- **Inconvénients** : cher, toxique
-- **Utilisations** : murs, plafonds
-- **Performance** : Rw 50-60 dB
-
-### Laine de chanvre
-- **Avantages** : écologique, régulateur
-- **Inconvénients** : performance moyenne
-- **Utilisations** : murs, plafonds
-- **Performance** : Rw 35-45 dB
-
-## Les techniques d'isolation
-
-### Doublage des murs
-1. **Pose de rails** : métalliques
-2. **Isolation** : laine de verre
-3. **Pare-vapeur** : protection
-4. **Plaque de plâtre** : finition
-
-### Faux plafonds
-1. **Suspension** : rails métalliques
-2. **Isolation** : laine de verre
-3. **Plaques** : plâtre ou minérales
-4. **Finitions** : peinture, enduit
-
-### Chapes flottantes
-1. **Isolation** : sous-couche
-2. **Chape** : béton ou anhydrite
-3. **Découplage** : joints périphériques
-4. **Revêtement** : carrelage, parquet
-
-## Les zones prioritaires
-
-### Entre logements
-- **Murs mitoyens** : isolation renforcée
-- **Plafonds** : faux plafonds
-- **Sols** : chapes flottantes
-- **Portes** : étanchéité acoustique
-
-### Intérieur du logement
-- **Salle de bain** : isolation des équipements
-- **Chambre** : isolation des murs
-- **Bureau** : isolation des bruits extérieurs
-- **Cuisine** : isolation des équipements
-
-### Extérieur
-- **Fenêtres** : double vitrage
-- **Portes** : étanchéité
-- **Murs** : isolation extérieure
-- **Toiture** : isolation des combles
-
-## La réglementation acoustique
-
-### Nouvelles constructions
-- **Niveau sonore** : 35 dB maximum
-- **Isolement** : 53 dB minimum
-- **Équipements** : 30 dB maximum
-- **Contrôles** : obligatoires
-
-### Rénovations
-- **Amélioration** : 3 dB minimum
-- **Vérification** : par un acousticien
-- **Conformité** : aux normes
-- **Aides** : possibles
-
-## Les aides financières
-
-### MaPrimeRénov'
-- **Isolation phonique** : jusqu'à 2 000 €
-- **Travaux combinés** : bonus
-- **Résidence principale** : obligatoire
-- **Artisan RGE** : nécessaire
-
-### CEE
-- **Certificats d'économie d'énergie**
-- **Isolation phonique** : éligible
-- **Cumulable** : avec MaPrimeRénov'
-- **Montant** : selon les travaux
-
-## Les conseils pratiques
-
-### Avant les travaux
-- **Diagnostic acoustique** : par un professionnel
-- **Choix des matériaux** : selon les besoins
-- **Planification** : étapes chronologiques
-- **Budget** : prévoir les imprévus
-
-### Pendant les travaux
-- **Respect des techniques** : pose correcte
-- **Contrôle qualité** : régularité
-- **Tests d'étanchéité** : vérifications
-- **Finitions** : détails importants
-
-### Après les travaux
-- **Tests acoustiques** : vérification
-- **Mise en service** : fonctionnement
-- **Entretien** : maintenance
-- **Satisfaction** : confort
-
-Le silence, c'est le luxe du confort !`,
-      },
-      {
-        title: 'Travaux de peinture : techniques et conseils',
-        slug: 'travaux-peinture-techniques-conseils',
-        excerpt: 'Guide complet de la peinture : préparation des supports, choix des produits, techniques de pose et finitions pour un résultat parfait.',
-        featuredImage: 'https://images.unsplash.com/photo-1521799022345-481a897e45ca?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1521799022345-481a897e45ca?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['peinture', 'techniques', 'conseils', 'finitions'],
-        content: `# Travaux de peinture : techniques et conseils
-
-La peinture transforme un espace. Voici les techniques et conseils pour un résultat professionnel :
-
-## La préparation des supports
-
-### Nettoyage
-1. **Dépoussiérage** : chiffon humide
-2. **Dégraissage** : produit adapté
-3. **Nettoyage** : eau savonneuse
-4. **Rinçage** : eau claire
-
-### Réparation
-1. **Rebouchage** : enduits de rebouchage
-2. **Ponçage** : papier abrasif
-3. **Nettoyage** : dépoussiérage
-4. **Primaire** : si nécessaire
-
-### Protection
-1. **Masquage** : adhésif de masquage
-2. **Bâches** : protection du sol
-3. **Outils** : pinceaux, rouleaux
-4. **Ventilation** : aération
-
-## Les types de peinture
-
-### Peinture acrylique
-- **Avantages** : facile à poser, sèche rapidement
-- **Inconvénients** : moins résistante
-- **Utilisations** : intérieur, murs
-- **Dilution** : à l'eau
-
-### Peinture glycérophtalique
-- **Avantages** : très résistante, brillant
-- **Inconvénients** : odeur forte, séchage lent
-- **Utilisations** : extérieur, métaux
-- **Dilution** : white spirit
-
-### Peinture à la chaux
-- **Avantages** : naturelle, respirante
-- **Inconvénients** : application délicate
-- **Utilisations** : murs anciens
-- **Dilution** : à l'eau
-
-### Peinture au silicate
-- **Avantages** : très résistante, minérale
-- **Inconvénients** : application complexe
-- **Utilisations** : façades, murs
-- **Dilution** : à l'eau
-
-## Les techniques de pose
-
-### Au pinceau
-- **Avantages** : précision, finitions
-- **Inconvénients** : plus lent
-- **Utilisations** : angles, détails
-- **Technique** : couches croisées
-
-### Au rouleau
-- **Avantages** : rapide, uniforme
-- **Inconvénients** : moins précis
-- **Utilisations** : grandes surfaces
-- **Technique** : mouvements en W
-
-### Au pistolet
-- **Avantages** : très rapide, uniforme
-- **Inconvénients** : équipement coûteux
-- **Utilisations** : grandes surfaces
-- **Technique** : couches fines
-
-## Les finitions
-
-### Mat
-- **Avantages** : cache les défauts
-- **Inconvénients** : moins résistant
-- **Utilisations** : chambres, salons
-- **Entretien** : délicat
-
-### Satin
-- **Avantages** : résistant, esthétique
-- **Inconvénients** : révèle les défauts
-- **Utilisations** : cuisines, salles de bain
-- **Entretien** : facile
-
-### Brillant
-- **Avantages** : très résistant
-- **Inconvénients** : révèle tous les défauts
-- **Utilisations** : portes, boiseries
-- **Entretien** : très facile
-
-## Les erreurs à éviter
-
-### Préparation
-- **Négliger le nettoyage** : adhérence
-- **Oublier le primaire** : sur supports absorbants
-- **Mal masquer** : finitions
-- **Négliger la ventilation** : sécurité
-
-### Application
-- **Trop d'épaisseur** : coulures
-- **Séchage insuffisant** : entre les couches
-- **Mélange de produits** : incompatibilité
-- **Conditions météo** : humidité, température
-
-### Finitions
-- **Négliger les détails** : angles, bords
-- **Oublier le nettoyage** : outils
-- **Retirer le masquage** : trop tôt
-- **Négliger l'entretien** : durabilité
-
-## Les conseils pratiques
-
-### Choix des couleurs
-- **Échantillons** : tester avant
-- **Éclairage** : naturel et artificiel
-- **Harmonie** : avec le mobilier
-- **Tendances** : mais intemporel
-
-### Budget
-- **Calculer la surface** : précision
-- **Prévoir les pertes** : 10% de marge
-- **Qualité** : investissement
-- **Outils** : réutilisables
-
-### Délais
-- **Planification** : étapes
-- **Séchage** : respecter les temps
-- **Météo** : conditions optimales
-- **Disponibilité** : temps nécessaire
-
-## Les tendances 2024
-
-### Couleurs
-- **Vert sauge** : apaisant
-- **Terracotta** : chaleureux
-- **Bleu océan** : apaisant
-- **Beige rosé** : doux
-
-### Techniques
-- **Effets** : matières, textures
-- **Dégradés** : transitions douces
-- **Motifs** : géométriques
-- **Métallisé** : accents
-
-### Écologie
-- **Peintures naturelles** : sans COV
-- **Recyclage** : emballages
-- **Durabilité** : qualité
-- **Santé** : composants
-
-La peinture, c'est l'art de transformer l'espace !`,
-      },
-      {
-        title: 'Rénovation de cuisine : optimiser l\'espace',
-        slug: 'renovation-cuisine-optimiser-espace',
-        excerpt: 'Concevoir une cuisine fonctionnelle et esthétique : agencement, choix des équipements, éclairage et solutions de rangement.',
-        featuredImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['cuisine', 'rénovation', 'agencement', 'fonctionnel'],
-        content: `# Rénovation de cuisine : optimiser l'espace
-
-Une cuisine bien conçue améliore le quotidien. Voici les clés pour optimiser l'espace et la fonctionnalité :
-
-## Les agencements de base
-
-### Cuisine en ligne
-- **Avantages** : économique, compact
-- **Inconvénients** : moins fonctionnel
-- **Utilisations** : petites surfaces
-- **Longueur** : 3m minimum
-
-### Cuisine en L
-- **Avantages** : fonctionnel, économe
-- **Inconvénients** : angles morts
-- **Utilisations** : surfaces moyennes
-- **Longueur** : 4m minimum
-
-### Cuisine en U
-- **Avantages** : très fonctionnel
-- **Inconvénients** : plus cher
-- **Utilisations** : grandes surfaces
-- **Longueur** : 6m minimum
-
-### Cuisine en îlot
-- **Avantages** : conviviale, moderne
-- **Inconvénients** : nécessite de l'espace
-- **Utilisations** : grandes surfaces
-- **Surface** : 20m² minimum
-
-## Le triangle d'activité
-
-### Principe
-- **Évier** : point central
-- **Réfrigérateur** : stockage
-- **Plaque de cuisson** : préparation
-- **Distance** : 1,20m maximum
-
-### Optimisation
-- **Trajets courts** : efficacité
-- **Pas d'obstacles** : circulation
-- **Éclairage** : chaque zone
-- **Ventilation** : évacuation
-
-## Les zones fonctionnelles
-
-### Zone de stockage
-- **Réfrigérateur** : produits frais
-- **Congélateur** : produits surgelés
-- **Rangements** : conserves, épices
-- **Accessibilité** : hauteur optimale
-
-### Zone de préparation
-- **Plan de travail** : 60cm minimum
-- **Évier** : large et profond
-- **Robinetterie** : mitigeur
-- **Éclairage** : direct
-
-### Zone de cuisson
-- **Plaque de cuisson** : induction, gaz
-- **Four** : encastré, indépendant
-- **Hotte** : extraction efficace
-- **Sécurité** : détecteurs
-
-### Zone de service
-- **Lave-vaisselle** : intégré
-- **Poubelles** : tri sélectif
-- **Linge** : machine à laver
-- **Rangement** : produits d'entretien
-
-## Les équipements essentiels
-
-### Électroménager
-- **Réfrigérateur** : A+++, 200L minimum
-- **Lave-vaisselle** : 12 couverts
-- **Four** : multifonctions
-- **Micro-ondes** : combiné
-
-### Robinetterie
-- **Mitigeur** : thermostatique
-- **Évier** : inox, granit
-- **Dosseret** : carrelage, inox
-- **Éclairage** : LED
-
-### Rangements
-- **Meubles hauts** : jusqu'au plafond
-- **Tiroirs** : profonds, organisés
-- **Étagères** : accessibles
-- **Coffres** : rangement
-
-## Les matériaux
-
-### Meubles
-- **Mélaminé** : économique, résistant
-- **Stratifié** : esthétique, durable
-- **Bois massif** : noble, chaleureux
-- **Inox** : moderne, hygiénique
-
-### Plans de travail
-- **Granit** : résistant, esthétique
-- **Quartz** : uniforme, coloré
-- **Bois** : chaleureux, délicat
-- **Inox** : moderne, hygiénique
-
-### Sols
-- **Carrelage** : résistant, facile
-- **Vinyle** : confortable, coloré
-- **Parquet** : chaleureux, délicat
-- **Résine** : moderne, uniforme
-
-## L'éclairage
-
-### Éclairage général
-- **Plafonnier** : lumière diffuse
-- **LED** : économique, durable
-- **Dimmable** : intensité variable
-- **Couleur** : blanc chaud
-
-### Éclairage de travail
-- **Sous meubles** : éclairage direct
-- **LED** : économique, efficace
-- **Interrupteur** : indépendant
-- **Position** : au-dessus du plan
-
-### Éclairage d'ambiance
-- **Spots** : directionnels
-- **Appliques** : décoratives
-- **LED** : colorées
-- **Dimmable** : ambiance
-
-## Les solutions de rangement
-
-### Meubles hauts
-- **Portes** : battantes, coulissantes
-- **Intérieur** : étagères, tiroirs
-- **Hauteur** : accessible
-- **Éclairage** : intégré
-
-### Meubles bas
-- **Tiroirs** : profonds, organisés
-- **Portes** : battantes, coulissantes
-- **Intérieur** : étagères, paniers
-- **Organisation** : par zones
-
-### Accessoires
-- **Paniers** : tiroirs, portes
-- **Étagères** : réglables
-- **Crochets** : muraux
-- **Organiseurs** : tiroirs
-
-## Les tendances 2024
-
-### Design
-- **Lignes épurées** : minimalisme
-- **Couleurs neutres** : beige, gris
-- **Matériaux naturels** : bois, pierre
-- **Finitions** : mat, satin
-
-### Technologie
-- **Électroménager connecté** : domotique
-- **Éclairage intelligent** : LED
-- **Robinetterie** : électronique
-- **Sécurité** : détecteurs
-
-### Écologie
-- **Matériaux recyclés** : durables
-- **Énergie** : A+++
-- **Eau** : économies
-- **Déchets** : tri
-
-## Les erreurs à éviter
-
-### Planification
-- **Négliger les mesures** : précision
-- **Oublier les évacuations** : plomberie
-- **Négliger l'éclairage** : fonctionnel
-- **Sous-estimer le budget** : 20% de marge
-
-### Travaux
-- **Travaux dans le désordre** : étapes
-- **Négliger la ventilation** : humidité
-- **Oublier les prises** : électriques
-- **Négliger la finition** : détails
-
-Une cuisine réussie, c'est une cuisine qui vous ressemble !`,
-      },
-      {
-        title: 'Travaux de toiture : prévention et réparation',
-        slug: 'travaux-toiture-prevention-reparation',
-        excerpt: 'Entretenir et réparer sa toiture : inspection, détection des problèmes, choix des matériaux et techniques de réparation.',
-        featuredImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['toiture', 'entretien', 'réparation', 'prévention'],
-        content: `# Travaux de toiture : prévention et réparation
-
-La toiture protège votre habitation. Voici comment l'entretenir et la réparer :
-
-## L'inspection régulière
-
-### Fréquence
-- **Inspection visuelle** : 2 fois par an
-- **Inspection détaillée** : 1 fois par an
-- **Après intempéries** : immédiate
-- **Avant l'hiver** : obligatoire
-
-### Points de contrôle
-- **Tuiles** : cassées, déplacées
-- **Gouttières** : bouchées, détachées
-- **Cheminées** : joints, briques
-- **Ventilation** : aérateurs, sorties
-
-### Signes d'alerte
-- **Fuite d'eau** : taches, moisissures
-- **Bruit** : tuiles qui bougent
-- **Ventilation** : condensation
-- **Isolation** : dégradation
-
-## Les matériaux de couverture
-
-### Tuiles en terre cuite
-- **Avantages** : durable, esthétique
-- **Inconvénients** : lourd, fragile
-- **Durée de vie** : 50-100 ans
-- **Entretien** : minimal
-
-### Tuiles en béton
-- **Avantages** : économique, résistant
-- **Inconvénients** : moins esthétique
-- **Durée de vie** : 30-50 ans
-- **Entretien** : régulier
-
-### Ardoises
-- **Avantages** : très durable, esthétique
-- **Inconvénients** : cher, lourd
-- **Durée de vie** : 100-200 ans
-- **Entretien** : spécialisé
-
-### Tôles
-- **Avantages** : léger, économique
-- **Inconvénients** : bruit, rouille
-- **Durée de vie** : 20-30 ans
-- **Entretien** : régulier
-
-## Les problèmes courants
-
-### Fuites
-- **Causes** : tuiles cassées, joints
-- **Détection** : taches, moisissures
-- **Réparation** : remplacement, jointoiement
-- **Prévention** : inspection régulière
-
-### Ventilation
-- **Problèmes** : condensation, moisissures
-- **Solutions** : aérateurs, sorties
-- **Installation** : par un professionnel
-- **Entretien** : nettoyage régulier
-
-### Isolation
-- **Dégradation** : performance
-- **Solutions** : renforcement, remplacement
-- **Matériaux** : laine de verre, mousse
-- **Installation** : par un professionnel
-
-## Les techniques de réparation
-
-### Remplacement de tuiles
-1. **Démontage** : tuiles cassées
-2. **Nettoyage** : support
-3. **Pose** : nouvelles tuiles
-4. **Fixation** : clous, crochets
-
-### Réparation de joints
-1. **Nettoyage** : joints dégradés
-2. **Préparation** : support
-3. **Application** : mortier, mastic
-4. **Finition** : lissage
-
-### Réparation de gouttières
-1. **Nettoyage** : débris, mousse
-2. **Réparation** : trous, fissures
-3. **Remontage** : fixations
-4. **Test** : étanchéité
-
-## La prévention
-
-### Entretien régulier
-- **Nettoyage** : gouttières, évacuations
-- **Vérification** : fixations, joints
-- **Réparation** : petites interventions
-- **Surveillance** : après intempéries
-
-### Amélioration
-- **Ventilation** : aérateurs
-- **Isolation** : renforcement
-- **Étanchéité** : joints
-- **Sécurité** : garde-corps
-
-### Protection
-- **Écrans** : sous-toiture
-- **Étanchéité** : membranes
-- **Ventilation** : lames d'air
-- **Isolation** : laine de verre
-
-## Les aides financières
-
-### MaPrimeRénov'
-- **Isolation** : jusqu'à 4 000 €
-- **Ventilation** : jusqu'à 2 000 €
-- **Étanchéité** : jusqu'à 1 500 €
-- **Conditions** : artisan RGE
-
-### CEE
-- **Certificats d'économie d'énergie**
-- **Isolation** : éligible
-- **Cumulable** : avec MaPrimeRénov'
-- **Montant** : selon les travaux
-
-### Éco-PTZ
-- **Prêt à taux zéro** : jusqu'à 30 000 €
-- **Travaux d'efficacité énergétique**
-- **Remboursement** : sur 15 ans
-- **Conditions** : résidence principale
-
-## Les conseils pratiques
-
-### Avant les travaux
-- **Devis détaillé** : plusieurs artisans
-- **Vérification** : assurances, garanties
-- **Planification** : météo, délais
-- **Budget** : prévoir les imprévus
-
-### Pendant les travaux
-- **Sécurité** : équipements, formation
-- **Qualité** : matériaux, pose
-- **Contrôle** : régularité
-- **Communication** : suivi
-
-### Après les travaux
-- **Réception** : vérification
-- **Garanties** : documents
-- **Entretien** : conseils
-- **Surveillance** : régularité
-
-## Les erreurs à éviter
-
-### Négligence
-- **Inspection** : régularité
-- **Entretien** : prévention
-- **Réparation** : rapidité
-- **Surveillance** : vigilance
-
-### Travaux
-- **Matériaux** : qualité
-- **Pose** : techniques
-- **Sécurité** : équipements
-- **Finitions** : détails
-
-Une toiture bien entretenue, c'est la garantie de votre tranquillité !`,
-      },
-      {
-        title: 'Rénovation énergétique : les aides 2024',
-        slug: 'renovation-energetique-aides-2024',
-        excerpt: 'Guide complet des aides financières pour la rénovation énergétique : MaPrimeRénov\', CEE, Éco-PTZ et nouvelles mesures 2024.',
-        featuredImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=1200',
-        previewImage: 'https://images.unsplash.com/photo-1548611635-b6e7827aa7f4?fm=jpg&q=80&w=600',
-        author: 'Équipe D-Via',
-        tags: ['aides', 'rénovation', 'énergie', '2024'],
-        content: `# Rénovation énergétique : les aides 2024
-
-Les aides financières évoluent en 2024. Voici le guide complet pour optimiser vos travaux :
-
-## MaPrimeRénov' 2024
-
-### Nouveautés
-- **Montants revalorisés** : +10% en moyenne
-- **Critères élargis** : plus de ménages éligibles
-- **Travaux combinés** : bonus renforcé
-- **Délais** : raccourcis
-
-### Montants par travaux
-- **Isolation toiture** : jusqu'à 4 000 €
-- **Isolation murs** : jusqu'à 3 000 €
-- **Isolation sols** : jusqu'à 2 000 €
-- **Chauffage** : jusqu'à 4 000 €
-- **Ventilation** : jusqu'à 2 000 €
-
-### Conditions d'éligibilité
-- **Résidence principale** : obligatoire
-- **Ancienneté** : 15 ans minimum
-- **Artisan RGE** : nécessaire
-- **Revenus** : plafonds revalorisés
-
-## Coup de pouce chauffage
-
-### Nouveautés 2024
-- **Montants augmentés** : +15%
-- **Équipements éligibles** : élargis
-- **Cumul** : avec MaPrimeRénov'
-- **Délais** : accélérés
-
-### Montants
-- **Pompe à chaleur** : jusqu'à 4 000 €
-- **Chaudière gaz** : jusqu'à 2 000 €
-- **Chaudière bois** : jusqu'à 3 000 €
-- **Système solaire** : jusqu'à 4 000 €
-
-### Conditions
-- **Remplacement** : chaudière ancienne
-- **Performance** : critères techniques
-- **Artisan** : qualifié
-- **Installation** : aux normes
-
-## Éco-PTZ 2024
-
-### Évolutions
-- **Montant** : jusqu'à 30 000 €
-- **Durée** : 15 ans maximum
-- **Taux** : 0% garanti
-- **Travaux** : élargis
-
-### Travaux éligibles
-- **Isolation** : toiture, murs, sols
-- **Chauffage** : pompe à chaleur
-- **Ventilation** : VMC double flux
-- **Éclairage** : LED
-
-### Conditions
-- **Résidence principale** : obligatoire
-- **Ancienneté** : 15 ans minimum
-- **Performance** : critères techniques
-- **Artisan** : RGE
-
-## Les nouvelles aides 2024
-
-### Prime à la conversion
-- **Véhicules** : électriques, hybrides
-- **Montant** : jusqu'à 5 000 €
-- **Conditions** : revenus, ancienneté
-- **Cumul** : avec autres aides
-
-### Aide à la rénovation
-- **Montant** : jusqu'à 2 000 €
-- **Travaux** : amélioration énergétique
-- **Conditions** : revenus modestes
-- **Cumul** : avec MaPrimeRénov'
-
-### Prime à la performance
-- **Montant** : jusqu'à 1 500 €
-- **Travaux** : performance énergétique
-- **Conditions** : critères techniques
-- **Cumul** : avec autres aides
-
-## Les cumuls possibles
-
-### MaPrimeRénov' + CEE
-- **Cumul** : possible
-- **Montant total** : jusqu'à 8 000 €
-- **Conditions** : respect des critères
-- **Délais** : respecter les échéances
-
-### Éco-PTZ + MaPrimeRénov'
-- **Cumul** : possible
-- **Montant total** : jusqu'à 34 000 €
-- **Conditions** : respect des critères
-- **Délais** : respecter les échéances
-
-### Aides locales
-- **Régions** : complémentaires
-- **Départements** : spécifiques
-- **Communes** : locales
-- **Cumul** : avec aides nationales
-
-## Les démarches
-
-### Avant les travaux
-1. **Étude** : faisabilité, coûts
-2. **Devis** : plusieurs artisans
-3. **Demande** : aides financières
-4. **Validation** : éligibilité
-
-### Pendant les travaux
-1. **Suivi** : qualité, délais
-2. **Contrôle** : respect des normes
-3. **Documentation** : factures, attestations
-4. **Communication** : avec les organismes
-
-### Après les travaux
-1. **Réception** : vérification
-2. **Dossier** : complet
-3. **Demande** : remboursement
-4. **Suivi** : versements
-
-## Les erreurs à éviter
-
-### Dossier
-- **Incomplet** : pièces manquantes
-- **Erreurs** : informations incorrectes
-- **Délais** : dépassement
-- **Critères** : non respectés
-
-### Travaux
-- **Artisan** : non qualifié
-- **Matériaux** : non conformes
-- **Pose** : non aux normes
-- **Contrôle** : insuffisant
-
-### Suivi
-- **Communication** : insuffisante
-- **Documentation** : incomplète
-- **Délais** : non respectés
-- **Qualité** : insuffisante
-
-## Les conseils pratiques
-
-### Optimisation
-- **Cumul** : maximiser les aides
-- **Délais** : respecter les échéances
-- **Qualité** : choisir les bons artisans
-- **Suivi** : régularité
-
-### Budget
-- **Prévision** : réaliste
-- **Marge** : 20% d'imprévus
-- **Aides** : déduites
-- **Coût réel** : calculé
-
-### Délais
-- **Planification** : étapes
-- **Démarches** : anticipées
-- **Travaux** : chronologiques
-- **Suivi** : régularité
-
-Les aides 2024, c'est l'occasion de rénover à moindre coût !`,
-      }
     ],
     skipDuplicates: true,
   });

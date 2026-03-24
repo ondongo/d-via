@@ -34,7 +34,10 @@ function page() {
     certifications: string[] | null;
     profession: string | null;
     category: string | null;
-    userId: string; // Add this to interface
+    companyName: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    userId: string;
   }
 
   const [artisans, setArtisans] = useState<ArtisanDB[]>([]);
@@ -105,16 +108,14 @@ function page() {
         });
         if (!res.ok) throw new Error("Erreur réseau");
         const data = await res.json();
-        // Ensure userId exists
         setArtisans(data.artisans || []);
         setTotalCount(data.totalCount || 0);
         setHasLoadedOnce(true);
+        setLoading(false);
       } catch (e: any) {
-        if (e.name !== "AbortError") {
-          setError(e.message || "Erreur");
-          setHasLoadedOnce(true);
-        }
-      } finally {
+        if (e.name === "AbortError") return;
+        setError(e.message || "Erreur");
+        setHasLoadedOnce(true);
         setLoading(false);
       }
     }
@@ -134,6 +135,7 @@ function page() {
 
   // Application des filtres côté client retirée (déjà côté serveur)
   const filteredArtisans = artisans.map((a) => ({
+    id: a.id,
     userId: a.userId,
     image: a.image || "",
     rating: a.rating || 0,
@@ -143,6 +145,10 @@ function page() {
     distance: a.distance != null ? `${a.distance}km` : "",
     availability: a.availability || "",
     certifications: a.certifications || [],
+    companyName: a.companyName || undefined,
+    profession: a.profession || undefined,
+    firstName: a.firstName || undefined,
+    lastName: a.lastName || undefined,
   }));
 
   // Pagination UI
@@ -285,21 +291,35 @@ function page() {
         </div>
 
         <button
-          className={`border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer ${
-            filterRating ? "bg-dvianeutral-80 text-white" : ""
+          className={`border text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer transition-colors ${
+            filterRating
+              ? "bg-dvianeutral-94 border-dvianeutral-94 text-dvianeutralvariant-50 font-medium"
+              : "border-dvianeutralvariant-30 text-dvianeutralvariant-40"
           }`}
           onClick={() => setFilterRating((v) => !v)}
         >
+          {filterRating && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
           <img src={ICONS.artisanCard.star} alt="note" className="w-4 h-4" />
           Note
         </button>
 
         <button
-          className={`border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer ${
-            filterDistance ? "bg-dvianeutral-80 text-white" : ""
+          className={`border text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer transition-colors ${
+            filterDistance
+              ? "bg-dvianeutral-94 border-dvianeutral-94 text-dvianeutralvariant-50 font-medium"
+              : "border-dvianeutralvariant-30 text-dvianeutralvariant-40"
           }`}
           onClick={() => setFilterDistance((v) => !v)}
         >
+          {filterDistance && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
           <img
             src={ICONS.artisanCard.location}
             alt="distance"
@@ -309,11 +329,18 @@ function page() {
         </button>
 
         <button
-          className={`border border-dvianeutralvariant-30 text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer ${
-            onlyVerified ? "bg-dvianeutral-80 text-white" : ""
+          className={`border text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer transition-colors ${
+            onlyVerified
+              ? "bg-dvianeutral-94 border-dvianeutral-94 text-dvianeutralvariant-50 font-medium"
+              : "border-dvianeutralvariant-30 text-dvianeutralvariant-40"
           }`}
           onClick={() => setOnlyVerified((v) => !v)}
         >
+          {onlyVerified && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
           <img
             src={ICONS.artisanCard.verified}
             alt="artisans vérifiés"
