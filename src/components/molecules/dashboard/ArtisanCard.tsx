@@ -134,7 +134,10 @@ export const ArtisanCard = ({
         </button>
 
         <button
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/dashboard/clients/search/${id}`);
+          }}
           className="max-w-[90px] w-full border bg-dviaprimary-40 text-white text-sm py-2 rounded-8px flex items-center justify-center gap-2 cursor-pointer"
         >
           <img

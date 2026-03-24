@@ -139,7 +139,7 @@ export default function ArtisansRecommandesView() {
       {/* Retour */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-2 text-sm text-dvianeutralvariant-40 hover:text-dviaprimary-40 transition-colors mb-6 cursor-pointer"
+        className="text-label-large leading-label-large tracking-label-large h-[40px] cursor-pointer rounded-8px border border-dvianeutral-50 bg-transparent px-4 py-1 text-sm font-medium text-dviaprimary-40 transition-shadow duration-300 hover:shadow-sm flex items-center gap-2 mb-6"
       >
         <svg
           width="16"

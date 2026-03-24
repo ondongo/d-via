@@ -20,7 +20,7 @@ export default async function BlogPage() {
   );
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen pt-6">
       <BlogHeader />
       <div className=" mx-auto px-6 py-8">
         <BlogPageClient posts={posts} categories={allCategories} />
