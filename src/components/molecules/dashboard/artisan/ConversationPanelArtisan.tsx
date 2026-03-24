@@ -77,7 +77,7 @@ export default function ConversationPanelArtisan({ conv, onSendMessage }: { conv
         </div>
       </div>
 
-      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4 py-4">
+      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4">
         {conv.messages.map((msg) => {
           if (msg.contentType === "ALERT") {
             return <AlertMessage key={msg.id} text={msg.text || ""} />;

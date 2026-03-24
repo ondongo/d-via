@@ -775,13 +775,13 @@ export default function AnalysisResults({
       )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-between mt-6 pt-4 bg-dvianeutral-94 border-t border-dvianeutral-50">
+      <div className="flex items-center justify-between mt-6 p-4 bg-dvianeutral-94 rounded-8px">
         <button
           onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
           disabled={currentPage === 1}
-          className={`p-2 rounded-full border border-dvianeutral-50 transition-colors cursor-pointer ${currentPage === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-dvianeutral-94"}`}
+          className={`p-2 transition-colors cursor-pointer ${currentPage === 1 ? "opacity-30 cursor-not-allowed" : "hover:bg-dvianeutral-94"}`}
         >
-          <FaChevronLeft size={16} className="text-dvianeutralvariant-90" />
+          <FaChevronLeft size={12} className="text-dvianeutralvariant-90" />
         </button>
         <span className="text-sm text-dvianeutralvariant-40 font-medium">
           {currentPage}/{totalPages}
@@ -789,9 +789,9 @@ export default function AnalysisResults({
         <button
           onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
           disabled={currentPage === totalPages}
-          className={`p-2 rounded-full border border-dvianeutral-50 transition-colors cursor-pointer ${currentPage === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-dvianeutral-94"}`}
+          className={`p-2 transition-colors cursor-pointer ${currentPage === totalPages ? "opacity-30 cursor-not-allowed" : "hover:bg-dvianeutral-94"}`}
         >
-          <FaChevronRight size={16} className="text-dvianeutralvariant-90" />
+          <FaChevronRight size={12} className="text-dvianeutralvariant-90" />
         </button>
       </div>
 
