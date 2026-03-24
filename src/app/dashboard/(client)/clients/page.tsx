@@ -36,24 +36,84 @@ function mapEntitlementToCreditState(
     : "guest_free_analysis_used";
 }
 
-function GuestFreeBadge() {
+function RgpdModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
   return (
-    <div className="inline-flex items-center gap-2 bg-dvianeutral-96 border border-dvianeutral-50 rounded-28px px-3 py-1.5 mb-4">
-      <svg
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="#E16A26"
-        strokeWidth="2"
-        strokeLinecap="round"
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl w-full max-w-[480px] mx-4 p-6 md:p-8 relative"
+        onClick={(e) => e.stopPropagation()}
       >
-        <circle cx="12" cy="12" r="10" />
-        <path d="M12 8v4M12 16h.01" />
-      </svg>
-      <span className="text-xs font-medium text-dvianeutralvariant-40">
-        Vous disposez d&apos;une analyse gratuite
-      </span>
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-dvianeutralvariant-40 hover:text-dvianeutral-10 cursor-pointer"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        <h2 className="text-2xl font-bold text-dvianeutral-10 mb-2">
+          Protection des données
+        </h2>
+        <p className="text-sm text-dvianeutralvariant-40 mb-6">
+          Votre vie privée est notre priorité. Voici exactement comment nous
+          traitons vos documents, en toute transparence.
+        </p>
+        <div className="flex flex-col gap-4">
+          <div className="border border-dvianeutral-50 rounded-xl p-4">
+            <p className="font-medium text-dvianeutral-10 mb-2">
+              À quoi servent vos documents ?
+            </p>
+            <p className="text-sm text-dvianeutralvariant-40 leading-relaxed">
+              Uniquement à analyser vos devis — vérification des prix et des
+              assurances. Vos fichiers ne sont <span className="font-medium text-dvianeutral-10">jamais utilisés pour améliorer
+              notre IA sans votre accord explicite</span>. Sans autorisation de
+              votre part, ils sont supprimés automatiquement après l&apos;analyse.
+            </p>
+          </div>
+          <div className="border border-dvianeutral-50 rounded-xl p-4">
+            <p className="font-medium text-dvianeutral-10 mb-2">
+              Où sont stockés vos fichiers ?
+            </p>
+            <p className="text-sm text-dvianeutralvariant-40 leading-relaxed">
+              Sur des serveurs sécurisés, hébergés en{" "}
+              <span className="font-medium text-dvianeutral-10">Union Européenne</span>.
+              Si vous autorisez la conservation, vos données sont chiffrées et
+              vos informations personnelles anonymisées avant tout traitement.
+            </p>
+          </div>
+          <div className="border border-dvianeutral-50 rounded-xl p-4">
+            <p className="font-medium text-dvianeutral-10 mb-2">
+              Pendant combien de temps ?
+            </p>
+            <p className="text-sm text-dvianeutralvariant-40 leading-relaxed">
+              Sans votre accord, vos documents sont supprimés dès la fin de
+              l&apos;analyse. Si vous les conservez, vous pouvez les supprimer
+              à tout moment depuis la section{" "}
+              <span className="text-dviaprimary-40 font-normal">
+                Paramètres
+              </span>
+              .
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full mt-6 bg-dviaprimary-40 text-white font-medium py-3 rounded-8px hover:bg-dviaprimary-30 transition-colors cursor-pointer"
+        >
+          J&apos;ai compris
+        </button>
+      </div>
     </div>
   );
 }
@@ -75,6 +135,7 @@ function DashboardClientsPage() {
   );
   const [entitlementLoading, setEntitlementLoading] = useState(true);
 
+  const [rgpdOpen, setRgpdOpen] = useState(false);
   const [fileData, setFileData] = useState<{
     base64: string | null;
     name: string | null;
@@ -119,9 +180,7 @@ function DashboardClientsPage() {
   }, [isSessionLoading, isAuthenticated, refreshEntitlement]);
 
   const serverHistory =
-    isAuthenticated && entitlement?.mode === "user"
-      ? entitlement.history
-      : [];
+    isAuthenticated && entitlement?.mode === "user" ? entitlement.history : [];
   const historyItems = isAuthenticated ? serverHistory : guestHistory;
 
   const removeHistoryEntry = async (id: string) => {
@@ -174,7 +233,8 @@ function DashboardClientsPage() {
         const base64String = reader.result?.toString().split(",")[1] || null;
         setFileData({ base64: base64String, name: file.name, type: file.type });
       };
-      reader.onerror = () => toast.error("Erreur lors de la lecture du fichier.");
+      reader.onerror = () =>
+        toast.error("Erreur lors de la lecture du fichier.");
       reader.readAsDataURL(file);
     } else if (file.type.startsWith("image/")) {
       const img = new Image();
@@ -276,7 +336,9 @@ function DashboardClientsPage() {
 
       if (!extractResponse.ok) {
         const errorData = await extractResponse.json();
-        toast.error(errorData.message || "Erreur lors de l'extraction du document");
+        toast.error(
+          errorData.message || "Erreur lors de l'extraction du document",
+        );
         return;
       }
 
@@ -315,9 +377,7 @@ function DashboardClientsPage() {
 
         if (analyzeResponse.status === 402) {
           const err = await analyzeResponse.json();
-          toast.error(
-            err.error || "Crédits ou analyse gratuite indisponible.",
-          );
+          toast.error(err.error || "Crédits ou analyse gratuite indisponible.");
           await refreshEntitlement();
           return;
         }
@@ -332,7 +392,11 @@ function DashboardClientsPage() {
           });
           setIsAnalyzed(true);
 
-          if (!isAuthenticated && fileData.name && analyzeData.reliability != null) {
+          if (
+            !isAuthenticated &&
+            fileData.name &&
+            analyzeData.reliability != null
+          ) {
             addToHistory(fileData.name, analyzeData.reliability);
           }
           await refreshEntitlement();
@@ -365,7 +429,10 @@ ${analysis.conclusion}
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: "Résultats de l'analyse", text: content });
+        await navigator.share({
+          title: "Résultats de l'analyse",
+          text: content,
+        });
       } catch (error) {
         console.log("Partage annulé :", error);
       }
@@ -391,9 +458,12 @@ ${analysis.conclusion}
 
   return (
     <div className="flex w-full min-h-[calc(100vh-120px)]">
+      <RgpdModal open={rgpdOpen} onClose={() => setRgpdOpen(false)} />
+
       {/* Sidebar historique — desktop uniquement */}
       <AnalysisHistorySidebar
         history={historyItems}
+        isLoading={entitlementLoading}
         onRemove={(id) => {
           void removeHistoryEntry(id);
         }}
@@ -401,12 +471,6 @@ ${analysis.conclusion}
 
       {/* Contenu principal */}
       <div className="flex-1 min-w-0 px-4 md:px-8 py-4 md:py-0">
-        {/* Badge visiteur gratuit */}
-        {!isSessionLoading &&
-          creditState === "guest_free_analysis_available" && (
-            <GuestFreeBadge />
-          )}
-
         {/* Sous-titre */}
         {!isAnalyzed && !isLoading && canAnalyze && (
           <p className="text-dvianeutral-20 text-sm md:text-base my-6">
@@ -416,8 +480,8 @@ ${analysis.conclusion}
         )}
         {(isAnalyzed || isLoading) && canAnalyze && (
           <p className="text-dvianeutral-20 text-md md:text-lg mb-6">
-            Résultats de l&apos;analyse — Notre IA vérifie les prix, les assurances et
-            détecte les anomalies.
+            Résultats de l&apos;analyse — Notre IA vérifie les prix, les
+            assurances et détecte les anomalies.
           </p>
         )}
 
@@ -428,27 +492,40 @@ ${analysis.conclusion}
             {!isAnalyzed && !isLoading ? (
               <>
                 {!fileData.base64 ? (
-                  <div className="w-full mb-5">
+                  <div className="w-full mb-5 flex justify-center">
                     <div
                       {...getRootProps()}
-                      className="flex flex-col items-center justify-center py-24 w-full border border-gray-300 border-dashed rounded-2xl cursor-pointer bg-white hover:bg-dvianeutral-96 hover:border-dvianeutral-40"
+                      className="flex flex-col items-center justify-center py-16 w-full max-w-[800px] border border-dviaprimary-40 border-dashed rounded-2xl cursor-pointer bg-white "
                     >
                       <div className="mb-3 flex items-center justify-center">
                         <img
                           src="/illustrations/DevisUpload.svg"
                           alt="Upload illustration"
-                          className="w-[240px] h-[240px]"
+                          className="w-[200px] h-[200px]"
                         />
                       </div>
-                      <h2 className="text-center text-gray-400 text-xs font-normal leading-4 mb-1">
-                        Format PDF, PNG ou JPG, moins de 5MB
-                      </h2>
-                      <h4 className="text-center text-gray-900 text-sm font-medium leading-snug">
-                        Glissez votre devis ici ou{" "}
-                        <span className="text-dviaprimary-40">
-                          choisissez un fichier
-                        </span>
-                      </h4>
+                      <div className="w-full px-4 mb-3">
+                        <button className="bg-dviaprimary-40 text-white cursor-pointer font-medium py-3 px-6 rounded-8px hover:bg-dviaprimary-30 transition-colors text-sm flex items-center gap-2 w-full justify-center">
+                          + Ajouter un document
+                        </button>
+                      </div>
+                      <p className="text-center text-xs text-dvianeutralvariant-40 mb-3 w-full px-4">
+                        Formats acceptés : PDF, JPG, PNG.
+                      </p>
+                      <div className="w-full px-4">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRgpdOpen(true);
+                          }}
+                          className="text-xs text-dvianeutralvariant-40 border border-dvianeutral-50 rounded-8px px-4 py-2 hover:bg-dvianeutral-96 transition-colors cursor-pointer w-full text-center"
+                        >
+                          Données sécurisées &amp; RGPD.{" "}
+                          <span className="text-dviaprimary-40 font-medium">
+                            En savoir plus
+                          </span>
+                        </button>
+                      </div>
                       <input {...getInputProps()} className="hidden" />
                     </div>
                   </div>
@@ -549,19 +626,19 @@ ${analysis.conclusion}
                   </div>
                 )}
 
-                <div className="w-full flex justify-end mt-2 mb-5">
-                  <button
-                    onClick={handleExtractAndAnalyze}
-                    disabled={isLoading || !fileData.base64}
-                    className={`text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer max-w-[220px] flex items-center justify-center gap-2 ${
-                      isLoading || !fileData.base64
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    Analyser le devis
-                  </button>
-                </div>
+                {fileData.base64 && (
+                  <div className="w-full flex justify-center mt-3 mb-5">
+                    <button
+                      onClick={handleExtractAndAnalyze}
+                      disabled={isLoading}
+                      className={`text-white text-label-large leading-label-large tracking-label-large bg-dviaprimary-40 px-8 py-2 shadow-lg border rounded-8px border-transparent text-sm font-medium hover:shadow-sm transition-shadow duration-300 cursor-pointer w-full max-w-[800px] flex items-center justify-center gap-2 ${
+                        isLoading ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      Analyser le devis
+                    </button>
+                  </div>
+                )}
               </>
             ) : (
               <div className="w-full mb-5">
@@ -571,6 +648,8 @@ ${analysis.conclusion}
                   analysis={analysis}
                   resultsRef={resultsRef}
                   handleShareResults={handleShareResults}
+                  showAlternativeBanner={true}
+                  variant="dashboard"
                 />
               </div>
             )}

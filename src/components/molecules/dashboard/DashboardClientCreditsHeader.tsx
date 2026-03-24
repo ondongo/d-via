@@ -43,7 +43,12 @@ export default function DashboardClientCreditsHeader() {
   }
 
   if (status === "loading") {
-    return null;
+    return (
+      <div className="w-full md:w-auto p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 animate-pulse">
+        <div className="h-6 bg-dvianeutral-94 rounded w-44" />
+        <div className="h-9 bg-dvianeutral-94 rounded-8px w-40" />
+      </div>
+    );
   }
 
   if (status !== "authenticated") {

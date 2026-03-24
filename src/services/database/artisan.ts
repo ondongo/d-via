@@ -25,10 +25,23 @@ export interface CreateArtisanData {
   experienceYears?: string;
   specialties?: string;
   description?: string;
-  professionalGuarantees?: Array<{ base64: string; name: string; type: string }>; // Garanties professionnelles (Step3)
-  workPhotos?: Array<{ base64: string; name: string; type: string }>; // Photos de travaux (Step4 partie 2)
-  certificationNames?: string[]; // Noms des certifications (RGE, Qualibat, etc.)
-  certificationFiles?: Array<{ base64: string; name: string; type: string }>; // Fichiers de certificats
+  professionalGuarantees?: Array<{ base64: string; name: string; type: string }>;
+  workPhotos?: Array<{ base64: string; name: string; type: string }>;
+  certificationNames?: string[];
+  certificationFiles?: Array<{ base64: string; name: string; type: string }>;
+  interventionDelay?: string;
+  hourlyRateMin?: string;
+  hourlyRateMax?: string;
+  dailyRateMin?: string;
+  dailyRateMax?: string;
+  travelFee?: string;
+  freeEstimate?: boolean;
+  schedule?: string;
+  facebook?: string;
+  instagram?: string;
+  linkedin?: string;
+  tiktok?: string;
+  websiteUrl?: string;
 }
 
 export interface CreateArtisanResult {
@@ -155,9 +168,22 @@ export async function createArtisan(
           description: data.description || null,
           workPhotos: workPhotosUrls, // URLs des photos de travaux uploadées sur Firebase Storage (Step4 partie 2)
           professionalGuarantees: professionalGuaranteesUrls, // URLs des garanties professionnelles uploadées sur Firebase Storage (Step3)
-          certifications: data.certificationNames || [], // Noms des certifications (RGE, Qualibat, etc.)
-          certificationUrls: certificationUrls, // URLs des fichiers de certificats uploadés sur Firebase Storage
-        } as any, // Type assertion nécessaire car Prisma génère deux types différents
+          certifications: data.certificationNames || [],
+          certificationUrls: certificationUrls,
+          interventionDelay: data.interventionDelay || null,
+          hourlyRateMin: data.hourlyRateMin ? parseFloat(data.hourlyRateMin) : null,
+          hourlyRateMax: data.hourlyRateMax ? parseFloat(data.hourlyRateMax) : null,
+          dailyRateMin: data.dailyRateMin ? parseFloat(data.dailyRateMin) : null,
+          dailyRateMax: data.dailyRateMax ? parseFloat(data.dailyRateMax) : null,
+          travelFee: data.travelFee ? parseFloat(data.travelFee) : null,
+          freeEstimate: data.freeEstimate || false,
+          schedule: data.schedule || null,
+          facebook: data.facebook || null,
+          instagram: data.instagram || null,
+          linkedin: data.linkedin || null,
+          tiktok: data.tiktok || null,
+          websiteUrl: data.websiteUrl || null,
+        } as any,
       });
 
       // Créer l'Account pour NextAuth (provider credentials)

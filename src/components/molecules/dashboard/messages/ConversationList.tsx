@@ -30,8 +30,38 @@ export default function ConversationList({
 
   if (isLoading) {
     return (
-        <div className="flex h-full items-center justify-center text-dvianeutralvariant-30 text-sm">Chargement...</div>
-    )
+      <div className="flex h-full min-h-0 flex-col">
+        <div className="px-4 py-6 border-b border-dvianeutral-50 animate-pulse">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex-1 h-9 bg-dvianeutral-94 rounded-8px" />
+            <div className="w-9 h-9 bg-dvianeutral-94 rounded-8px shrink-0" />
+          </div>
+          <div className="flex gap-2">
+            <div className="h-7 bg-dvianeutral-94 rounded-28px w-14" />
+            <div className="h-7 bg-dvianeutral-94 rounded-28px w-20" />
+            <div className="h-7 bg-dvianeutral-94 rounded-28px w-28" />
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 px-4 py-3 border-b border-dvianeutral-50 animate-pulse"
+            >
+              <div className="w-10 h-10 rounded-full bg-dvianeutral-94 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between mb-1.5">
+                  <div className="h-3.5 bg-dvianeutral-94 rounded w-28" />
+                  <div className="h-3 bg-dvianeutral-94 rounded w-8 shrink-0" />
+                </div>
+                <div className="h-3 bg-dvianeutral-94 rounded w-20 mb-1.5" />
+                <div className="h-3 bg-dvianeutral-94 rounded w-36" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   const filtered = conversations.filter((c) => {

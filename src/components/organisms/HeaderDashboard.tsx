@@ -26,21 +26,26 @@ export default function HeaderDashboard() {
             <DashboardClientCreditsHeader />
           </div>
         </div>
-        <button className="relative cursor-pointer text-dvianeutralvariant-40 hover:text-dviaprimary-40 transition-colors">
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-          </svg>
-        </button>
+        <div className="relative group/notif">
+          <button className="relative cursor-not-allowed text-dvianeutralvariant-40 opacity-60">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
+          <div className="absolute right-0 top-full mt-2 px-3 py-1.5 bg-dvianeutral-10 text-white text-xs rounded-md whitespace-nowrap opacity-0 pointer-events-none group-hover/notif:opacity-100 transition-opacity z-50">
+            Indisponible pour le moment
+          </div>
+        </div>
       </div>
     </header>
   );

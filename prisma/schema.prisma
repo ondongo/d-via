@@ -88,6 +88,19 @@ model Artisan {
   certificationUrls String[] // Array of certification file URLs (images or PDFs)
   profession      String?
   category        String?
+  interventionDelay String?
+  hourlyRateMin   Float?
+  hourlyRateMax   Float?
+  dailyRateMin    Float?
+  dailyRateMax    Float?
+  travelFee       Float?
+  freeEstimate    Boolean  @default(false)
+  schedule        String?
+  facebook        String?
+  instagram       String?
+  linkedin        String?
+  tiktok          String?
+  websiteUrl      String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }

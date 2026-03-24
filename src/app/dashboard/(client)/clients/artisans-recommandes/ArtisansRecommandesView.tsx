@@ -1,182 +1,142 @@
 "use client";
 
+import { ArtisanCard } from "@/components/molecules/dashboard/ArtisanCard";
+import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
 import { ICONS } from "@/constants/icons";
-import type { RecommendedArtisanCard } from "@/services/database/recommended-artisans";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-interface ArtisanRecommandeCardProps {
-  artisan: RecommendedArtisanCard;
-  onProfil: (id: string) => void;
-  onDevis: (id: string) => void;
+const PROFESSION_LABELS: Record<string, string> = {
+  plomberie: "Plomberie",
+  electricite: "Électricité",
+  maconnerie: "Maçonnerie",
+  carrelage: "Carrelage",
+  peinture: "Peinture",
+  toiture: "Toiture / Couverture",
+  menuiserie: "Menuiserie",
+  charpente: "Charpente",
+  platrerie: "Plâtrerie",
+  chauffage: "Chauffage / Climatisation",
+  isolation: "Isolation",
+  terrassement: "Terrassement",
+  jardinage: "Jardinage",
+  vitrerie: "Vitrerie",
+  serrurerie: "Serrurerie",
+  ravalement: "Ravalement de façade",
+};
+
+interface ArtisanData {
+  id: string;
+  userId: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  verified: boolean;
+  location: string;
+  distance: string;
+  availability: string;
+  certifications: string[];
+  companyName?: string;
+  profession?: string;
+  firstName?: string;
+  lastName?: string;
 }
 
-function ArtisanRecommandeCard({
-  artisan,
-  onProfil,
-  onDevis,
-}: ArtisanRecommandeCardProps) {
-  return (
-    <div className="border border-dvianeutral-50 rounded-2xl overflow-hidden bg-white flex flex-col">
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-dviaprimary-90 flex items-center justify-center text-dviaprimary-10 font-semibold text-sm shrink-0">
-            {artisan.initiale}
-          </div>
-          <div>
-            <p className="text-sm font-medium text-dvianeutral-10 leading-tight">
-              {artisan.nom}
-            </p>
-            <p className="text-xs text-dvianeutralvariant-60 max-w-[160px] truncate">
-              {artisan.specialite}
-            </p>
-          </div>
-        </div>
-        <img
-          src={ICONS.artisanCard.moreMenu}
-          alt="Options"
-          className="w-4 h-4 cursor-pointer opacity-60"
-        />
-      </div>
+const MAX_RECOMMENDED = 10;
 
-      <div className="mx-4 h-36 bg-dvianeutral-94 rounded-xl overflow-hidden mb-3">
-        <img
-          src="/dashboard/artisan/placeholder.jpg"
-          alt="Chantier"
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
-      </div>
-
-      <div className="flex items-center px-4 mb-1">
-        <span className="text-dviaprimary-40 text-sm font-medium">
-          ★ {artisan.note}
-        </span>
-        <span className="text-dvianeutralvariant-60 text-xs ml-1">
-          ({artisan.avis})
-        </span>
-        {artisan.verifie && (
-          <div className="ml-auto border border-dvianeutralvariant-50 text-xs px-2 py-1 rounded flex items-center gap-1">
-            <img src={ICONS.artisanCard.verified} alt="vérifié" className="w-3 h-3" />
-            Vérifié
-          </div>
-        )}
-      </div>
-
-      <div className="flex items-center gap-1.5 px-4 mt-3 mb-1">
-        <img src={ICONS.artisanCard.location} alt="loc" className="w-4 h-4" />
-        <span className="text-xs text-dvianeutralvariant-60">
-          {artisan.localisation} ({artisan.distance})
-        </span>
-      </div>
-
-      <div className="flex items-center gap-1.5 px-4 mb-3">
-        <img src={ICONS.artisanCard.clock} alt="dispo" className="w-4 h-4" />
-        <span className="text-xs text-dvianeutralvariant-60">
-          {artisan.disponibilite}
-        </span>
-      </div>
-
-      <div className="flex gap-2 px-4 mb-4 flex-wrap">
-        {artisan.certifications.map((cert) => (
-          <span
-            key={cert}
-            className="border border-dvianeutralvariant-50 text-xs px-2 py-1 rounded"
-          >
-            {cert}
-          </span>
-        ))}
-      </div>
-
-      <div className="flex gap-2 px-4 pb-4 mt-auto">
-        <button
-          onClick={() => onDevis(artisan.id)}
-          className="flex-1 border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded-8px flex items-center justify-center gap-1.5 cursor-pointer hover:bg-dvianeutral-96 transition-colors"
-        >
-          <img src={ICONS.artisanCard.contact} alt="" className="w-4 h-4" />
-          Demander un devis
-        </button>
-        <button
-          onClick={() => onProfil(artisan.id)}
-          className="px-4 bg-dviaprimary-40 text-white text-sm py-2 rounded-8px cursor-pointer hover:shadow-md transition-shadow"
-        >
-          Profil
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function SkeletonRecommandeCard() {
-  return (
-    <div className="animate-pulse border border-dvianeutral-50 rounded-2xl overflow-hidden bg-white flex flex-col">
-      <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-        <div className="w-9 h-9 rounded-full bg-dvianeutral-94 shrink-0" />
-        <div className="flex-1">
-          <div className="h-3 bg-dvianeutral-94 rounded w-28 mb-1.5" />
-          <div className="h-2.5 bg-dvianeutral-94 rounded w-20" />
-        </div>
-      </div>
-      <div className="mx-4 h-36 bg-dvianeutral-94 rounded-xl mb-3" />
-      <div className="px-4 flex gap-2 mb-3">
-        <div className="h-3 bg-dvianeutral-94 rounded w-10" />
-        <div className="h-3 bg-dvianeutral-94 rounded w-8" />
-      </div>
-      <div className="px-4 flex gap-1.5 mb-2">
-        <div className="w-4 h-4 bg-dvianeutral-94 rounded" />
-        <div className="h-3 bg-dvianeutral-94 rounded w-24" />
-      </div>
-      <div className="px-4 flex gap-1.5 mb-4">
-        <div className="w-4 h-4 bg-dvianeutral-94 rounded" />
-        <div className="h-3 bg-dvianeutral-94 rounded w-32" />
-      </div>
-      <div className="flex gap-2 px-4 pb-4">
-        <div className="flex-1 h-9 bg-dvianeutral-94 rounded-8px" />
-        <div className="w-16 h-9 bg-dvianeutral-94 rounded-8px" />
-      </div>
-    </div>
-  );
-}
-
-interface Props {
-  initialArtisans: RecommendedArtisanCard[];
-}
-
-export default function ArtisansRecommandesView({ initialArtisans }: Props) {
+export default function ArtisansRecommandesView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const professionParam = searchParams.get("search") ?? "";
+  const professionLabel = PROFESSION_LABELS[professionParam] ?? professionParam;
+
+  const [artisans, setArtisans] = useState<ArtisanData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterNote, setFilterNote] = useState(false);
   const [filterDistance, setFilterDistance] = useState(false);
   const [filterVerifies, setFilterVerifies] = useState(false);
 
-  let artisansFiltres = [...initialArtisans];
-  if (filterVerifies) {
-    artisansFiltres = artisansFiltres.filter((a) => a.verifie);
-  }
-  if (filterNote) {
-    artisansFiltres = [...artisansFiltres].sort((a, b) => b.note - a.note);
-  }
-  if (filterDistance) {
-    const km = (d: string) => {
-      const m = String(d).match(/(\d+)/);
-      return m ? parseInt(m[1], 10) : 9999;
-    };
-    artisansFiltres = [...artisansFiltres].sort(
-      (a, b) => km(a.distance) - km(b.distance),
-    );
-  }
+  useEffect(() => {
+    const controller = new AbortController();
 
-  const handleProfil = (id: string) => {
-    router.push(`/dashboard/clients/search/${id}`);
+    async function fetchArtisans() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        params.set("pageSize", String(MAX_RECOMMENDED));
+        if (professionParam) params.set("search", professionParam);
+        if (filterVerifies) params.set("verified", "true");
+
+        const res = await fetch(`/api/artisans?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error("Erreur réseau");
+        const data = await res.json();
+
+        const mapped: ArtisanData[] = (data.artisans ?? []).map((a: any) => ({
+          id: a.id,
+          userId: a.userId,
+          image: a.image || "",
+          rating: a.rating ?? 0,
+          reviews: a.reviews ?? 0,
+          verified: a.verified,
+          location: a.location || "",
+          distance: a.distance != null ? `${Math.round(a.distance)}km` : "",
+          availability: a.availability || "",
+          certifications: a.certifications ?? [],
+          companyName: a.companyName || undefined,
+          profession: a.profession || undefined,
+          firstName: a.firstName || undefined,
+          lastName: a.lastName || undefined,
+        }));
+
+        setArtisans(mapped);
+        setLoading(false);
+      } catch (e: any) {
+        if (e.name === "AbortError") return;
+        setLoading(false);
+      }
+    }
+
+    fetchArtisans();
+    return () => controller.abort();
+  }, [professionParam, filterVerifies]);
+
+  const handleContact = async (artisanUserId: string) => {
+    try {
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artisanId: artisanUserId }),
+      });
+      if (!response.ok) throw new Error("Impossible de contacter l'artisan");
+      const conversation = await response.json();
+      router.push(`/dashboard/clients/messages?id=${conversation.id}`);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la mise en relation");
+    }
   };
 
-  const handleDevis = (_id: string) => {
-    router.push("/dashboard/clients/messages");
+  const kmVal = (d: string) => {
+    const m = String(d).match(/(\d+)/);
+    return m ? parseInt(m[1], 10) : 9999;
   };
+
+  let displayed = [...artisans];
+  if (filterNote) displayed = [...displayed].sort((a, b) => b.rating - a.rating);
+  if (filterDistance) displayed = [...displayed].sort((a, b) => kmVal(a.distance) - kmVal(b.distance));
+
+  const chipClass = (active: boolean) =>
+    `border text-sm px-4 py-2 rounded-8px flex flex-row gap-2 justify-center items-center cursor-pointer transition-colors ${
+      active
+        ? "bg-dvianeutral-94 border-dvianeutral-94 text-dvianeutralvariant-50 font-medium"
+        : "border-dvianeutralvariant-30 text-dvianeutralvariant-40"
+    }`;
 
   return (
-    <div className="w-full max-w-[1200px] px-4 md:px-8 pb-10">
+    <div className="min-h-screen p-4 md:p-6 w-full">
+      {/* Retour */}
       <button
         onClick={() => router.back()}
         className="flex items-center gap-2 text-sm text-dvianeutralvariant-40 hover:text-dviaprimary-40 transition-colors mb-6 cursor-pointer"
@@ -195,86 +155,79 @@ export default function ArtisansRecommandesView({ initialArtisans }: Props) {
         Retour à l&apos;analyse
       </button>
 
+      {/* Header */}
       <div className="mb-6">
-        <h1 className="text-headline-large leading-headline-large font-semibold text-dvianeutral-10 mb-1">
+        <h1 className="text-2xl font-bold text-dvianeutral-10 mb-1">
           Artisans recommandés
         </h1>
         <p className="text-sm text-dvianeutralvariant-60">
-          Sélection des 1 à 5 meilleurs profils (note, avis, vérification) — vous
-          pouvez affiner avec les filtres ci-dessous.
+          Sélection des{" "}
+          <span className="font-medium text-dvianeutral-10">
+            {MAX_RECOMMENDED} meilleurs profils
+          </span>{" "}
+          (note, avis, vérification) basée sur votre dernier devis analysé —
+          affinez avec les filtres.
         </p>
       </div>
 
-      <div className="flex gap-2 mb-6 items-center text-dvianeutralvariant-40 overflow-x-auto md:overflow-visible whitespace-nowrap">
-        <div className="flex items-center gap-1.5 mr-2">
-          <img
-            src={ICONS.artisanCard.filter}
-            alt="filtrer"
-            className="w-4 h-4"
-          />
-          <span className="text-sm">Filtrer par :</span>
+      {/* Chips de filtre */}
+      <div className="flex gap-2 mb-6 items-center text-dvianeutralvariant-30 overflow-x-auto md:overflow-visible whitespace-nowrap w-full">
+        <div className="flex flex-row gap-2 justify-center items-center mr-4 md:mr-0">
+          <img src={ICONS.artisanCard.filter} alt="filtrer" className="w-4 h-4" />
+          <span>Filtrer par :</span>
         </div>
 
-        <button
-          onClick={() => setFilterNote((v) => !v)}
-          className={`flex items-center gap-1.5 border text-sm px-4 py-2 rounded-8px cursor-pointer transition-colors ${
-            filterNote
-              ? "bg-dviaprimary-40 text-white border-dviaprimary-40"
-              : "border-dvianeutralvariant-30 hover:border-dviaprimary-40"
-          }`}
-        >
+        <button className={chipClass(filterNote)} onClick={() => setFilterNote((v) => !v)}>
+          {filterNote && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
           <img src={ICONS.artisanCard.star} alt="note" className="w-4 h-4" />
           Note
         </button>
 
-        <button
-          onClick={() => setFilterDistance((v) => !v)}
-          className={`flex items-center gap-1.5 border text-sm px-4 py-2 rounded-8px cursor-pointer transition-colors ${
-            filterDistance
-              ? "bg-dviaprimary-40 text-white border-dviaprimary-40"
-              : "border-dvianeutralvariant-30 hover:border-dviaprimary-40"
-          }`}
-        >
-          <img
-            src={ICONS.artisanCard.location}
-            alt="distance"
-            className="w-4 h-4"
-          />
+        <button className={chipClass(filterDistance)} onClick={() => setFilterDistance((v) => !v)}>
+          {filterDistance && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
+          <img src={ICONS.artisanCard.location} alt="distance" className="w-4 h-4" />
           Distance
         </button>
 
-        <button
-          onClick={() => setFilterVerifies((v) => !v)}
-          className={`flex items-center gap-1.5 border text-sm px-4 py-2 rounded-8px cursor-pointer transition-colors ${
-            filterVerifies
-              ? "bg-dviaprimary-40 text-white border-dviaprimary-40"
-              : "border-dvianeutralvariant-30 hover:border-dviaprimary-40"
-          }`}
-        >
-          <img
-            src={ICONS.artisanCard.verified}
-            alt="vérifiés"
-            className="w-4 h-4"
-          />
+        <button className={chipClass(filterVerifies)} onClick={() => setFilterVerifies((v) => !v)}>
+          {filterVerifies && (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
+          <img src={ICONS.artisanCard.verified} alt="vérifiés" className="w-4 h-4" />
           Artisans vérifiés uniquement
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-        {artisansFiltres.map((artisan) => (
-          <ArtisanRecommandeCard
-            key={artisan.id}
-            artisan={artisan}
-            onProfil={handleProfil}
-            onDevis={handleDevis}
-          />
-        ))}
-        {artisansFiltres.length === 0 && (
-          <>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonRecommandeCard key={i} />
-            ))}
-          </>
+      {/* Grille */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {loading &&
+          Array.from({ length: MAX_RECOMMENDED }).map((_, i) => (
+            <SkeletonArtisanCard key={i} />
+          ))}
+
+        {!loading &&
+          displayed.map((artisan) => (
+            <ArtisanCard
+              key={artisan.id}
+              {...artisan}
+              onContactClick={() => handleContact(artisan.userId)}
+            />
+          ))}
+
+        {!loading && displayed.length === 0 && (
+          <p className="col-span-full text-sm text-dvianeutralvariant-40 text-center py-12">
+            Aucun artisan recommandé pour le moment.
+          </p>
         )}
       </div>
     </div>

@@ -72,5 +72,6 @@ export const ICONS = {
     filter: "/icons/dashboard/artisan-card/filter.svg",
     star: "/icons/dashboard/artisan-card/star.svg",
     select: "/icons/dashboard/artisan-card/select.svg",
+    userWhite: "/icons/dashboard/artisan-card/user-white.svg",
   },
 } as const;

@@ -514,6 +514,7 @@ function DevisAnalyse() {
                 analysis={analysis}
                 resultsRef={resultsRef}
                 handleShareResults={handleShareResults}
+                variant="modal"
               />
             </div>
           )}
