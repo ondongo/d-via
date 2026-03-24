@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import ConversationList from "@/components/molecules/dashboard/messages/ConversationList";
 import ConversationPanel from "@/components/molecules/dashboard/messages/ConversationPanel";
 import EmptyConversation from "@/components/molecules/dashboard/messages/EmptyConversation";
 import { ConversationFull, ConversationSummary } from "@/types/conversation";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function MessagesPage() {
+function MessagesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialId = searchParams.get("id");
@@ -213,5 +213,13 @@ export default function MessagesPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="h-[calc(100dvh-80px)] w-full" />}>
+      <MessagesPageContent />
+    </Suspense>
   );
 }
