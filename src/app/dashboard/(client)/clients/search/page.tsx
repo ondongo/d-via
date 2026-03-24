@@ -2,8 +2,10 @@
 
 import { ICONS } from "@/constants/icons";
 import { ArtisanCard } from "@/components/molecules/dashboard/ArtisanCard";
-import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
+import InputAddress from "@/components/molecules/dashboard/InputAddress";
 import React, { useState, useEffect } from "react";
+import { SkeletonArtisanCard } from "@/components/molecules/dashboard/SkeletonArtisanCard";
+import { useRouter } from "next/navigation";
 
 function page() {
   // États pour les filtres
@@ -32,6 +34,7 @@ function page() {
     certifications: string[] | null;
     profession: string | null;
     category: string | null;
+    userId: string; // Add this to interface
   }
 
   const [artisans, setArtisans] = useState<ArtisanDB[]>([]);
@@ -39,6 +42,27 @@ function page() {
   const [error, setError] = useState<string | null>(null);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [categories, setCategories] = useState<string[]>(["Tous les métiers"]);
+  const router = useRouter();
+
+  const handleContact = async (artisanUserId: string) => {
+    try {
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ artisanId: artisanUserId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Impossible de contacter l'artisan");
+      }
+
+      const conversation = await response.json();
+      router.push(`/dashboard/clients/messages?id=${conversation.id}`);
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la mise en relation");
+    }
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
@@ -81,6 +105,7 @@ function page() {
         });
         if (!res.ok) throw new Error("Erreur réseau");
         const data = await res.json();
+        // Ensure userId exists
         setArtisans(data.artisans || []);
         setTotalCount(data.totalCount || 0);
         setHasLoadedOnce(true);
@@ -109,6 +134,7 @@ function page() {
 
   // Application des filtres côté client retirée (déjà côté serveur)
   const filteredArtisans = artisans.map((a) => ({
+    userId: a.userId,
     image: a.image || "",
     rating: a.rating || 0,
     reviews: a.reviews || 0,
@@ -309,7 +335,7 @@ function page() {
             <ArtisanCard
               key={index}
               {...artisan}
-              onContactClick={() => alert("Contact " + artisan.location)}
+              onContactClick={() => handleContact(artisan.userId)}
             />
           ))}
         {!loading && !error && hasLoadedOnce && filteredArtisans.length === 0 && (

@@ -88,7 +88,10 @@ export const ArtisanCard = ({
       </div>
 
       <div className="flex flex-row gap-2">
-        <button className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4 cursor-pointer">
+        <button
+          onClick={onContactClick}
+          className="w-full border border-dvianeutral-50 text-dviaprimary-40 text-sm py-2 rounded flex flex-row gap-2 justify-center items-center px-4 cursor-pointer"
+        >
           <img
             src={ICONS.artisanCard.contact}
             alt="loc"

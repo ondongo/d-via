@@ -3,24 +3,21 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ICONS } from "@/constants/icons";
-import type { Conversation, Message } from "@/components/molecules/dashboard/messages/conversations.mock";
+import { ConversationFull } from "@/types/conversation";
 import AlertMessage from "@/components/molecules/dashboard/messages/AlertMessage";
 import QuoteCard from "@/components/molecules/dashboard/messages/QuoteCard";
 import { Modal } from "@/components/atoms/ui/modals/CustomModal";
 
-export default function ConversationPanelArtisan({ conv }: { conv: Conversation }) {
-  type QuoteStatus = "Pending" | "Accepted" | "Refused";
+export default function ConversationPanelArtisan({ conv, onSendMessage }: { conv: ConversationFull; onSendMessage: (text: string, type?: "TEXT" | "QUOTE", payload?: any) => void }) {
   const [inputValue, setInputValue] = useState("");
-  const [messages, setMessages] = useState<Message[]>(conv.messages);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [quoteRef, setQuoteRef] = useState("");
   const [quoteTitle, setQuoteTitle] = useState("Proposition de devis");
   const [quoteAmount, setQuoteAmount] = useState("");
-  const [quoteStatus, setQuoteStatus] = useState<QuoteStatus>("Pending");
   const [focusedField, setFocusedField] = useState<string | null>(null);
 
   useEffect(() => {
-    setMessages(conv.messages);
+    // setMessages(conv.messages);
   }, [conv.id, conv.messages]);
 
   const openQuoteModal = () => {
@@ -31,99 +28,94 @@ export default function ConversationPanelArtisan({ conv }: { conv: Conversation 
     );
     setQuoteTitle("Proposition de devis");
     setQuoteAmount("");
-    setQuoteStatus("Pending");
     setQuoteModalOpen(true);
   };
 
-  const submitQuote = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const normalizeAmount = (value: string) => {
+      const trimmed = value.trim();
+      if (!trimmed) return "";
+      let normalized = trimmed
+        .replace(/\s*€\s*t{1,2}c{1,2}\s*$/i, "")
+        .replace(/\s*€\s*$/i, "")
+        .trim();
+
+      return `${normalized}€ TTC`;
+    };
+
+  const handeSubmitQuote = () => {
     const formattedAmount = normalizeAmount(quoteAmount);
     if (!quoteRef.trim() || !quoteTitle.trim() || !formattedAmount) return;
 
-    const stamp = new Date();
-    const time = `${stamp.getHours()}h${String(stamp.getMinutes()).padStart(2, "0")}`;
-    const next: Message = {
-      id: `q-${Date.now()}`,
-      from: "artisan",
-      content: {
-        type: "quote",
+    onSendMessage("Proposition de devis", "QUOTE", {
         ref: quoteRef.trim(),
         title: quoteTitle.trim(),
         amount: formattedAmount,
-        status: quoteStatus as "Pending" | "Accepted" | "Refused",
-      },
-      time,
-    };
-    setMessages((prev) => [...prev, next]);
+        status: "Pending",
+    });
     setQuoteModalOpen(false);
   };
 
-  const normalizeAmount = (value: string) => {
-    const trimmed = value.trim();
-    if (!trimmed) return "";
-    const normalized = trimmed
-      .replace(/\s*€\s*t{1,2}c{1,2}\s*$/i, "")
-      .replace(/\s*€\s*$/i, "")
-      .trim();
-    return `${normalized}€ TTC`;
+  const handleSendText = () => {
+    if (!inputValue.trim()) return;
+    onSendMessage(inputValue, "TEXT");
+    setInputValue("");
   };
+
+  const name = conv.client?.name ?? "Client";
+  const initial = name.charAt(0).toUpperCase();
 
   return (
     <div className="grid min-h-0 w-full flex-1 grid-rows-[auto_1fr_auto]">
       <div className="flex shrink-0 items-center gap-3 border-b border-dvianeutral-50 px-5 py-3">
-        <div className="relative shrink-0">
+        <div className="relative shrink-0 w-16 h-16">
           <div className="w-16 h-16 rounded-full bg-dviaprimary-90 flex items-center justify-center text-dviaprimary-10 font-semibold text-sm">
-            {conv.initial}
+            {initial}
           </div>
-          {conv.verified && (
-            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-[#00B983] rounded-full border border-white flex items-center justify-center">
-              <Image src={ICONS.badgeCertified} alt="certified" width={12} height={12} />
-            </div>
-          )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-dvianeutral-10 leading-tight">{conv.name}</p>
-          <p className="text-xs text-dvianeutralvariant-60">{conv.company}</p>
+          <p className="text-sm font-semibold text-dvianeutral-10 leading-tight">{name}</p>
         </div>
       </div>
 
-      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4">
-        {messages.map((msg) => {
-          if (msg.content.type === "alert") {
-            return <AlertMessage key={msg.id} text={msg.content.text} />;
+      <div className="min-h-0 overflow-y-auto overscroll-contain flex flex-col gap-4 py-4">
+        {conv.messages.map((msg) => {
+          if (msg.contentType === "ALERT") {
+            return <AlertMessage key={msg.id} text={msg.text || ""} />;
           }
 
-          if (msg.content.type === "text") {
-            const isClient = msg.from === "client";
+          if (msg.contentType === "TEXT") {
+            const isClient = msg.from === "CLIENT";
+            const time = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             return (
               <div key={msg.id} className={`flex flex-col px-5 ${isClient ? "items-start" : "items-end"} gap-1`}>
                 <div
                   className={`max-w-[72%] rounded-xl px-4 py-3 text-sm leading-relaxed ${
-                    isClient
-                      ? "bg-dvianeutral-96 border border-dvianeutral-50 text-dvianeutral-10 rounded-tl-sm"
-                      : "bg-dviaprimary-40 text-white rounded-tr-sm"
+                    !isClient // Artisan (me) is right, Client is left
+                      ? "bg-dviaprimary-40 text-white rounded-tr-sm"
+                      : "bg-dvianeutral-96 border border-dvianeutral-50 text-dvianeutral-10 rounded-tl-sm"
                   }`}
                 >
-                  {msg.content.text}
+                  {msg.text}
                 </div>
-                {msg.time && <span className="text-[10px] text-dvianeutralvariant-60 px-1">{msg.time}</span>}
+                <span className="text-[10px] text-dvianeutralvariant-60 px-1">{time}</span>
               </div>
             );
           }
 
-          if (msg.content.type === "quote") {
-            return (
-              <div key={msg.id} className="flex flex-col items-end gap-1 px-5">
-                <QuoteCard
-                  quoteRef={msg.content.ref}
-                  title={msg.content.title}
-                  amount={msg.content.amount}
-                  status={msg.content.status}
-                  canSign={false}
-                />
-                {msg.time && <span className="text-[10px] text-dvianeutralvariant-60 px-1">{msg.time}</span>}
-              </div>
-            );
+          if (msg.contentType === "QUOTE") {
+             const payload = msg.payload as any;
+             const time = new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+             return (
+               <div key={msg.id} className="flex flex-col items-end gap-1 px-5">
+                 <QuoteCard
+                   quoteRef={payload?.ref}
+                   title={payload?.title}
+                   amount={payload?.amount}
+                   status={payload?.status}
+                 />
+                 <span className="text-[10px] text-dvianeutralvariant-60 px-1">{time}</span>
+               </div>
+             )
           }
 
           return null;
@@ -140,13 +132,19 @@ export default function ConversationPanelArtisan({ conv }: { conv: Conversation 
         </button>
         <input
           type="text"
-          placeholder="Écrire un message..."
+          placeholder="Répondre au client..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSendText();
+          }}
           className="flex-1 text-sm text-dvianeutralvariant-30 outline-none placeholder:text-dvianeutralvariant-60 bg-transparent border border-dvianeutral-50 rounded-8px px-4 py-2"
         />
-        <button className="cursor-pointer transition-colors shrink-0 text-dviaprimary-40">
-          <Image src={ICONS.sendPrimary} alt="send" width={28} height={28} />
+        <button
+          className="cursor-pointer transition-colors shrink-0 text-dviaprimary-40"
+          onClick={handleSendText}
+        >
+            <Image src={ICONS.sendPrimary} alt="send" width={28} height={28}/>
         </button>
       </div>
 
@@ -156,7 +154,7 @@ export default function ConversationPanelArtisan({ conv }: { conv: Conversation 
         title="Soumettre un devis"
         className="w-[92vw] max-w-[560px]"
       >
-        <form onSubmit={submitQuote} className="w-full px-4 md:px-6 pb-2 grid gap-4">
+        <form onSubmit={(e) => { e.preventDefault(); handeSubmitQuote(); }} className="w-full px-4 md:px-6 pb-2 grid gap-4">
           <div className="relative">
             <input
               id="artisan-quote-ref"
@@ -235,8 +233,8 @@ export default function ConversationPanelArtisan({ conv }: { conv: Conversation 
           <div className="relative">
             <select
               id="artisan-quote-status"
-              value={quoteStatus}
-              onChange={(e) => setQuoteStatus(e.target.value as QuoteStatus)}
+              value={"Pending"} // Controlled but static?
+              onChange={() => {}} // No-op
               onFocus={() => setFocusedField("quoteStatus")}
               onBlur={() => setFocusedField(null)}
               className="w-full rounded-md border-1 border-dvianeutral-50 bg-transparent px-4 py-3 focus:border-dvianeutral-60 focus:outline-none"
@@ -257,17 +255,16 @@ export default function ConversationPanelArtisan({ conv }: { conv: Conversation 
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 mt-6">
             <button
-              type="button"
               onClick={() => setQuoteModalOpen(false)}
-              className="px-4 py-2 rounded-8px border border-dvianeutral-50 text-sm text-dvianeutral-20 hover:bg-dvianeutral-96 transition-colors cursor-pointer"
+              className="px-4 py-2 text-sm text-dvianeutralvariant-40 hover:bg-dvianeutral-94 rounded-8px transition-colors bg-white hover:text-dviaprimary-40 border border-dvianeutral-50"
             >
               Annuler
             </button>
             <button
-              type="submit"
-              className="px-4 py-2 rounded-8px bg-dviaprimary-40 text-white text-sm hover:shadow-md transition-shadow cursor-pointer"
+              onClick={handeSubmitQuote}
+              className="px-4 py-2 text-sm bg-dviaprimary-40 text-white rounded-8px hover:bg-dviaprimary-50 transition-colors"
             >
               Envoyer le devis
             </button>

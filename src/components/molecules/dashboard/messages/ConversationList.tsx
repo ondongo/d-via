@@ -7,30 +7,57 @@ import {
   STATUS_BADGE,
   type ConversationFilter,
 } from "./conversations.mock";
+import { ConversationSummary } from "@/types/conversation";
 import Image from "next/image";
 
 interface ConversationListProps {
+  conversations: ConversationSummary[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  isLoading?: boolean;
+  viewerRole?: "CLIENT" | "ARTISAN";
 }
 
 export default function ConversationList({
+  conversations,
   selectedId,
   onSelect,
+  isLoading,
+  viewerRole = "CLIENT",
 }: ConversationListProps) {
   const [filter, setFilter] = useState<ConversationFilter>("all");
   const [search, setSearch] = useState("");
 
-  const filtered = CONVERSATIONS.filter((c) => {
-    if (filter === "unread" && !c.unread) return false;
-    if (filter === "quote_in_progress" && c.status !== "in_progress")
-      return false;
+  if (isLoading) {
+    return (
+        <div className="flex h-full items-center justify-center text-dvianeutralvariant-30 text-sm">Chargement...</div>
+    )
+  }
+
+  const filtered = conversations.filter((c) => {
+    // Determine unread status for current user (Client in this context?)
+    // Actually we pass 'conversations' which has isUnreadByClient.
+    // Assuming this component is used by Client, we check isUnreadByClient.
+    const isUnread = viewerRole === "CLIENT" ? c.isUnreadByClient : c.isUnreadByArtisan;
+
+    // Status filter
+    // Quote in progress -> pending/ongoing
+    const status = c.status;
+
+    if (filter === "unread" && !isUnread) return false;
+    // ... filtering logic ...
+
+    // Search
+    const artisanName = c.artisan?.name ?? "";
+    const company = c.artisan?.artisan?.companyName ?? "";
+
     if (
       search &&
-      !c.name.toLowerCase().includes(search.toLowerCase()) &&
-      !c.company.toLowerCase().includes(search.toLowerCase())
+      !artisanName.toLowerCase().includes(search.toLowerCase()) &&
+      !company.toLowerCase().includes(search.toLowerCase())
     )
       return false;
+
     return true;
   });
 
@@ -116,7 +143,38 @@ export default function ConversationList({
         ) : (
           filtered.map((conv) => {
             const isSelected = conv.id === selectedId;
-            const statusBadge = STATUS_BADGE[conv.status];
+            // Map data from ConversationSummary
+            // If viewer is Artisan, show Client info. If Client, show Artisan info.
+            let displayName = "Inconnu";
+            let displayCompany = "";
+            let displayImage = ""; // TODO use image
+            let verified = false;
+            let initial = "?";
+
+            if (viewerRole === "CLIENT") {
+                const artisan = conv.artisan;
+                displayName = artisan?.name || "Artisan inconnu";
+                displayCompany = artisan?.artisan?.companyName || "";
+                verified = artisan?.artisan?.verified || false;
+            } else {
+                const client = conv.client;
+                displayName = client?.name || "Client inconnu";
+                displayCompany = "Particulier"; // or nothing
+                verified = false; // Clients usually not verified like artisans
+            }
+            initial = displayName.charAt(0).toUpperCase();
+
+            const lastMsg = conv.messages?.[0];
+            let lastMessageText = lastMsg?.text || "";
+            if (!lastMessageText && lastMsg?.contentType === 'ALERT') lastMessageText = "Message système";
+            if (!lastMessageText && lastMsg?.contentType === 'QUOTE') lastMessageText = "Devis reçu";
+
+            const time = new Date(conv.updatedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const isUnread = viewerRole === "CLIENT" ? conv.isUnreadByClient : conv.isUnreadByArtisan;
+
+            const statusKey = (conv.status?.toLowerCase() || 'pending') as keyof typeof STATUS_BADGE;
+            const statusBadge = STATUS_BADGE[statusKey] || STATUS_BADGE.pending;
+
             return (
               <button
                 key={conv.id}
@@ -128,17 +186,16 @@ export default function ConversationList({
                 }`}
               >
                 {/* Avatar */}
-                <div className="relative shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-dviaprimary-90 flex items-center justify-center text-dviaprimary-10 font-semibold text-sm">
-                    {conv.initial}
+                <div className="relative shrink-0 w-10 h-10"> {/* Adjusted size */}
+                  <div className="w-10 h-10 rounded-full bg-dviaprimary-90 flex items-center justify-center text-dviaprimary-10 font-semibold text-sm">
+                    {initial}
                   </div>
-                  {conv.verified && (
-                    <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-[#00B983] rounded-full border border-white flex items-center justify-center">
-                      <Image
-                        src={ICONS.badgeCertified}
+                  {verified && viewerRole === "CLIENT" && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#00B983] rounded-full border border-white flex items-center justify-center">
+                      <img
+                        src="/icons/badge-certified.svg" // Use absolute path or import
                         alt="certified"
-                        width={12}
-                        height={12}
+                        className="w-2.5 h-2.5"
                       />
                     </div>
                   )}
@@ -149,33 +206,33 @@ export default function ConversationList({
                   <div className="flex items-baseline justify-between gap-1 mb-0.5">
                     <p
                       className={`text-sm font-semibold truncate ${
-                        conv.unread
+                        isUnread
                           ? "text-dvianeutral-10"
                           : "text-dvianeutralvariant-40"
                       }`}
                     >
-                      {conv.name}
+                      {displayName}
                     </p>
                     <span
                       className={`text-[10px] shrink-0 ${
-                        conv.unread
+                        isUnread
                           ? "text-dviaprimary-40 font-semibold"
                           : "text-dvianeutralvariant-60"
                       }`}
                     >
-                      {conv.time}
+                      {time}
                     </span>
                   </div>
                   <p className="text-xs text-dvianeutralvariant-60 truncate mb-1">
-                    {conv.company}
+                    {displayCompany}
                   </p>
-                  <div className="flex items-start flex-col gap-2">
-                    <p className="text-[11px] text-dvianeutralvariant-60 font-medium truncate flex-1">
-                      {conv.lastMessage}
+                  <div className="flex items-center gap-2 justify-between">
+                    <p className={`text-[11px] font-medium truncate flex-1 ${isUnread ? "text-dvianeutral-10" : "text-dvianeutralvariant-60"}`}>
+                      {lastMessageText}
                     </p>
-                    {conv.status === "quote_signed" && (
+                    {conv.status.toLowerCase() === "quote_signed" && ( // Example conditional badge
                       <span
-                        className={`shrink-0 text-[9px] font-medium px-1.5 py-1 rounded border ${statusBadge.color}`}
+                        className={`shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded border ${statusBadge.color}`}
                       >
                         {statusBadge.label}
                       </span>
