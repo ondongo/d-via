@@ -39,7 +39,7 @@ export default function AnalysisHistorySidebar({ history, onRemove, isLoading }:
   );
 
   return (
-    <aside className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-dvianeutral-50 min-h-[calc(100vh-120px)] overflow-y-auto">
+    <aside className="hidden md:flex flex-col w-[240px] shrink-0 border-r border-dvianeutral-50 sticky top-0 h-[calc(100dvh-80px)] overflow-y-auto">
       <div className="sticky top-0 z-10 px-4 pt-5 pb-3">
         <p className="text-base font-bold text-dvianeutral-10 mb-4">
           Historique

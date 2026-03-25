@@ -41,6 +41,7 @@ export const ICONS = {
   chartPlus: "/icons/chart-plus.svg",
   starSparkle: "/icons/star-sparkle.svg",
   rapid: "/icons/rapid.svg",
+  Classic: "/icons/Classic.svg",
   selectionZone: "/icons/selection-zone.svg",
   circleBrown: "/icons/circle-brown.svg",
 
