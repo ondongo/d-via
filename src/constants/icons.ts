@@ -40,7 +40,7 @@ export const ICONS = {
   userAvatar: "/icons/user-avatar.svg",
   chartPlus: "/icons/chart-plus.svg",
   starSparkle: "/icons/star-sparkle.svg",
-  rapid: "/icons/rapid.svg",
+  rapid: "/icons/speed.svg",
   Classic: "/icons/Classic.svg",
   selectionZone: "/icons/selection-zone.svg",
   circleBrown: "/icons/circle-brown.svg",
