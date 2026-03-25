@@ -1,5 +1,6 @@
 import { createHash } from "crypto";
 import type { NextRequest } from "next/server";
+import { ipAddress } from "@vercel/functions";
 import { prisma } from "@/configs/prisma/prisma";
 import type { AnalysisGrade, EntitlementResponse } from "@/types/analysis";
 
@@ -26,7 +27,7 @@ export function getIpHashFromHeaders(headers: Headers): string {
 }
 
 export function getClientIp(req: NextRequest): string {
-  return clientIpFromHeaders(req.headers);
+  return ipAddress(req) ?? clientIpFromHeaders(req.headers);
 }
 
 function reliabilityToGrade(score: number): AnalysisGrade {
