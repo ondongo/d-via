@@ -44,7 +44,7 @@ export const ArtisanCard = ({
 
   return (
     <div
-      className="border border-dvianeutral-50 rounded-2xl px-4 w-full md:max-w-xs min-h-[450px] cursor-pointer hover:shadow-md transition-shadow"
+      className="border border-dvianeutral-50 rounded-2xl px-4 pb-4 w-full md:min-h-[450px] cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => router.push(`/dashboard/clients/search/${id}`)}
     >
       <div className="flex items-center justify-between py-4 rounded-xl">

@@ -155,14 +155,14 @@ function page() {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
-    <div className="min-h-screen p-4  md:p-6 w-full">
-      <div className="flex w-full items-center mb-6 gap-4">
-        <div className="w-full max-w-[350px]  border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50  bg-dvianeutral-94">
-          <img src={ICONS.artisanCard.search} alt="loc" className="w-4 h-4" />
+    <div className="min-h-screen p-4 md:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="flex w-full items-center mb-6 gap-2 md:gap-4">
+        <div className="flex-1 min-w-0 border px-4 py-3 flex items-center gap-2 rounded-8px border-dvianeutral-50 bg-dvianeutral-94">
+          <img src={ICONS.artisanCard.search} alt="loc" className="w-4 h-4 shrink-0" />
           <input
             type="text"
             placeholder="Rechercher par nom ou métier..."
-            className="flex-1 text-sm  text-dvianeutralvariant-30 outline-none placeholder:dvianeutralvariant-30 placeholder:text-sm placeholder:font-normal"
+            className="flex-1 min-w-0 text-sm text-dvianeutralvariant-30 outline-none placeholder:dvianeutralvariant-30 placeholder:text-sm placeholder:font-normal"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -174,7 +174,7 @@ function page() {
           </p>
           <div className="relative w-fit">
             <select
-              className="appearance-none ml-4 p-3 pr-10 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94   focus:outline-none focus:border-dvianeutral-40 text-dvianeutralvariant-30 text-sm font-normal cursor-pointer"
+              className="appearance-none ml-4 p-3 pr-10 px-4 rounded-8px border border-dvianeutral-50 bg-dvianeutral-94 focus:outline-none focus:border-dvianeutral-40 text-dvianeutralvariant-30 text-sm font-normal cursor-pointer"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -191,7 +191,7 @@ function page() {
         </div>
 
         <button
-          className="border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px cursor-pointer"
+          className="shrink-0 border border-dvianeutral-50 bg-dvianeutral-94 text-sm px-4 py-3 rounded-8px cursor-pointer"
           onClick={() => setShowAdvanced((v) => !v)}
           aria-expanded={showAdvanced}
           aria-controls="advanced-filters"
@@ -350,7 +350,7 @@ function page() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {loading &&
           Array.from({ length: pageSize }).map((_, i) => (
             <SkeletonArtisanCard key={i} />

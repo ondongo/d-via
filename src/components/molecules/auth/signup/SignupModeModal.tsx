@@ -65,7 +65,7 @@ export default function SignupModeModal({
                     Inscription rapide
                   </h3>
                   <div className="border-1 rounded-12px p-4 flex items-center justify-center gap-2 max-w-[145px] max-h-[32px]">
-                    <img src={ICONS.starSparkle} alt="Recommandé" />
+                    <img src={ICONS.starSparkle} alt="Recommandé" className="w-4 h-4" />
                     <p className="text-dvianeutralvariant-50 text-sm">
                       Recommandé
                     </p>
@@ -77,7 +77,7 @@ export default function SignupModeModal({
                 </p>
               </div>
 
-              <img src={ICONS.rapid} alt="Inscription rapide" />
+              <img src={ICONS.rapid} alt="Inscription rapide"/>
             </div>
           </div>
 
@@ -110,7 +110,7 @@ export default function SignupModeModal({
                 </p>
               </div>
 
-              <img src={ICONS.draft} alt="Inscription classique" />
+              <img src={ICONS.Classic} alt="Inscription classique"/>
             </div>
           </div>
         </div>

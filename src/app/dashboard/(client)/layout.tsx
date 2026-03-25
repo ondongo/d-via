@@ -12,11 +12,10 @@ export default function DashboardLayout({
       <div className="hidden md:block">
         <NavigationRail />
       </div>
-      <div className="flex min-h-0 flex-1 flex-col md:ml-[90px]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col md:ml-[90px]">
         <HeaderDashboard />
-        {/* Zone scrollable / pleine hauteur : min-h-0 indispensable pour que h-full / flex-1 des pages enfants fonctionne */}
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto transition-all duration-300">
-          <div className="flex w-full flex-1 flex-col">{children}</div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden transition-all duration-300">
+          <div className="flex w-full flex-1 flex-col pb-20 md:pb-0">{children}</div>
         </div>
 
         <div className="block md:hidden">

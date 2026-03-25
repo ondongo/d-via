@@ -135,7 +135,7 @@ export default function ArtisansRecommandesView() {
     }`;
 
   return (
-    <div className="min-h-screen p-4 md:p-6 w-full">
+    <div className="min-h-screen p-4 md:p-6 w-full max-w-full overflow-x-hidden">
       {/* Retour */}
       <button
         onClick={() => router.back()}
@@ -216,7 +216,7 @@ export default function ArtisansRecommandesView() {
       </div>
 
       {/* Grille */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {loading &&
           Array.from({ length: MAX_RECOMMENDED }).map((_, i) => (
             <SkeletonArtisanCard key={i} />

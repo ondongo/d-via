@@ -463,7 +463,7 @@ ${analysis.conclusion}
     !isLoading;
 
   return (
-    <div className="flex w-full min-h-[calc(100vh-120px)]">
+    <div className="flex w-full min-h-[calc(100dvh-80px)]">
       <RgpdModal open={rgpdOpen} onClose={() => setRgpdOpen(false)} />
 
       {/* Sidebar historique — desktop uniquement */}
